@@ -1,0 +1,31 @@
+{
+  "name": "pdf-annotate.js",
+  "version": "0.0.0",
+  "description": "Annotation layer for pdf.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "./node_modules/.bin/webpack-dev-server --inline --config ./webpack.example.js --content-base ./"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mzabriskie/pdf-annotate.js.git"
+  },
+  "keywords": [
+    "pdf",
+    "annotation"
+  ],
+  "author": "Matt Zabriskie",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/mzabriskie/pdf-annotate.js/issues"
+  },
+  "homepage": "https://github.com/mzabriskie/pdf-annotate.js#readme",
+  "devDependencies": {
+    "babel-core": "5.8.22",
+    "babel-loader": "5.3.2",
+    "pdfjs-dist": "1.1.399",
+    "webpack": "1.11.0",
+    "webpack-dev-server": "1.10.1"
+  }
+}
