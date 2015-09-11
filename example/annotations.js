@@ -6,6 +6,57 @@ export default [
     uuid: uuid(),
     page: 1,
     owner: 'admin',
+    type: 'highlight',
+    color: 'FFFF00',
+    rectangles: [{
+      x: 250,
+      y: 500,
+      width: 235,
+      height: 50
+    }]
+  },
+  {
+    class: 'Annotation',
+    uuid: uuid(),
+    page: 1,
+    owner: 'admin',
+    type: 'point',
+    x: 500,
+    y: 100
+  },
+  {
+    class: 'Annotation',
+    uuid: uuid(),
+    page: 1,
+    owner: 'admin',
+    type: 'textbox',
+    x: 450,
+    y: 300,
+    width: 50,
+    height: 100,
+    size: 20,
+    color: '000000',
+    content: 'This is free text'
+  },
+  {
+    class: 'Annotation',
+    uuid: uuid(),
+    page: 1,
+    owner: 'admin',
+    type: 'strikeout',
+    color: 'FF0000',
+    rectangles: [{
+      x: 250,
+      y: 520,
+      width: 235,
+      height: 2
+    }],
+  },
+  {
+    class: 'Annotation',
+    uuid: uuid(),
+    page: 1,
+    owner: 'admin',
     type: 'drawing',
     color: '0000ff',
     lines: [[48, 55], [48, 57], [48, 58], [48, 58], [49, 60], [50, 61], [51, 64], [53, 67], [56, 72], [58, 76], [61, 82], [65, 90], [67, 95], [71, 102], [75, 110], [77, 116], [80, 122], [83, 127], [85, 132], [86, 137], [89, 142], [92, 147], [95, 152], [98, 158], [101, 164], [105, 170], [108, 175], [111, 181], [115, 185], [118, 191], [120, 194], [121, 198], [123, 201], [124, 204], [125, 207], [125, 208], [126, 210], [127, 210], [127, 212], [128, 212], [128, 213]]
