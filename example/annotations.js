@@ -35,6 +35,7 @@ export default [
   }),
   
   createLabel(250, 'Area:'),
+  createText(125, 250, 'Draw a box around me'),
   create('area', {
     x: 125,
     y: 225,
