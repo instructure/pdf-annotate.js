@@ -3,9 +3,17 @@
 <head>
   <meta charset="utf-8"/>
   <title>PDFJSAnnotate</title>
+  <style type="text/css">
+    canvas, svg {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+    }
+  </style>
 </head>
 <body>
 <canvas id="canvas" style="border: 1px solid black;"></canvas>
+<svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
 <script src="bundle.js"></script>
 </body>
 </html>

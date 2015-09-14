@@ -9,8 +9,8 @@ let PDFJSAnnotate = {
     return this.StoreAdapter.getAnnotations(documentId, pageNumber);
   },
 
-  render(viewport, annotations) {
-    let view = new AnnotateView(viewport, annotations);
+  render(svg, viewport, annotations) {
+    let view = new AnnotateView(svg, viewport, annotations);
     view.render();
   }
 };

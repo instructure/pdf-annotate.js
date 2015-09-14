@@ -6,13 +6,14 @@ import renderTextbox from './render/renderTextbox';
 import renderRectangle from './render/renderRectangle';
 
 export default class AnnotateView {
-  constructor(viewport, annotations) {
+  constructor(svg, viewport, annotations) {
+    this.svg = svg;
     this.viewport = viewport;
     this.annotations = annotations;
   }
 
   render() {
-    let svg = renderSVG(this.viewport);
+    let svg = this.svg;
 
     this.annotations.forEach((a) => {
       let el;
