@@ -17,23 +17,19 @@ export default class AnnotateView {
     this.annotations.forEach((a) => {
       let el;
       switch (a.type) {
+        case 'area':
         case 'highlight':
+        case 'strikeout':
           el = renderRectangle(a);
           break;
         case 'point':
           el = renderPoint(a);
-          break;
-        case 'area':
-          el = renderRectangle(a);
           break;
         case 'textbox':
           el = renderTextbox(a);
           break;
         case 'drawing':
           el = renderDrawing(a);
-          break;
-        case 'strikeout':
-          el = renderRectangle(a);
           break;
       }
 
