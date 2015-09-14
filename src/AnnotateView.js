@@ -1,5 +1,4 @@
 import arrayFrom from './utils/arrayFrom';
-import renderSVG from './render/renderSVG';
 import renderPoint from './render/renderPoint';
 import renderDrawing from './render/renderDrawing';
 import renderTextbox from './render/renderTextbox';
