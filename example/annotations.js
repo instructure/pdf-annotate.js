@@ -20,6 +20,17 @@ export default [
     uuid: uuid(),
     page: 1,
     owner: 'admin',
+    type: 'area',
+    x: 250,
+    y: 500,
+    width: 235,
+    height: 50
+  },
+  {
+    class: 'Annotation',
+    uuid: uuid(),
+    page: 1,
+    owner: 'admin',
     type: 'point',
     x: 500,
     y: 100

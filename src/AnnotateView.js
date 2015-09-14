@@ -24,7 +24,7 @@ export default class AnnotateView {
           el = renderPoint(a);
           break;
         case 'area':
-          console.warn('%s not implemented', a.type);
+          el = renderRectangle(a);
           break;
         case 'textbox':
           el = renderTextbox(a);
