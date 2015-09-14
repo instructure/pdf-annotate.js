@@ -10,13 +10,13 @@ PDFJSAnnotate.StoreAdapter.getAnnotations = (documentId, pageNumber) => {
   });
 };
 
-PDFJS.getDocument('helloworld.pdf').then((pdf) => {
+PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
   Promise.all([
     pdf.getPage(1),
     PDFJSAnnotate.getAnnotations(1)
   ])
   .then(([page, annotations]) => {
-    let scale = 3.5;
+    let scale = 1;
     let viewport = page.getViewport(scale);
     let canvas = document.getElementById('canvas');
     let canvasContext = canvas.getContext('2d');
