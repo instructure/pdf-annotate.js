@@ -4,16 +4,21 @@
   <meta charset="utf-8"/>
   <title>PDFJSAnnotate</title>
   <style type="text/css">
+    body {
+      background-color: #eee;
+    }
     canvas, svg {
       position: absolute;
-      top: 10px;
-      left: 10px;
+      top: 0;
+      left: 50%;
+      margin-left: -307px;
+      box-shadow: 0 0 5px #999;
     }
   </style>
 </head>
 <body>
-<canvas id="canvas" style="border: 1px solid black;"></canvas>
-<svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
-<script src="bundle.js"></script>
+  <canvas id="canvas"></canvas>
+  <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+  <script src="bundle.js"></script>
 </body>
 </html>
