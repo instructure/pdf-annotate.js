@@ -37,7 +37,5 @@ export default class AnnotateView {
         svg.appendChild(e);
       });
     });
-    
-    document.body.appendChild(svg);
   }
 }
