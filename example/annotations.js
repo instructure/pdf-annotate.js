@@ -29,18 +29,19 @@ export default [
     rectangles: [{
       x: 125,
       y: 150,
-      width: 250,
-      height: 50
+      width: 275,
+      height: 40
     }]
   }),
+  createText(125, 175, 'Highlight this text so it stands out'),
   
   createLabel(250, 'Area:'),
-  createText(125, 250, 'Draw a box around me'),
+  createText(125, 250, 'I\'m the text in the box'),
   create('area', {
     x: 125,
     y: 225,
-    width: 255,
-    height: 50
+    width: 175,
+    height: 40
   }),
   
   createLabel(325, 'Strikeout:'),
@@ -63,7 +64,7 @@ export default [
     height: 100,
     size: 20,
     color: '000000',
-    content: 'This is text, you can put what you want'
+    content: 'Custom text that has been provided by user'
   }),
 
   createLabel(475, 'Point:'),
