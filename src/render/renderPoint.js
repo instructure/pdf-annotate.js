@@ -1,22 +1,22 @@
-// TODO: Finish comment buble
-export default function renderPoint(a) {
+// TODO: Finish comment bubble
+export default function renderPoint(a, s) {
   let rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
   let ellipse = document.createElementNS('http://www.w3.org/2000/svg', 'ellipse');
   let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
 
-  rect.setAttribute('x', a.x);
-  rect.setAttribute('y', a.y);
+  rect.setAttribute('x', s(a.x));
+  rect.setAttribute('y', s(a.y));
   rect.setAttribute('rx', 1);
   rect.setAttribute('ry', 1);
-  rect.setAttribute('width', 25);
-  rect.setAttribute('height', 25);
+  rect.setAttribute('width', s(25));
+  rect.setAttribute('height', s(25));
   rect.setAttribute('stroke', '#000');
   rect.setAttribute('fill', '#ff0');
 
-  ellipse.setAttribute('cx', a.x + 12);
-  ellipse.setAttribute('cy', a.y + 10);
-  ellipse.setAttribute('rx', 9);
-  ellipse.setAttribute('ry', 7);
+  ellipse.setAttribute('cx', s(a.x + 12));
+  ellipse.setAttribute('cy', s(a.y + 10));
+  ellipse.setAttribute('rx', s(9));
+  ellipse.setAttribute('ry', s(7));
   ellipse.setAttribute('stroke', '#000');
   ellipse.setAttribute('fill', '#fff');
 

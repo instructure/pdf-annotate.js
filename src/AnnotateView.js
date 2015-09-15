@@ -1,8 +1,9 @@
 import arrayFrom from './utils/arrayFrom';
+import renderLine from './render/renderLine';
+import renderPath from './render/renderPath';
 import renderPoint from './render/renderPoint';
-import renderDrawing from './render/renderDrawing';
-import renderTextbox from './render/renderTextbox';
-import renderRectangle from './render/renderRectangle';
+import renderRect from './render/renderRect';
+import renderText from './render/renderText';
 
 export default class AnnotateView {
   constructor(svg, viewport, annotations) {
@@ -13,23 +14,26 @@ export default class AnnotateView {
 
   render() {
     let svg = this.svg;
+    let scale = (unit) => unit * this.viewport.scale;
 
     this.annotations.forEach((a) => {
       let el;
       switch (a.type) {
         case 'area':
         case 'highlight':
+          el = renderRect(a, scale);
+          break;
         case 'strikeout':
-          el = renderRectangle(a);
+          el = renderLine(a, scale);
           break;
         case 'point':
-          el = renderPoint(a);
+          el = renderPoint(a, scale);
           break;
         case 'textbox':
-          el = renderTextbox(a);
+          el = renderText(a, scale);
           break;
         case 'drawing':
-          el = renderDrawing(a);
+          el = renderPath(a, scale);
           break;
       }
 
