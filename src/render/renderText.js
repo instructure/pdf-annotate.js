@@ -1,13 +1,13 @@
 import setAttributes from '../utils/setAttributes';
 
-export default function renderText(a, s) {
+export default function renderText(a) {
   var text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
 
   setAttributes(text, {
-    x: s(a.x),
-    y: s(a.y),
+    x: a.x,
+    y: a.y,
     fill: `#${a.color}`,
-    fontSize: s(a.size)
+    fontSize: a.size
   });
   text.innerHTML = a.content;
 

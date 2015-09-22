@@ -1,6 +1,6 @@
 import setAttributes from '../utils/setAttributes';
 
-export default function renderRect(a, s) {
+export default function renderRect(a) {
   if (!a.rectangles) {
     a = {rectangles: [a]};
   }
@@ -9,10 +9,10 @@ export default function renderRect(a, s) {
     let rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
 
     setAttributes(rect, {
-      x: s(r.x),
-      y: s(r.y),
-      width: s(r.width),
-      height: s(r.height)
+      x: r.x,
+      y: r.y,
+      width: r.width,
+      height: r.height
     });
     
     if (a.color) {

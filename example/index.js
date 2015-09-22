@@ -16,18 +16,38 @@ PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
     PDFJSAnnotate.getAnnotations(1)
   ])
   .then(([page, annotations]) => {
-    let scale = 1;
-    let viewport = page.getViewport(scale);
-    let canvas = document.getElementById('canvas');
-    let svg = document.getElementById('svg');
-    let canvasContext = canvas.getContext('2d');
-    
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-    svg.style.height = viewport.height + 'px';
-    svg.style.width = viewport.width + 'px';
-
-    page.render({canvasContext, viewport});
-    PDFJSAnnotate.render(svg, viewport, annotations);
+    data.page = page;
+    data.annotations = annotations;
+    render();
   });
 });
+
+let data = {
+  page: null,
+  annotations: null
+};
+const scale = document.getElementById('scale');
+const rotation = document.getElementById('rotation');
+
+scale.onchange = render;
+rotation.onchange = render;
+
+function render() {
+  let viewport = data.page.getViewport(scale.value, rotation.value);
+  let canvas = document.getElementById('canvas');
+  let svg = document.getElementById('svg');
+  let canvasContext = canvas.getContext('2d');
+  
+  canvas.height = viewport.height;
+  canvas.width = viewport.width;
+  canvas.style.marginTop = ((viewport.height / 2) * -1) + 'px';
+  canvas.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
+
+  svg.setAttribute('height', viewport.height);
+  svg.setAttribute('width', viewport.width);
+  svg.style.marginTop = ((viewport.height / 2) * -1) + 'px';
+  svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
+
+  data.page.render({canvasContext, viewport});
+  PDFJSAnnotate.render(svg, viewport, data.annotations);
+}
