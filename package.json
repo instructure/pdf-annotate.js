@@ -4,8 +4,8 @@
   "description": "Annotation layer for pdf.js",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "./node_modules/.bin/webpack-dev-server --inline --config ./webpack.example.js --content-base ./"
+    "test": "karma start",
+    "start": "./scripts/examples"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,13 @@
   "devDependencies": {
     "babel-core": "5.8.22",
     "babel-loader": "5.3.2",
+    "karma": "^0.13.10",
+    "karma-cli": "^0.1.0",
+    "karma-firefox-launcher": "^0.1.6",
+    "karma-mocha": "^0.2.0",
+    "karma-sourcemap-loader": "^0.3.5",
+    "karma-webpack": "^1.7.0",
+    "mocha": "^2.3.3",
     "object-assign": "^4.0.1",
     "pdfjs-dist": "1.1.399",
     "webpack": "1.11.0",
