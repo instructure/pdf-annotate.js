@@ -1,8 +1,8 @@
 import __pdfjs from 'pdfjs-dist/build/pdf.js';
-import PDFJSAnnotate from '../';
+import PDFJSAnnotate from '../../';
 import annotations from './annotations';
 
-PDFJS.workerSrc = '../node_modules/pdfjs-dist/build/pdf.worker.js';
+PDFJS.workerSrc = '../pdf.worker.js';
 
 PDFJSAnnotate.StoreAdapter.getAnnotations = (documentId, pageNumber) => {
   return new Promise((resolve, reject) => {

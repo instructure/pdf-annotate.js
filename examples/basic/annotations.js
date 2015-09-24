@@ -1,5 +1,5 @@
 import objectAssign from 'object-assign';
-import uuid from '../src/utils/uuid';
+import uuid from '../../src/utils/uuid';
 
 const template = {
   class: 'Annotation',

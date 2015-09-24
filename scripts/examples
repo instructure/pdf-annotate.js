@@ -1,0 +1,6 @@
+#!/bin/bash
+
+server=./node_modules/.bin/webpack-dev-server
+
+cp ./node_modules/pdfjs-dist/build/pdf.worker.js ./examples/
+$server --inline --config ./webpack.example.js --content-base examples/
