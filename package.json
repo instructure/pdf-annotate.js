@@ -4,7 +4,7 @@
   "description": "Annotation layer for pdf.js",
   "main": "index.js",
   "scripts": {
-    "test": "karma start",
+    "test": "karma start --single-run",
     "start": "./scripts/examples"
   },
   "repository": {
