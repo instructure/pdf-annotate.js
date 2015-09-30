@@ -1,6 +1,15 @@
 const UPPER_REGEX = /[A-Z]/g;
+
+// Don't convert these attributes from camelCase to hyphenated-attributes
+const BLACKLIST = [
+  'viewBox'
+];
+
 let keyCase = (key) => {
-  return key.replace(UPPER_REGEX, (match) => '-' + String.fromCharCode(match.charCodeAt() + 32));
+  if (BLACKLIST.indexOf(key) === -1) {
+    key = key.replace(UPPER_REGEX, (match) => '-' + String.fromCharCode(match.charCodeAt() + 32));
+  }
+  return key;
 }
 
 export default function setAttributes(node, attributes) {
