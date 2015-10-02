@@ -7,18 +7,25 @@ let annotations;
 let penColor;
 let penSize;
 let svg = document.getElementById('svg');
-const STORAGE_KEY = 'draw/annotations';
+const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
+const PAGE_NUMBER = 1;
 
 // Stub in the adapter to pull annotations from localStorage
 PDFJSAnnotate.StoreAdapter.getAnnotations = (documentId, pageNumber) => {
   return new Promise((resolve, reject) => {
-    annotations = JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+    annotations = JSON.parse(localStorage.getItem(`${documentId}/annotations`)) || [];
     resolve(annotations);
   });
 };
 
+PDFJSAnnotate.StoreAdapter.addAnnotation = (documentId, pageNumber, annotation) => {
+  annotation.page = pageNumber;
+  annotations.push(annotation);
+  localStorage.setItem(`${documentId}/annotations`, JSON.stringify(annotations));
+};
+
 // Get the annotations
-PDFJSAnnotate.getAnnotations().then((annotations) => {
+PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
   let viewport = {
     width: svg.offsetWidth,
     height: svg.offsetHeight,
@@ -39,14 +46,13 @@ PDFJSAnnotate.getAnnotations().then((annotations) => {
   }
 
   function handleMouseUp() {
-    if (lines.length > 0) {
-      annotations.push({
+    if (lines.length > 1) {
+      PDFJSAnnotate.addAnnotation(DOCUMENT_ID, PAGE_NUMBER, {
         type: 'drawing',
         color: penColor,
         width: penSize,
         lines
       });
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(annotations));
     }
 
     document.removeEventListener('mousemove', handleMouseMove);
@@ -85,8 +91,8 @@ PDFJSAnnotate.getAnnotations().then((annotations) => {
 // Pen stuff
 (function () {
   function initPen() {
-    penColor = localStorage.getItem('draw/pen/color') || '000000';
-    penSize = localStorage.getItem('draw/pen/size') || 1;
+    penColor = localStorage.getItem(`${DOCUMENT_ID}/pen/color`) || '000000';
+    penSize = localStorage.getItem(`${DOCUMENT_ID}/pen/size`) || 1;
     
     Array.prototype.forEach.call(document.querySelectorAll('.pen-color'), (i) => {
       if (i.getAttribute('data-color') === penColor) {
@@ -99,7 +105,7 @@ PDFJSAnnotate.getAnnotations().then((annotations) => {
   function handleMenuClick(e) {
     if (e.target.nodeName === 'A' && e.target.getAttribute('data-color')) {
       penColor = e.target.getAttribute('data-color');
-      localStorage.setItem('draw/pen/color', penColor);
+      localStorage.setItem(`${DOCUMENT_ID}/pen/color`, penColor);
       document.querySelector('.pen-color-selected').classList.remove('pen-color-selected');
       e.target.classList.add('pen-color-selected');
     }
@@ -107,12 +113,12 @@ PDFJSAnnotate.getAnnotations().then((annotations) => {
 
   function handlePenSizeChange(e) {
     penSize = e.target.value;
-    localStorage.setItem('draw/pen/size', penSize);
+    localStorage.setItem(`${DOCUMENT_ID}/pen/size`, penSize);
   }
 
   function handleClearClick(e) {
     if (confirm('Are you sure you want to throw your art away?')) {
-      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(`${DOCUMENT_ID}/annotations`);
       svg.innerHTML = '';
     }
   }
