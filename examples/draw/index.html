@@ -69,6 +69,10 @@
       position: relative;
       top: 3px;
     }
+    .pen-size-output {
+      display: inline-block;
+      width: 25px;
+    }
 
     .menu .spacer {
       display: inline-block;
@@ -98,7 +102,7 @@
     <a href="javascript://" class="pen-color pen-color-magenta" data-color="fb67fa" title="magenta"></a>
     <a href="javascript://" class="pen-color pen-color-cyan" data-color="69fcfc" title="cyan"></a>
     <div class="spacer"></div>
-    1 <input type="range" class="pen-size" min="1" max="20"/> 20
+    <input type="range" class="pen-size" min="1" max="20"/> <span class="pen-size-output"></span>
     <div class="spacer"></div>
     <button type="button" class="drawing-clear">clear</button>
   </div>

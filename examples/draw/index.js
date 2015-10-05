@@ -96,24 +96,47 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     
     Array.prototype.forEach.call(document.querySelectorAll('.pen-color'), (i) => {
       if (i.getAttribute('data-color') === penColor) {
-        i.classList.add('pen-color-selected');
+        selectPenColor(i);
       }
     });
     document.querySelector('.pen-size').value = penSize;
+    document.querySelector('.pen-size-output').innerHTML = penSize;
   }
 
-  function handleMenuClick(e) {
+  function setPenColorFromEvent(e) {
     if (e.target.nodeName === 'A' && e.target.getAttribute('data-color')) {
       penColor = e.target.getAttribute('data-color');
       localStorage.setItem(`${DOCUMENT_ID}/pen/color`, penColor);
-      document.querySelector('.pen-color-selected').classList.remove('pen-color-selected');
-      e.target.classList.add('pen-color-selected');
+      selectPenColor(e.target);
+    }
+  }
+
+  function selectPenColor(el) {
+    let old = document.querySelector('.pen-color-selected');
+
+    if (old) {
+      old.classList.remove('pen-color-selected');
+      old.removeAttribute('aria-selected');
+    }
+
+    el.classList.add('pen-color-selected');
+    el.setAttribute('aria-selected', true);
+  }
+
+  function handleMenuClick(e) {
+    setPenColorFromEvent(e);
+  }
+
+  function handleMenuKeyUp(e) {
+    if (e.keyCode === 32) {
+      setPenColorFromEvent(e);
     }
   }
 
   function handlePenSizeChange(e) {
     penSize = e.target.value;
     localStorage.setItem(`${DOCUMENT_ID}/pen/size`, penSize);
+    document.querySelector('.pen-size-output').innerHTML = penSize;
   }
 
   function handleClearClick(e) {
@@ -124,6 +147,7 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
   }
 
   document.querySelector('.menu').addEventListener('click', handleMenuClick);
+  document.querySelector('.menu').addEventListener('keyup', handleMenuKeyUp);
   document.querySelector('.pen-size').addEventListener('change', handlePenSizeChange);
   document.querySelector('.drawing-clear').addEventListener('click', handleClearClick);
 
