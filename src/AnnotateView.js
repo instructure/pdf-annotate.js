@@ -11,6 +11,8 @@ function getTranslation(viewport) {
   let x;
   let y;
 
+  // Modulus 360 on the rotation so that we only
+  // have to worry about four possible values.
   switch(viewport.rotation % 360) {
     case 0:
       x = y = 0;
@@ -35,12 +37,16 @@ function getTranslation(viewport) {
 function transform(e, viewport) {
   let trans = getTranslation(viewport);
 
-  e.setAttribute('transform', `
-    scale(${viewport.scale})
-    rotate(${viewport.rotation})
-    translate(${trans.x}, ${trans.y})
-  `);
+  // Let SVG natively transform the element
+  e.setAttribute('transform', `scale(${viewport.scale}) rotate(${viewport.rotation}) translate(${trans.x}, ${trans.y})`);
 
+  // Manually adjust x/y for nested SVG nodes
+  if (e.nodeName.toLowerCase() === 'svg') {
+    e.setAttribute('x', parseInt(e.getAttribute('x'), 10) * viewport.scale);
+    e.setAttribute('y', parseInt(e.getAttribute('y'), 10) * viewport.scale);
+  }
+
+  // Recurse on child nodes
   forEach.call(e.children, (child) => {
     transform(child, viewport);
   });
@@ -59,31 +65,35 @@ export default class AnnotateView {
     let svg = this.svg;
     let viewport = this.viewport;
 
+    // Reset the content of the SVG
     svg.innerHTML = '';
 
     this.annotations.forEach((a) => {
-      let el;
+      let node;
       switch (a.type) {
         case 'area':
         case 'highlight':
-          el = renderRect(a);
+          node = renderRect(a);
           break;
         case 'strikeout':
-          el = renderLine(a);
+          node = renderLine(a);
           break;
         case 'point':
-          el = renderPoint(a);
+          node = renderPoint(a);
           break;
         case 'textbox':
-          el = renderText(a);
+          node = renderText(a);
           break;
         case 'drawing':
-          el = renderPath(a);
+          node = renderPath(a);
           break;
       }
 
-      arrayFrom(el).forEach((e) => {
-        svg.appendChild(transform(e, viewport));
+      // Node may be either single node, or array of nodes.
+      // Ensure we are dealing with an array, then
+      // transform, and append each node to the SVG.
+      arrayFrom(node).forEach((n) => {
+        svg.appendChild(transform(n, viewport));
       });
     });
   }
