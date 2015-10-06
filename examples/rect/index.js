@@ -1,4 +1,7 @@
 import PDFJSAnnotate from '../../';
+import arrayFrom from '../../src/utils/arrayFrom';
+import renderRect from '../../src/render/renderRect';
+import renderLine from '../../src/render/renderLine';
 
 let page1 = document.getElementById('page1');
 let page2 = document.getElementById('page2');
@@ -49,26 +52,60 @@ function mockViewport(page) {
     let range = selection.getRangeAt(0);
     let rects = range.getClientRects();
     let parent = selection.anchorNode.parentNode;
-   
+    let node;
+    let svg;
+    let annotation;
+
+    // Find the parent that contains page info
     while (parent && !parent.getAttribute('data-page')) {
       parent = parent.parentNode;
     }
 
-    PDFJSAnnotate.addAnnotation(DOCUMENT_ID, parseInt(parent.getAttribute('data-page'), 10), {
+    // Initialize the annotation
+    annotation = {
       type,
       color,
       rectangles: Array.prototype.map.call(rects, (r) => {
+        let offset = 0;
+
+        if (type === 'strikeout') {
+          offset = r.height / 2;
+        }
+
         return {
-          y: r.top - parent.offsetTop,
+          y: (r.top + offset) - parent.offsetTop,
           x: r.left - parent.offsetLeft,
           width: r.width,
           height: r.height
         };
       })
+    };
+
+    // Add the annotation
+    PDFJSAnnotate.addAnnotation(DOCUMENT_ID, parseInt(parent.getAttribute('data-page'), 10), annotation);
+
+    // Render the annotation
+    if (type === 'strikeout') {
+      node = renderLine(annotation);
+    } else {
+      node = renderRect(annotation);
+    }
+
+    svg = parent.querySelector('svg');
+
+    arrayFrom(node).forEach((el) => {
+      svg.appendChild(el);
     });
+  }
+
+  function handleClearClick() {
+    localStorage.removeItem(`${DOCUMENT_ID}/annotations`);
+    page1.innerHTML = '';
+    page2.innerHTML = '';
   }
 
   document.querySelector('button.rectangle').addEventListener('click', handleButtonClick.bind(null, 'area', null));
   document.querySelector('button.highlight').addEventListener('click', handleButtonClick.bind(null, 'highlight', 'FFFF00'));
   document.querySelector('button.strikeout').addEventListener('click', handleButtonClick.bind(null, 'strikeout', 'FF0000'));
+  document.querySelector('button.clear').addEventListener('click', handleClearClick);
 })();
