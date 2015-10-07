@@ -16,7 +16,7 @@ module.exports = function(config) {
       'test/**/*.spec.js': ['webpack', 'sourcemap']
     },
 
-    reporters: ['dots'],
+    reporters: ['dots', 'coverage'],
 
     port: 9876,
 
@@ -38,7 +38,14 @@ module.exports = function(config) {
           {
             test: /\.js$/,
             exclude: /node_modules/,
-            loader: 'babel-loader'
+            loader: 'babel'
+          }
+        ],
+        postLoaders: [
+          {
+            test: /\.js$/,
+            exclude: /(node_modules|test)/,
+            loader: 'istanbul-instrumenter'
           }
         ]
       }
@@ -48,6 +55,12 @@ module.exports = function(config) {
       stats: {
         colors: true
       }
+    },
+
+    coverageReporter: {
+      type: 'lcov',
+      dir: 'coverage/',
+      subdir: '.'
     }
 
   });
