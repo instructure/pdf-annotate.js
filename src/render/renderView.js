@@ -34,29 +34,34 @@ function getTranslation(viewport) {
   return { x, y };
 }
 
-function transform(e, viewport) {
+function transform(node, viewport) {
   let trans = getTranslation(viewport);
 
   // Let SVG natively transform the element
-  e.setAttribute('transform', `scale(${viewport.scale}) rotate(${viewport.rotation}) translate(${trans.x}, ${trans.y})`);
+  node.setAttribute('transform', `scale(${viewport.scale}) rotate(${viewport.rotation}) translate(${trans.x}, ${trans.y})`);
 
   // Manually adjust x/y for nested SVG nodes
-  if (e.nodeName.toLowerCase() === 'svg') {
-    e.setAttribute('x', parseInt(e.getAttribute('x'), 10) * viewport.scale);
-    e.setAttribute('y', parseInt(e.getAttribute('y'), 10) * viewport.scale);
+  if (node.nodeName.toLowerCase() === 'svg') {
+    node.setAttribute('x', parseInt(node.getAttribute('x'), 10) * viewport.scale);
+    node.setAttribute('y', parseInt(node.getAttribute('y'), 10) * viewport.scale);
   }
 
   // Recurse on child nodes
-  forEach.call(e.children, (child) => {
+  forEach.call(node.children, (child) => {
     transform(child, viewport);
   });
 
-  return e;
+  return node;
 }
 
 export default function renderView(svg, viewport, annotations) {
   // Reset the content of the SVG
   svg.innerHTML = '';
+
+  // Make sure annotations is an array
+  if (!Array.isArray(annotations)) {
+    return svg;
+  }
 
   annotations.forEach((a) => {
     let node;
@@ -83,7 +88,11 @@ export default function renderView(svg, viewport, annotations) {
     // Ensure we are dealing with an array, then
     // transform, and append each node to the SVG.
     arrayFrom(node).forEach((n) => {
-      svg.appendChild(transform(n, viewport));
+      // If no type was provided for an annotation it will result in node being null.
+      // Skip appending/transforming if node doesn't exist.
+      if (n) {
+        svg.appendChild(transform(n, viewport));
+      }
     });
   });
 
