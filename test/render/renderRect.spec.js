@@ -54,4 +54,15 @@ describe('render::renderRect', function () {
     assertRect(rects[0], 50, 75, 100, 125);
     assertRect(rects[1], 100, 200, 300, 400);
   });
+
+  it('should convert single rect to array', function () {
+    let rects = renderRect({
+      x: 100,
+      y: 200,
+      width: 300,
+      height: 400
+    });
+
+    assertRect(rects[0], 100, 200, 300, 400);
+  });
 });

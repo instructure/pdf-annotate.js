@@ -1,15 +1,18 @@
 import renderView from '../../src/render/renderView';
-import uuid from '../../src/utils/uuid';
 import { equal } from 'assert';
 
-function testRotation(rotation, transX, transY) {
-  let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  let viewport = {
-    width: 100,
-    height: 100,
-    scale: 1,
-    rotation
+function createSVG() {
+  return document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+}
+
+function mockViewport(width = 100, height = 100, scale = 1, rotation = 0) {
+  return {
+    width, height, scale, rotation
   };
+}
+
+function testRotation(rotation, transX, transY) {
+  viewport = mockViewport(undefined, undefined, undefined, rotation);
   let annotations = [
     {
       type: 'highlight',
@@ -28,16 +31,18 @@ function testRotation(rotation, transX, transY) {
   equal(svg.querySelector('rect').getAttribute('transform'), `scale(1) rotate(${rotation}) translate(${transX}, ${transY})`);
 }
 
+let svg;
+let viewport;
+
 describe('render::renderView', function () {
+  beforeEach(function () {
+    svg = createSVG();
+    viewport = mockViewport();
+  });
+
   it('should reset SVG on each render', function () {
-    let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    let viewport = {
-      width: 100,
-      height: 100,
-      scale: .5,
-      rotation: 0
-    };
-    
+    let viewport = mockViewport(undefined, undefined, .5);    
+
     renderView(svg, viewport, [
       {
         type: 'point',
@@ -64,14 +69,130 @@ describe('render::renderView', function () {
     equal(svg.children.length, 2);
   });
 
+  it('should render area', function () {
+    renderView(svg, viewport, [
+      {
+        type: 'area',
+        x: 125,
+        y: 225,
+        width: 100,
+        height: 50
+      }
+    ]);
+
+    equal(svg.children.length, 1);
+    equal(svg.children[0].nodeName.toLowerCase(), 'rect');
+  });
+
+  it('should render highlight', function () {
+    renderView(svg, viewport, [
+      {
+        type: 'highlight',
+        color: 'FF0000',
+        rectangles: [
+          {
+            x: 1,
+            y: 1,
+            width: 50,
+            height: 50
+          }
+        ]
+      }
+    ]);
+
+    equal(svg.children.length, 1);
+    equal(svg.children[0].nodeName.toLowerCase(), 'rect');
+  });
+
+  it('should render strikeout', function () {
+    renderView(svg, viewport, [
+      {
+        type: 'strikeout',
+        color: 'FF0000',
+        rectangles: [{
+          x: 125,
+          y: 320,
+          width: 270,
+          height: 1
+        }],
+      }
+    ]);
+
+    equal(svg.children.length, 1);
+    equal(svg.children[0].nodeName.toLowerCase(), 'line');
+  });
+
+  it('should render textbox', function () {
+    renderView(svg, viewport, [
+      {
+        type: 'textbox',
+        x: 125,
+        y: 400,
+        width: 50,
+        height: 100,
+        size: 20,
+        color: '000000',
+        content: 'Lorem Ipsum'
+      }
+    ]);
+
+    equal(svg.children.length, 1);
+    equal(svg.children[0].nodeName.toLowerCase(), 'text');
+  });
+
+  it('should render point', function () {
+    renderView(svg, viewport, [
+      {
+        type: 'point',
+        x: 5,
+        y: 5
+      }
+    ]);
+
+    equal(svg.children.length, 1);
+    equal(svg.children[0].nodeName.toLowerCase(), 'svg');
+  });
+
+  it('should render drawing', function () {
+    renderView(svg, viewport, [
+      {
+        type: 'drawing',
+        x: 10,
+        y: 10,
+        lines: [[0, 0], [1, 1]]
+      }
+    ]);
+
+    equal(svg.children.length, 1);
+    equal(svg.children[0].nodeName.toLowerCase(), 'path');
+  });
+
+  it('should fail gracefully if no annotations are provided', function () {
+    let error = false;
+    try {
+      renderView(svg, viewport, null);
+    } catch (e) {
+      error = true;
+    }
+
+    equal(error, false);
+  });
+
+  it('should fail gracefully if no type is provided', function () {
+    let error = false;
+    try {
+      renderView(svg, viewport, [
+        { x: 1, y: 1 }
+      ]);
+    } catch (e) {
+      error = true;
+    }
+
+    equal(error, false);
+  });
+
   it('should transform scale', function () {
-    let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    let viewport = {
-      width: 100,
-      height: 100,
-      scale: .5,
-      rotation: 0
-    };
+    viewport = mockViewport(undefined, undefined, .5);
     let annotations = [
       {
         type: 'point',
