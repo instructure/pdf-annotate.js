@@ -1,5 +1,5 @@
 import StoreAdapter from './StoreAdapter';
-import AnnotateView from './AnnotateView';
+import renderView from './render/renderView';
 
 // Public API
 let PDFJSAnnotate = {
@@ -14,8 +14,7 @@ let PDFJSAnnotate = {
   },
 
   render(svg, viewport, annotations) {
-    let view = new AnnotateView(svg, viewport, annotations);
-    view.render();
+    return renderView(svg, viewport, annotations);
   }
 };
 

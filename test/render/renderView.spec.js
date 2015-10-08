@@ -1,5 +1,5 @@
-import AnnotateView from '../src/AnnotateView';
-import uuid from '../src/utils/uuid';
+import renderView from '../../src/render/renderView';
+import uuid from '../../src/utils/uuid';
 import { equal } from 'assert';
 
 function testRotation(rotation, transX, transY) {
@@ -23,35 +23,12 @@ function testRotation(rotation, transX, transY) {
     }
   ];
   
-  let view = new AnnotateView(svg, viewport, annotations);
-  view.render();
+  renderView(svg, viewport, annotations);
 
   equal(svg.querySelector('rect').getAttribute('transform'), `scale(1) rotate(${rotation}) translate(${transX}, ${transY})`);
 }
 
-describe('AnnotateView', function () {
-  it('should construct view', function () {
-    let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    let viewport = {
-      width: 100,
-      height: 100,
-      scale: 1,
-      rotation: 0
-    };
-    let annotations = [
-      {
-        type: 'point',
-        x: 100,
-        y: 100
-      }
-    ];
-    let view = new AnnotateView(svg, viewport, annotations);
-    
-    equal(view.svg, svg);
-    equal(view.viewport, viewport);
-    equal(view.annotations, annotations);
-  });
-
+describe('render::renderView', function () {
   it('should reset SVG on each render', function () {
     let svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     let viewport = {
@@ -60,18 +37,18 @@ describe('AnnotateView', function () {
       scale: .5,
       rotation: 0
     };
-    let view = new AnnotateView(svg, viewport, [
+    
+    renderView(svg, viewport, [
       {
         type: 'point',
         x: 0,
         y: 0
       }
     ]);
-    view.render();
 
     equal(svg.children.length, 1);
 
-    view = new AnnotateView(svg, viewport, [
+    renderView(svg, viewport, [
       {
         type: 'point',
         x: 0,
@@ -83,7 +60,6 @@ describe('AnnotateView', function () {
         y: 25
       }
     ]);
-    view.render();
 
     equal(svg.children.length, 2);
   });
@@ -104,8 +80,7 @@ describe('AnnotateView', function () {
       }
     ];
     
-    let view = new AnnotateView(svg, viewport, annotations);
-    view.render();
+    renderView(svg, viewport, annotations);
 
     let nested = svg.querySelector('svg');
     
