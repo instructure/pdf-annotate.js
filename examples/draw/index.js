@@ -146,8 +146,8 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     }
   }
 
-  document.querySelector('.menu').addEventListener('click', handleMenuClick);
-  document.querySelector('.menu').addEventListener('keyup', handleMenuKeyUp);
+  document.querySelector('.toolbar').addEventListener('click', handleMenuClick);
+  document.querySelector('.toolbar').addEventListener('keyup', handleMenuKeyUp);
   document.querySelector('.pen-size').addEventListener('change', handlePenSizeChange);
   document.querySelector('button.clear').addEventListener('click', handleClearClick);
 

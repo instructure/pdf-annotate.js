@@ -3,46 +3,8 @@
 <head>
   <meta charset="utf-8"/>
   <title>PDFJSAnnotate</title>
+  <link rel="stylesheet" type="text/css" href="../toolbar.css"/>
   <style type="text/css">
-    * {
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: sans-serif;
-      margin: 0;
-    }
-
-    .menu {
-      background-color: #ddd;
-      border-bottom: 1px solid #aaa;
-      height: 35px;
-      width: 100%;
-      margin: 0;
-      position: relative;
-      padding: 3px 5px;
-      text-shadow: 1px 1px 0 #fff;
-    }
-    .menu .spacer {
-      display: inline-block;
-      border-left: 1px solid #000;
-      height: 18px;
-      margin: 0 10px -5px;
-    }
-
-    .menu button {
-      background-color: #eee;
-      border: 1px solid #aaa;
-      border-radius: 3px;
-      font-size: 15px;
-      padding: 4px 12px;
-      text-shadow: 1px 1px 0 #fff;
-    }
-    .menu button:hover,
-    .menu button:focus {
-      border-color: #666;
-    }
-
     .container {
       width: 500px;
       height: 500px;
@@ -61,7 +23,7 @@
   </style>
 </head>
 <body>
-  <div class="menu">
+  <div class="toolbar">
     <button class="rectangle" type="button">rectangle</button>
     <button class="highlight" type="button">highlight</button>
     <button class="strikeout" type="button">strikeout</button>

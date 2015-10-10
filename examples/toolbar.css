@@ -1,0 +1,40 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: sans-serif;
+  margin: 40px 0;
+}
+
+.toolbar {
+  background-color: #ddd;
+  border-bottom: 1px solid #aaa;
+  height: 35px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  padding: 3px 5px;
+  text-shadow: 1px 1px 0 #fff;
+  z-index: 100;
+}
+.toolbar .spacer {
+  display: inline-block;
+  border-left: 1px solid #000;
+  height: 18px;
+  margin: 0 10px -5px;
+}
+
+.toolbar button {
+  background-color: #eee;
+  border: 1px solid #aaa;
+  border-radius: 3px;
+  font-size: 15px;
+  padding: 4px 12px;
+  text-shadow: 1px 1px 0 #fff;
+}
+.toolbar button:hover,
+.toolbar button:focus {
+  border-color: #666;
+}
