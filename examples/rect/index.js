@@ -2,30 +2,14 @@ import PDFJSAnnotate from '../../';
 import arrayFrom from '../../src/utils/arrayFrom';
 import renderRect from '../../src/render/renderRect';
 import renderLine from '../../src/render/renderLine';
+import localStoreAdapter from '../localStoreAdapter';
+import mockViewport from '../mockViewport';
 
 let page1 = document.getElementById('page1');
 let page2 = document.getElementById('page2');
-let annotations;
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 
-// Stub in the adapter to pull annotations from localStorage
-PDFJSAnnotate.StoreAdapter.getAnnotations = (documentId, pageNumber) => {
-  if (!annotations) {
-    annotations = JSON.parse(localStorage.getItem(`${documentId}/annotations`)) || [];
-  }
-
-  return new Promise((resolve, reject) => {
-    resolve(annotations.filter((i) => {
-      return i.page === pageNumber;
-    }));
-  });
-};
-
-PDFJSAnnotate.StoreAdapter.addAnnotation = (documentId, pageNumber, annotation) => {
-  annotation.page = pageNumber;
-  annotations.push(annotation);
-  localStorage.setItem(`${documentId}/annotations`, JSON.stringify(annotations));
-};
+PDFJSAnnotate.StoreAdapter = localStoreAdapter;
 
 // Get the annotations
 Promise.all([
@@ -35,15 +19,6 @@ Promise.all([
     PDFJSAnnotate.render(page1, mockViewport(page1), ann1);
     PDFJSAnnotate.render(page2, mockViewport(page2), ann2);
   });
-
-function mockViewport(page) {
-  return {
-    width: page.offsetWidth,
-    height: page.offsetHeight,
-    rotation: 0,
-    scale: 1
-  };
-}
 
 // Event handling
 (function () {
