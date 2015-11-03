@@ -1,30 +1,10 @@
-import objectAssign from 'object-assign';
-import uuid from '../../src/utils/uuid';
+import { mock, mockText } from '../mockAnnotation';
 
-const template = {
-  class: 'Annotation',
-  uuid: uuid(),
-  page: 1,
-  owner: 'admin'
-};
-
-let create = (type, def = {}) => objectAssign({}, template, {type}, def);
-
-let createText = (x, y, content) => create('textbox', {
-  x,
-  y,
-  width: 100,
-  height: 50,
-  size: 20,
-  color: '000',
-  content
-});
-
-let createLabel = (y, content) => createText(25, y, content);
+let mockLabel = (y, content) => mockText(25, y, content);
 
 export default [
-  createLabel(175, 'Highlight:'),
-  create('highlight', {
+  mockLabel(175, 'Highlight:'),
+  mock('highlight', {
     color: 'FFFF00',
     rectangles: [{
       x: 125,
@@ -33,20 +13,20 @@ export default [
       height: 40
     }]
   }),
-  createText(125, 175, 'Highlight this text so it stands out'),
+  mockText(125, 175, 'Highlight this text so it stands out'),
   
-  createLabel(250, 'Area:'),
-  createText(125, 250, 'I\'m the text in the box'),
-  create('area', {
+  mockLabel(250, 'Area:'),
+  mockText(125, 250, 'I\'m the text in the box'),
+  mock('area', {
     x: 125,
     y: 225,
     width: 175,
     height: 40
   }),
   
-  createLabel(325, 'Strikeout:'),
-  createText(125, 325, 'Text to be struck from the record'),
-  create('strikeout', {
+  mockLabel(325, 'Strikeout:'),
+  mockText(125, 325, 'Text to be struck from the record'),
+  mock('strikeout', {
     color: 'FF0000',
     rectangles: [{
       x: 125,
@@ -56,8 +36,8 @@ export default [
     }],
   }),
 
-  createLabel(400, 'Textbox:'),
-  create('textbox', {
+  mockLabel(400, 'Textbox:'),
+  mock('textbox', {
     x: 125,
     y: 400,
     width: 50,
@@ -67,14 +47,14 @@ export default [
     content: 'Custom text that has been provided by user'
   }),
 
-  createLabel(475, 'Point:'),
-  create('point', {
+  mockLabel(475, 'Point:'),
+  mock('point', {
     x: 125,
     y: 460
   }),
   
-  createLabel(550, 'Drawing:'),
-  create('drawing', {
+  mockLabel(550, 'Drawing:'),
+  mock('drawing', {
     color: '000000',
     x: 100,
     y: 50,
