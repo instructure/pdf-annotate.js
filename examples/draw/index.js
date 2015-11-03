@@ -1,5 +1,7 @@
 import PDFJSAnnotate from '../../';
 import renderPath from '../../src/render/renderPath';
+import localStoreAdapter from '../localStoreAdapter';
+import mockViewport from '../mockViewport';
 
 let path;
 let lines;
@@ -10,29 +12,11 @@ let svg = document.getElementById('svg');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 const PAGE_NUMBER = 1;
 
-// Stub in the adapter to pull annotations from localStorage
-PDFJSAnnotate.StoreAdapter.getAnnotations = (documentId, pageNumber) => {
-  return new Promise((resolve, reject) => {
-    annotations = JSON.parse(localStorage.getItem(`${documentId}/annotations`)) || [];
-    resolve(annotations);
-  });
-};
-
-PDFJSAnnotate.StoreAdapter.addAnnotation = (documentId, pageNumber, annotation) => {
-  annotation.page = pageNumber;
-  annotations.push(annotation);
-  localStorage.setItem(`${documentId}/annotations`, JSON.stringify(annotations));
-};
+PDFJSAnnotate.StoreAdapter = localStoreAdapter;
 
 // Get the annotations
 PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
-  let viewport = {
-    width: svg.offsetWidth,
-    height: svg.offsetHeight,
-    rotation: 0,
-    scale: 1
-  };
-  PDFJSAnnotate.render(svg, viewport, annotations);
+  PDFJSAnnotate.render(svg, mockViewport(svg), annotations);
 });
 
 // Event handling
