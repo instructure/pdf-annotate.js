@@ -69,6 +69,34 @@ describe('render::renderView', function () {
     equal(svg.children.length, 2);
   });
 
+  it('should add data-attributes', function () {
+    renderView(svg, viewport, [
+      {
+        uuid: 1234,
+        type: 'point',
+        x: 0,
+        y: 0
+      },
+      {
+        uuid: 5678,
+        type: 'area',
+        x: 0,
+        y: 0,
+        width: 25,
+        height: 25
+      }
+    ]);
+
+    let point = svg.querySelector('svg[data-pdf-annotate-id]');
+    let area = svg.querySelector('rect[data-pdf-annotate-id]');
+
+    equal(svg.getAttribute('data-pdf-annotate-container'), 'true');
+    equal(point.getAttribute('data-pdf-annotate-id'), '1234');
+    equal(point.getAttribute('data-pdf-annotate-type'), 'point');
+    equal(area.getAttribute('data-pdf-annotate-id'), '5678');
+    equal(area.getAttribute('data-pdf-annotate-type'), 'area');
+  });
+
   it('should render area', function () {
     renderView(svg, viewport, [
       {

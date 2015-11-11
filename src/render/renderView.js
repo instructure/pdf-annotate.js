@@ -57,6 +57,7 @@ function transform(node, viewport) {
 export default function renderView(svg, viewport, annotations) {
   // Reset the content of the SVG
   svg.innerHTML = '';
+  svg.setAttribute('data-pdf-annotate-container', true);
 
   // Make sure annotations is an array
   if (!Array.isArray(annotations)) {
@@ -91,6 +92,10 @@ export default function renderView(svg, viewport, annotations) {
       // If no type was provided for an annotation it will result in node being null.
       // Skip appending/transforming if node doesn't exist.
       if (n) {
+        // Set attributes
+        n.setAttribute('data-pdf-annotate-id', a.uuid);
+        n.setAttribute('data-pdf-annotate-type', a.type);
+
         svg.appendChild(transform(n, viewport));
       }
     });
