@@ -1,6 +1,15 @@
-import { mock, mockText } from '../mockAnnotation';
+import mock from '../mockAnnotation';
 
 let mockLabel = (y, content) => mockText(25, y, content);
+let mockText = (x, y, content) => mock('textbox', {
+  x,
+  y,
+  width: 100,
+  height: 50,
+  size: 20,
+  color: '000',
+  content
+});
 
 export default [
   mockLabel(175, 'Highlight:'),
