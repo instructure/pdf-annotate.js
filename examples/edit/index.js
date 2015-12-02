@@ -230,13 +230,22 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
 
   function handleDocumentMouseup(e) {
     let id = overlay.getAttribute('data-target-id');
-    let target = document.querySelector(`[data-pdf-annotate-id="${id}"]`);
-    let type = target.getAttribute('data-pdf-annotate-type');
-    let { offsetTop, offsetLeft } = getOffset(target);
+    let target = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
+    let type = target[0].getAttribute('data-pdf-annotate-type');
 
     if (['area', 'highlight', 'point', 'strikeout', 'textbox'].indexOf(type) > -1) {
-      target.setAttribute('y', overlay.offsetTop - offsetTop);
-      target.setAttribute('x', overlay.offsetLeft - offsetLeft);
+      let { offsetTop, offsetLeft } = getOffset(target[0]);
+      let deltaY = (overlay.offsetTop - offsetTop) - parseInt(target[0].getAttribute('y'), 10);
+      let deltaX = (overlay.offsetLeft - offsetLeft) - parseInt(target[0].getAttribute('x'), 10);
+
+      Array.prototype.forEach.call(target, (t) => {
+        if (deltaY !== 0) {
+          t.setAttribute('y', parseInt(t.getAttribute('y'), 10) + deltaY);
+        }
+        if (deltaX !== 0) {
+          t.setAttribute('x', parseInt(t.getAttribute('x'), 10) + deltaX);
+        }
+      });
     } else {
       console.warn('Repositioning is not yet supported for "' + type + '"');
     }
@@ -245,7 +254,6 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     //  - Adjust x/y map for drawing
     //  - Fix click area for drawing
     //  - Fix overlay for textbox and strikeout
-    //  - Move ALL rectangles (highlight, area)
     // PDFJSAnnotate.editAnnotation(DOCUMENT_ID, id, {});
 
     setTimeout(() => {
