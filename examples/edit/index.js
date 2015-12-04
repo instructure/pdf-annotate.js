@@ -33,7 +33,10 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
 // Event handling
 (function (window, document) {
   function isAtPoint(e, x, y) {
-    // TODO account for scroll
+    // Account for scroll
+    x += window.scrollX;
+    y += window.scrollY;
+    
     let size = getSize(e);
     let isAbove = y < size.y;
     let isLeft = x < size.x;
