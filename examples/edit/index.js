@@ -33,6 +33,7 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
 // Event handling
 (function (window, document) {
   function isAtPoint(e, x, y) {
+    // TODO account for scroll
     let size = getSize(e);
     let isAbove = y < size.y;
     let isLeft = x < size.x;
@@ -44,10 +45,29 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
 
   function getSize(e) {
     let { offsetLeft, offsetTop } = getOffset(e);
-    let h = parseInt(e.getAttribute('height'), 10);
-    let w = parseInt(e.getAttribute('width'), 10);
-    let x = parseInt(e.getAttribute('x'), 10) + offsetLeft;
-    let y = parseInt(e.getAttribute('y'), 10) + offsetTop;
+    let h = 0, w = 0, x = 0, y = 0;
+
+    switch (e.nodeName.toLowerCase()) {
+      case 'line':
+      h = parseInt(e.getAttribute('y2'), 10) - parseInt(e.getAttribute('y1'), 10);
+      w = parseInt(e.getAttribute('x2'), 10) - parseInt(e.getAttribute('x1'), 10);
+      x = parseInt(e.getAttribute('x1'), 10) + offsetLeft;
+      y = parseInt(e.getAttribute('y1'), 10) + offsetLeft;
+      break;
+
+      case 'text':
+      h = e.offsetHeight;
+      w = e.offsetWidth;
+      x = parseInt(e.getAttribute('x'), 10) + offsetLeft;
+      y = parseInt(e.getAttribute('y'), 10) + offsetTop;
+      break;
+
+      default:
+      h = parseInt(e.getAttribute('height'), 10);
+      w = parseInt(e.getAttribute('width'), 10);
+      x = parseInt(e.getAttribute('x'), 10) + offsetLeft;
+      y = parseInt(e.getAttribute('y'), 10) + offsetTop;
+    }
 
     return { h, w, x, y };
   }
@@ -150,7 +170,7 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     let type = target.getAttribute('data-pdf-annotate-type');
     let size = type === 'drawing' ? getDrawingSize(id) : getRectangleSize(id);
     const OVERLAY_BORDER_SIZE = 3;
-
+    
     overlay.setAttribute('id', 'pdf-annotate-edit-overlay');
     overlay.setAttribute('data-target-id', id);
     overlay.style.position = 'absolute';
@@ -232,18 +252,35 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     let id = overlay.getAttribute('data-target-id');
     let target = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
     let type = target[0].getAttribute('data-pdf-annotate-type');
+    let { offsetTop, offsetLeft } = getOffset(target[0]);
 
-    if (['area', 'highlight', 'point', 'strikeout', 'textbox'].indexOf(type) > -1) {
-      let { offsetTop, offsetLeft } = getOffset(target[0]);
-      let deltaY = (overlay.offsetTop - offsetTop) - parseInt(target[0].getAttribute('y'), 10);
-      let deltaX = (overlay.offsetLeft - offsetLeft) - parseInt(target[0].getAttribute('x'), 10);
+    function getDelta(propY, propX) {
+      return {
+        deltaY: (overlay.offsetTop - offsetTop) - parseInt(target[0].getAttribute(propY), 10),
+        deltaX: (overlay.offsetLeft - offsetLeft) - parseInt(target[0].getAttribute(propX), 10)
+      };
+    }
 
+    if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
+      let { deltaY, deltaX } = getDelta('y', 'x');
       Array.prototype.forEach.call(target, (t) => {
         if (deltaY !== 0) {
           t.setAttribute('y', parseInt(t.getAttribute('y'), 10) + deltaY);
         }
         if (deltaX !== 0) {
           t.setAttribute('x', parseInt(t.getAttribute('x'), 10) + deltaX);
+        }
+      });
+    } else if (type === 'strikeout') {
+      let { deltaY, deltaX } = getDelta('y1', 'x1');
+      Array.prototype.forEach.call(target, (t) => {
+        if (deltaY !== 0) {
+          t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
+          t.setAttribute('y2', parseInt(t.getAttribute('y2'), 10) + deltaY);
+        }
+        if (deltaX !== 0) {
+          t.setAttribute('x1', parseInt(t.getAttribute('x1'), 10) + deltaX);
+          t.setAttribute('x2', parseInt(t.getAttribute('x2'), 10) + deltaX);
         }
       });
     } else {
@@ -253,7 +290,6 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     // TODO:
     //  - Adjust x/y map for drawing
     //  - Fix click area for drawing
-    //  - Fix overlay for textbox and strikeout
     // PDFJSAnnotate.editAnnotation(DOCUMENT_ID, id, {});
 
     setTimeout(() => {
