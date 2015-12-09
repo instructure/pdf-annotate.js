@@ -51,6 +51,10 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     let h = 0, w = 0, x = 0, y = 0;
 
     switch (el.nodeName.toLowerCase()) {
+      case 'path':
+      return getDrawingSize(el);
+      break;
+
       case 'line':
       h = parseInt(el.getAttribute('y2'), 10) - parseInt(el.getAttribute('y1'), 10);
       w = parseInt(el.getAttribute('x2'), 10) - parseInt(el.getAttribute('x1'), 10);
