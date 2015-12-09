@@ -32,12 +32,12 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
 
 // Event handling
 (function (window, document) {
-  function isAtPoint(e, x, y) {
+  function isAtPoint(el, x, y) {
     // Account for scroll
     x += window.scrollX;
     y += window.scrollY;
     
-    let size = getSize(e);
+    let size = getSize(el);
     let isAbove = y < size.y;
     let isLeft = x < size.x;
     let isBelow = y > (size.y + size.h);
@@ -46,59 +46,55 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     return !isAbove && !isBelow && !isLeft && !isRight;
   }
 
-  function getSize(e) {
-    let { offsetLeft, offsetTop } = getOffset(e);
+  function getSize(el) {
+    let { offsetLeft, offsetTop } = getOffset(el);
     let h = 0, w = 0, x = 0, y = 0;
 
-    switch (e.nodeName.toLowerCase()) {
+    switch (el.nodeName.toLowerCase()) {
       case 'line':
-      h = parseInt(e.getAttribute('y2'), 10) - parseInt(e.getAttribute('y1'), 10);
-      w = parseInt(e.getAttribute('x2'), 10) - parseInt(e.getAttribute('x1'), 10);
-      x = parseInt(e.getAttribute('x1'), 10) + offsetLeft;
-      y = parseInt(e.getAttribute('y1'), 10) + offsetLeft;
+      h = parseInt(el.getAttribute('y2'), 10) - parseInt(el.getAttribute('y1'), 10);
+      w = parseInt(el.getAttribute('x2'), 10) - parseInt(el.getAttribute('x1'), 10);
+      x = parseInt(el.getAttribute('x1'), 10) + offsetLeft;
+      y = parseInt(el.getAttribute('y1'), 10) + offsetLeft;
       break;
 
       case 'text':
-      h = e.offsetHeight;
-      w = e.offsetWidth;
-      x = parseInt(e.getAttribute('x'), 10) + offsetLeft;
-      y = parseInt(e.getAttribute('y'), 10) + offsetTop;
+      h = el.offsetHeight;
+      w = el.offsetWidth;
+      x = parseInt(el.getAttribute('x'), 10) + offsetLeft;
+      y = parseInt(el.getAttribute('y'), 10) + offsetTop;
       break;
 
       default:
-      h = parseInt(e.getAttribute('height'), 10);
-      w = parseInt(e.getAttribute('width'), 10);
-      x = parseInt(e.getAttribute('x'), 10) + offsetLeft;
-      y = parseInt(e.getAttribute('y'), 10) + offsetTop;
+      h = parseInt(el.getAttribute('height'), 10);
+      w = parseInt(el.getAttribute('width'), 10);
+      x = parseInt(el.getAttribute('x'), 10) + offsetLeft;
+      y = parseInt(el.getAttribute('y'), 10) + offsetTop;
     }
 
     return { h, w, x, y };
   }
 
-  function getRectangleSize(id) {
+  function getRectangleSize(el) {
+    let id = el.getAttribute('data-pdf-annotate-id');
     let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
     let size = {};
-    let sizes = Array.prototype.map.call(nodes, (n) => {
-      return getSize(n);
-    });
 
-    sizes.forEach((s) => {
+    Array.prototype.map.call(nodes, getSize).forEach((s) => {
       if (typeof size.x === 'undefined' || s.x < size.x) { size.x = s.x; }
       if (typeof size.y === 'undefined' || s.y < size.y) { size.y = s.y; }
       if (typeof size.w === 'undefined' || s.w > size.w) { size.w = s.w; }
-      if (typeof size.h === 'undefined') {
-        size.h = 0;
-      }
+      if (typeof size.h === 'undefined') { size.h = 0; }
+
       size.h += s.h;
     });
 
     return size;
   }
 
-  function getDrawingSize(id) {
-    let node = document.querySelector(`[data-pdf-annotate-id="${id}"]`);
-    let parts = node.getAttribute('d').replace(/(M|Z)/g, '').split(',');
-    let { offsetLeft, offsetTop } = getOffset(node);
+  function getDrawingSize(el) {
+    let parts = el.getAttribute('d').replace(/(M|Z)/g, '').split(',');
+    let { offsetLeft, offsetTop } = getOffset(el);
     let minX, maxX, minY, maxY;
 
     parts.forEach((p) => {
@@ -171,7 +167,7 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     overlay = document.createElement('div');
     let id = target.getAttribute('data-pdf-annotate-id');
     let type = target.getAttribute('data-pdf-annotate-type');
-    let size = type === 'drawing' ? getDrawingSize(id) : getRectangleSize(id);
+    let size = type === 'drawing' ? getDrawingSize(target) : getRectangleSize(target);
     const OVERLAY_BORDER_SIZE = 3;
     
     overlay.setAttribute('id', 'pdf-annotate-edit-overlay');
