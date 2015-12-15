@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8"/>
   <title>PDFJSAnnotate</title>
+  <link rel="stylesheet" type="text/css" href="../pen.css"/>
   <link rel="stylesheet" type="text/css" href="../toolbar.css"/>
   <style type="text/css">
     body {
@@ -14,50 +15,13 @@
       right: 0;
       bottom: 0;
       left: 0;
-      overflow: hidden;
     }
-    #svg {
-      background-color: #fff;
-      width: 100%;
-      height: 100%;
-      margin-top: -35px;
-    }
-
-    .pen-color {
-      display: inline-block;
-      width: 25px;
-      height: 25px;
-      border: 1px solid #000;
-      vertical-align: middle;
-    }
-    .pen-color-selected {
-      border: 3px solid #666;
-      width: 30px;
-      height: 30px;
-      margin-top: -1px;
-      margin-left: -2px;
-      margin-right: -2px;
-    }
-    .pen-color-black {
-      background-color: #000;
-    }
-    .pen-color-white {
-      background-color: #fff;
-    }
-    .pen-color-magenta {
-      background-color: #fb67fa;
-    }
-    .pen-color-cyan {
-      background-color: #69fcfc;
-    }
-
-    .pen-size {
-      position: relative;
-      top: 3px;
-    }
-    .pen-size-output {
-      display: inline-block;
-      width: 25px;
+    #canvas, #svg {
+      position: absolute;
+      top: 5px;
+      left: 50%;
+      margin-bottom: 10px;
+      box-shadow: 0 0 3px #bbb;
     }
   </style>
 </head>
@@ -68,13 +32,15 @@
     <button class="strikeout" type="button">strikeout</button>
 
     <div class="spacer"></div>
+    
+    <button class="comment" type="button">comment</button>
+    
+    <div class="spacer"></div>
 
     <a href="javascript://" class="pen-color pen-color-black" data-color="000000" title="black"></a>
     <a href="javascript://" class="pen-color pen-color-white" data-color="ffffff" title="white"></a>
     <a href="javascript://" class="pen-color pen-color-magenta" data-color="fb67fa" title="magenta"></a>
     <a href="javascript://" class="pen-color pen-color-cyan" data-color="69fcfc" title="cyan"></a>
-
-    <div class="spacer"></div>
 
     <input type="range" class="pen-size" min="1" max="20"/> <span class="pen-size-output"></span>
 
@@ -82,6 +48,7 @@
 
     <button type="button" class="clear">clear</button>
   </div>
+  <canvas id="canvas"></canvas>
   <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
   <script src="../__build__/shared.js"></script>
   <script src="../__build__/mega.js"></script>

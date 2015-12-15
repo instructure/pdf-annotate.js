@@ -1,0 +1,36 @@
+.pen-color {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  border: 1px solid #000;
+  vertical-align: middle;
+}
+.pen-color-selected {
+  border: 3px solid #666;
+  width: 30px;
+  height: 30px;
+  margin-top: -1px;
+  margin-left: -2px;
+  margin-right: -2px;
+}
+.pen-color-black {
+  background-color: #000;
+}
+.pen-color-white {
+  background-color: #fff;
+}
+.pen-color-magenta {
+  background-color: #fb67fa;
+}
+.pen-color-cyan {
+  background-color: #69fcfc;
+}
+
+.pen-size {
+  position: relative;
+  top: 3px;
+}
+.pen-size-output {
+  display: inline-block;
+  width: 25px;
+}

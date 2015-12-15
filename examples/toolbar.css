@@ -8,8 +8,8 @@ body {
 }
 
 .toolbar {
-  background-color: #ddd;
-  border-bottom: 1px solid #aaa;
+  background-color: #eaeaea;
+  border-bottom: 1px solid #d0d0d0;
   height: 35px;
   position: fixed;
   top: 0;
@@ -18,6 +18,9 @@ body {
   padding: 3px 5px;
   text-shadow: 1px 1px 0 #fff;
   z-index: 100;
+  -webkit-box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,1);
+     -moz-box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,1);
+          box-shadow: inset 0px 1px 1px 0px rgba(255,255,255,1);
 }
 .toolbar .spacer {
   display: inline-block;
@@ -27,8 +30,8 @@ body {
 }
 
 .toolbar button {
-  background-color: #eee;
-  border: 1px solid #aaa;
+  background-color: #eaeaea;
+  border: 1px solid transparent;
   border-radius: 3px;
   font-size: 15px;
   padding: 4px 12px;
@@ -36,5 +39,5 @@ body {
 }
 .toolbar button:hover,
 .toolbar button:focus {
-  border-color: #666;
+  border-color: #bababa;
 }
