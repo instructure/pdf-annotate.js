@@ -1,0 +1,1 @@
+import PDFJSAnnotate from '../../';
