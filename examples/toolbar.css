@@ -29,6 +29,11 @@ body {
   margin: 0 10px -5px;
 }
 
+.toolbar a {
+  color: inherit;
+  text-decoration: none;
+}
+
 .toolbar button {
   background-color: #eaeaea;
   border: 1px solid transparent;
@@ -42,12 +47,15 @@ body {
   min-width: 27px;
   min-height: 27px;
 }
+.toolbar button.active {
+  border-color: #bababa;
+  -webkit-box-shadow: inset 0 0 1px rgba(0,0,0,0.25);
+     -moz-box-shadow: inset 0 0 1px rgba(0,0,0,0.25);
+          box-shadow: inset 0 0 1px rgba(0,0,0,0.25);
+}
 .toolbar button:hover,
 .toolbar button:focus {
   border-color: #bababa;
-  -webkit-box-shadow: 0 0 1px rgba(0,0,0,0.25);
-     -moz-box-shadow: 0 0 1px rgba(0,0,0,0.25);
-          box-shadow: 0 0 1px rgba(0,0,0,0.25);
 }
 
 .toolbar button.rectangle:after {
@@ -86,8 +94,4 @@ body {
 .toolbar button.text:after {
   content: 'T';
   font-family: 'Times New Roman';
-}
-
-.toolbar button.clear:after {
-  content: '×';
 }

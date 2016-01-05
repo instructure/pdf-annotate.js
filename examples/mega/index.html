@@ -27,17 +27,18 @@
 </head>
 <body>
   <div class="toolbar">
-    <button class="rectangle" type="button" title="Rectangle"></button>
-    <button class="highlight" type="button" title="Highlight"></button>
-    <button class="strikeout" type="button" title="Strikeout"></button>
+    <button class="rectangle" type="button" title="Rectangle" data-tooltype="area"></button>
+    <button class="highlight" type="button" title="Highlight" data-tooltype="highlight"></button>
+    <button class="strikeout" type="button" title="Strikeout" data-tooltype="strikeout"></button>
 
     <div class="spacer"></div>
     
-    <button class="text" type="button" title="Text"></button>
-    <button class="comment" type="button">comment</button>
+    <button class="text" type="button" title="Text" data-tooltype="text"></button>
+    <button class="comment" type="button" data-tooltype="comment">comment</button>
     
     <div class="spacer"></div>
 
+    <button class="pen" type="button" title="Pen Tool" data-tooltype="draw">pen</button>
     <a href="javascript://" class="pen-color pen-color-black" data-color="000000" title="black"></a>
     <a href="javascript://" class="pen-color pen-color-white" data-color="ffffff" title="white"></a>
     <a href="javascript://" class="pen-color pen-color-magenta" data-color="fb67fa" title="magenta"></a>
@@ -47,7 +48,7 @@
 
     <div class="spacer"></div>
 
-    <button type="button" class="clear" title="Clear"></button>
+    <a href="javascript://" class="clear" title="Clear">×</a>
   </div>
   <canvas id="canvas"></canvas>
   <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>

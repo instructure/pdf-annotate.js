@@ -61,19 +61,14 @@ function render() {
     document.querySelector('.pen-size').value = penSize;
     document.querySelector('.pen-size-output').innerHTML = penSize;
   
-    UI.initPen(
-      penSize, penColor,
-      // TODO onMouseUp should be contained within initPen
-      // which would depend on DOCUMENT_ID and PAGE_NUMBER
-      function (lines) {
-        PDFJSAnnotate.addAnnotation(DOCUMENT_ID, PAGE_NUMBER, {
-          type: 'drawing',
-          color: penColor,
-          width: penSize,
-          lines
-        });
-      }
-    );
+    UI.initPen(penSize, penColor, (width, color, lines) => {
+      PDFJSAnnotate.addAnnotation(DOCUMENT_ID, PAGE_NUMBER, {
+        type: 'drawing',
+        width,
+        color,
+        lines
+      });
+    });
   }
 
   function setPenColorFromEvent(e) {
@@ -121,6 +116,32 @@ function render() {
   initPen();
 })();
 
+// Toolbar buttons
+(function () {
+  let tooltype;
+
+  function handleToolbarClick(e) {
+    if (e.target.nodeName === 'BUTTON') {
+      let active = document.querySelector('.toolbar button.active');
+      if (active) {
+        active.classList.remove('active');
+        if (tooltype === 'draw') {
+          UI.disablePen();
+        }
+      }
+
+      e.target.classList.add('active');
+      tooltype = e.target.getAttribute('data-tooltype');
+
+      if (tooltype === 'draw') {
+        UI.enablePen();
+      }
+    }
+  }
+
+  document.querySelector('.toolbar').addEventListener('click', handleToolbarClick);
+})();
+
 // Clear toolbar button
 (function () {
   function handleClearClick(e) {
@@ -129,5 +150,5 @@ function render() {
       svg.innerHTML = '';
     }
   }
-  document.querySelector('button.clear').addEventListener('click', handleClearClick);
+  document.querySelector('a.clear').addEventListener('click', handleClearClick);
 })();
