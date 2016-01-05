@@ -46,13 +46,10 @@ function render() {
 
 // Pen stuff
 (function () {
-  let penSize;
-  let penColor;
+  let penSize = localStorage.getItem(`${DOCUMENT_ID}/pen/size`) || 1;
+  let penColor = localStorage.getItem(`${DOCUMENT_ID}/pen/color`) || '000000';
 
   function initPen() {
-    penColor = localStorage.getItem(`${DOCUMENT_ID}/pen/color`) || '000000';
-    penSize = localStorage.getItem(`${DOCUMENT_ID}/pen/size`) || 1;
-    
     Array.prototype.forEach.call(document.querySelectorAll('.pen-color'), (i) => {
       if (i.getAttribute('data-color') === penColor) {
         selectPenColor(i);
@@ -118,24 +115,36 @@ function render() {
 
 // Toolbar buttons
 (function () {
-  let tooltype;
+  let tooltype = localStorage.getItem(`${DOCUMENT_ID}/tooltype`);
+  if (tooltype) {
+    setActiveToolbarItem(tooltype, document.querySelector(`.toolbar button[data-tooltype=${tooltype}]`));
+  }
+
+  function setActiveToolbarItem(type, button) {
+    let active = document.querySelector('.toolbar button.active');
+    if (active) {
+      active.classList.remove('active');
+      if (type === 'draw') {
+        UI.disablePen();
+      }
+    }
+
+    if (button) {
+      button.classList.add('active');
+    }
+    if (tooltype !== type) {
+      localStorage.setItem(`${DOCUMENT_ID}/tooltype`, type);
+    }
+    tooltype = type;
+
+    if (type === 'draw') {
+      UI.enablePen();
+    }
+  }
 
   function handleToolbarClick(e) {
     if (e.target.nodeName === 'BUTTON') {
-      let active = document.querySelector('.toolbar button.active');
-      if (active) {
-        active.classList.remove('active');
-        if (tooltype === 'draw') {
-          UI.disablePen();
-        }
-      }
-
-      e.target.classList.add('active');
-      tooltype = e.target.getAttribute('data-tooltype');
-
-      if (tooltype === 'draw') {
-        UI.enablePen();
-      }
+      setActiveToolbarItem(e.target.getAttribute('data-tooltype'), e.target);
     }
   }
 
