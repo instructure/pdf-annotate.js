@@ -3,6 +3,8 @@ import PDFJSAnnotate from '../../';
 import localStoreAdapter from '../localStoreAdapter';
 import UI from '../UI';
 
+const canvas = document.getElementById('canvas');
+const svg = document.getElementById('svg');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 const PAGE_NUMBER = 1;
 const data = {
@@ -24,6 +26,23 @@ PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
     render();
   });
 });
+
+// Render the stuff to the thing
+function render() {
+  let viewport = data.page.getViewport(1.33, 0);
+  let canvasContext = canvas.getContext('2d');
+  
+  canvas.height = viewport.height;
+  canvas.width = viewport.width;
+  canvas.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
+  
+  svg.setAttribute('height', viewport.height);
+  svg.setAttribute('width', viewport.width);
+  svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
+
+  data.page.render({canvasContext, viewport});
+  PDFJSAnnotate.render(svg, viewport, data.annotations);
+}
 
 // Pen stuff
 (function () {
@@ -95,36 +114,20 @@ PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
     UI.setPen(penSize, penColor);
   }
 
-  function handleClearClick(e) {
-    if (confirm('Are you sure you want to throw your art away?')) {
-      localStorage.removeItem(`${DOCUMENT_ID}/annotations`);
-      svg.innerHTML = '';
-    }
-  }
-
   document.querySelector('.toolbar').addEventListener('click', handleMenuClick);
   document.querySelector('.toolbar').addEventListener('keyup', handleMenuKeyUp);
   document.querySelector('.pen-size').addEventListener('change', handlePenSizeChange);
-  document.querySelector('button.clear').addEventListener('click', handleClearClick);
 
   initPen();
 })();
 
-// Render the stuff to the thing
-function render() {
-  let viewport = data.page.getViewport(1.33, 0);
-  let canvas = document.getElementById('canvas');
-  let svg = document.getElementById('svg');
-  let canvasContext = canvas.getContext('2d');
-  
-  canvas.height = viewport.height;
-  canvas.width = viewport.width;
-  canvas.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
-  
-  svg.setAttribute('height', viewport.height);
-  svg.setAttribute('width', viewport.width);
-  svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
-
-  data.page.render({canvasContext, viewport});
-  PDFJSAnnotate.render(svg, viewport, data.annotations);
-}
+// Clear toolbar button
+(function () {
+  function handleClearClick(e) {
+    if (confirm('Are you sure you want to clear annotations?')) {
+      localStorage.removeItem(`${DOCUMENT_ID}/annotations`);
+      svg.innerHTML = '';
+    }
+  }
+  document.querySelector('button.clear').addEventListener('click', handleClearClick);
+})();
