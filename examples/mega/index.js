@@ -8,6 +8,8 @@ const svg = document.getElementById('svg');
 const overlay = document.getElementById('overlay');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 const PAGE_NUMBER = 1;
+let SCALE = parseFloat(localStorage.getItem(`${DOCUMENT_ID}/scale`), 10) || 1.33;
+let ROTATE = parseInt(localStorage.getItem(`${DOCUMENT_ID}/rotate`), 10) || 0;
 const data = {
   page: null,
   annotations: null
@@ -30,10 +32,14 @@ PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
 
 // Render the stuff to the thing
 function render() {
-  const scale = 1.33;
-  const rotate = 0;
-  let viewport = data.page.getViewport(scale, rotate);
+  let viewport = data.page.getViewport(SCALE, ROTATE);
   let canvasContext = canvas.getContext('2d');
+  let overlayWidth = viewport.width;
+  let overlayHeight = viewport.height;
+  if (ROTATE % 360 === 90 || ROTATE % 360 === 270) {
+    overlayWidth = viewport.height;
+    overlayHeight = viewport.width;
+  }
   
   canvas.height = viewport.height;
   canvas.width = viewport.width;
@@ -43,11 +49,13 @@ function render() {
   svg.setAttribute('width', viewport.width);
   svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
 
-  overlay.style.zoom = scale;
-  overlay.style.top = (parseInt(getComputedStyle(overlay).top, 10) / scale) + 'px';
-  overlay.style.height = (viewport.height / scale) + 'px';
-  overlay.style.width = (viewport.width / scale) + 'px';
-  overlay.style.marginLeft = (((viewport.width / scale) / 2) * -1) + 'px';
+  overlay.style.zoom = SCALE;
+  overlay.style.transform = `rotate(${ROTATE}deg)`;
+  overlay.style.top = (parseInt(getComputedStyle(overlay).top, 10) / SCALE) + 'px';
+  overlay.style.height = (overlayHeight / SCALE) + 'px';
+  overlay.style.width = (overlayWidth / SCALE) + 'px';
+  overlay.style.marginLeft = (((overlayWidth / SCALE) / 2) * -1) + 'px';
+  overlay.style.marginTop = (((overlayHeight - viewport.height) / 2) * -1) + 'px';
 
   data.page.render({canvasContext, viewport});
   PDFJSAnnotate.render(svg, viewport, data.annotations);
@@ -186,6 +194,38 @@ function render() {
   }
 
   document.querySelector('.toolbar').addEventListener('click', handleToolbarClick);
+})();
+
+// Scale/rotate
+(function () {
+  function setScaleRotate(scale, rotate) {
+    if (SCALE !== scale || ROTATE !== rotate) {
+      SCALE = scale;
+      ROTATE = rotate;
+
+      localStorage.setItem(`${DOCUMENT_ID}/scale`, SCALE);
+      localStorage.setItem(`${DOCUMENT_ID}/rotate`, ROTATE % 360);
+
+      render();
+    }
+  }
+
+  function handleScaleChange(e) {
+    setScaleRotate(e.target.value, ROTATE);
+  }
+
+  function handleRotateCWClick() {
+    setScaleRotate(SCALE, ROTATE + 90);
+  }
+
+  function handleRotateCCWClick() {
+    setScaleRotate(SCALE, ROTATE - 90);
+  }
+
+  document.querySelector('.toolbar select.scale').value = SCALE;
+  document.querySelector('.toolbar select.scale').addEventListener('change', handleScaleChange);
+  document.querySelector('.toolbar .rotate-ccw').addEventListener('click', handleRotateCCWClick);
+  document.querySelector('.toolbar .rotate-cw').addEventListener('click', handleRotateCWClick);
 })();
 
 // Clear toolbar button
