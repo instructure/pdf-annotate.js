@@ -60,7 +60,7 @@ export default function renderView(svg, viewport, annotations) {
   svg.setAttribute('data-pdf-annotate-container', true);
 
   // Make sure annotations is an array
-  if (!Array.isArray(annotations)) {
+  if (!Array.isArray(annotations) || annotations.length === 0) {
     return svg;
   }
 
