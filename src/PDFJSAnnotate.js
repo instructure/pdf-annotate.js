@@ -13,6 +13,10 @@ let PDFJSAnnotate = {
     return this.StoreAdapter.addAnnotation(documentId, pageNumber, annotation);
   },
 
+  editAnnotation(documentId, pageNumber, annotation) {
+    return this.StoreAdapter.addAnnotation(documentId, pageNumber, annotation);
+  },
+
   deleteAnnotation(documentId, annotationId) {
     return this.StoreAdapter.deleteAnnotation(documentId, annotationId);
   },
