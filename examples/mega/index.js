@@ -30,7 +30,9 @@ PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
 
 // Render the stuff to the thing
 function render() {
-  let viewport = data.page.getViewport(1.33, 0);
+  const scale = 1.33;
+  const rotate = 0;
+  let viewport = data.page.getViewport(scale, rotate);
   let canvasContext = canvas.getContext('2d');
   
   canvas.height = viewport.height;
@@ -41,9 +43,11 @@ function render() {
   svg.setAttribute('width', viewport.width);
   svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
 
-  overlay.style.height = viewport.height + 'px';
-  overlay.style.width = viewport.width + 'px';
-  overlay.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
+  overlay.style.zoom = scale;
+  overlay.style.top = (parseInt(getComputedStyle(overlay).top, 10) / scale) + 'px';
+  overlay.style.height = (viewport.height / scale) + 'px';
+  overlay.style.width = (viewport.width / scale) + 'px';
+  overlay.style.marginLeft = (((viewport.width / scale) / 2) * -1) + 'px';
 
   data.page.render({canvasContext, viewport});
   PDFJSAnnotate.render(svg, viewport, data.annotations);
