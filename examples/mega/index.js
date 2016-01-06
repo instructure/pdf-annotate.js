@@ -5,6 +5,7 @@ import UI from '../UI';
 
 const canvas = document.getElementById('canvas');
 const svg = document.getElementById('svg');
+const overlay = document.getElementById('overlay');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 const PAGE_NUMBER = 1;
 const data = {
@@ -39,6 +40,10 @@ function render() {
   svg.setAttribute('height', viewport.height);
   svg.setAttribute('width', viewport.width);
   svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
+
+  overlay.style.height = viewport.height + 'px';
+  overlay.style.width = viewport.width + 'px';
+  overlay.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
 
   data.page.render({canvasContext, viewport});
   PDFJSAnnotate.render(svg, viewport, data.annotations);

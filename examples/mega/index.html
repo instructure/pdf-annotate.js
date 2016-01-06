@@ -16,12 +16,32 @@
       bottom: 0;
       left: 0;
     }
-    #canvas, #svg {
+    #canvas, #svg, #overlay {
       position: absolute;
       top: 5px;
       left: 50%;
       margin-bottom: 10px;
       box-shadow: 0 0 3px #bbb;
+    }
+    #canvas {
+      visibility: hidden;
+    }
+    #svg {
+      background: #fff;
+    }
+    #overlay {
+      padding: 100px 96px;
+      font-size: 13px;
+    }
+    #overlay h2 {
+      font-size: 25px;
+      margin-top: 24px;
+      margin-bottom: 34px;
+      text-align: center;
+    }
+    #overlay p {
+      line-height: 1.55;
+      word-spacing: .5px;
     }
   </style>
 </head>
@@ -52,6 +72,14 @@
   </div>
   <canvas id="canvas"></canvas>
   <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
+  <div id="overlay">
+    <h2>PDF.js Annotate</h2>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Suspendisse et elementum eros, non elementum nisi. Quisque hendrerit, quam sed auctor porta, ex augue rhoncus arcu, ut fringilla ex risus ut ante. Cras tincidunt, magna ut hendrerit pretium, mi turpis imperdiet ipsum, id egestas nisi risus a leo. Nulla ac mauris sed eros porttitor vehicula. Etiam pretium nisi sit amet magna efficitur tristique. Nam vel ligula quis justo fermentum molestie. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos. Aenean rhoncus tellus magna, ut dictum quam sollicitudin non. Vivamus sagittis, enim eu mollis pellentesque, nisl turpis aliquam massa, vitae vulputate lorem diam et arcu. Sed mattis convallis quam. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec facilisis, eros commodo tincidunt fringilla, ante lectus interdum neque, sit amet vulputate justo nibh a arcu.
+    <p>Pellentesque consequat vestibulum nisl, aliquam mollis felis sollicitudin quis. Morbi in neque facilisis enim finibus pretium. Pellentesque leo elit, molestie in auctor ac, dignissim ullamcorper massa. In eget laoreet neque, sit amet sagittis lectus. Pellentesque non leo leo. Quisque mi augue, pretium in hendrerit et, auctor et eros. Donec pulvinar bibendum lorem in suscipit. Ut hendrerit tellus in purus mattis euismod. Proin ex mi, rhoncus et felis eu, auctor laoreet diam.
+    <p>Nullam dignissim arcu id nunc tempus, nec maximus nunc consectetur. Mauris mollis sagittis est, vitae tincidunt magna rhoncus sit amet. Pellentesque nec tortor nisi. Phasellus malesuada sem justo, quis congue justo finibus vel. Integer congue lectus et ligula tristique iaculis et sed quam. Nam placerat velit libero, in facilisis justo elementum pharetra. In hac habitasse platea dictumst. Aenean imperdiet vestibulum accumsan. Ut non posuere nulla.
+    <p>Nam et mi id felis efficitur molestie molestie in purus. Donec malesuada elit eget ullamcorper dapibus. Etiam varius enim at blandit sollicitudin. Curabitur accumsan venenatis interdum. Suspendisse sagittis facilisis lorem, sit amet ullamcorper est dapibus sit amet. Nunc vitae libero nec lectus pulvinar feugiat vel sagittis turpis. Duis eu purus a lectus scelerisque dictum. Suspendisse orci lectus, vehicula sit amet consequat sed, pellentesque a tortor. Suspendisse ut purus turpis. Etiam tincidunt egestas rhoncus. Cras ut neque a lectus dictum faucibus. Praesent accumsan nec turpis lacinia molestie. Aliquam sit amet eleifend eros, tempus venenatis dolor. Aliquam malesuada neque at sem pretium, et posuere odio elementum. Phasellus porttitor sed nulla ut convallis. Donec vel sodales neque.
+    <p>Proin feugiat diam finibus, sollicitudin eros lacinia, ultrices orci. Nam tincidunt est feugiat accumsan vulputate. Quisque sit amet gravida turpis. Nulla nec consequat lorem. Suspendisse egestas porttitor lacus non dictum. Duis vitae facilisis nisi, sed aliquam nibh. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Aliquam varius condimentum nisl vitae mattis. In hac habitasse platea dictumst. Sed fermentum justo molestie felis mollis maximus. Phasellus accumsan et metus non sagittis. In hac habitasse platea dictumst. Nullam venenatis tempor nunc, eu pellentesque metus ullamcorper sed. Integer vitae neque luctus, scelerisque tellus id, iaculis velit.
+  </div>
   <script src="../__build__/shared.js"></script>
   <script src="../__build__/mega.js"></script>
 </body>
