@@ -72,12 +72,14 @@ describe('render::renderView', function () {
   it('should add data-attributes', function () {
     renderView(svg, viewport, [
       {
+        page: 1,
         uuid: 1234,
         type: 'point',
         x: 0,
         y: 0
       },
       {
+        page: 1,
         uuid: 5678,
         type: 'area',
         x: 0,
@@ -90,6 +92,7 @@ describe('render::renderView', function () {
     let point = svg.querySelector('svg[data-pdf-annotate-id]');
     let area = svg.querySelector('rect[data-pdf-annotate-id]');
 
+    equal(svg.getAttribute('data-pdf-annotate-page'), '1');
     equal(svg.getAttribute('data-pdf-annotate-container'), 'true');
     equal(point.getAttribute('data-pdf-annotate-id'), '1234');
     equal(point.getAttribute('data-pdf-annotate-type'), 'point');

@@ -101,5 +101,8 @@ export default function renderView(svg, viewport, annotations) {
     });
   });
 
+  // SVG should include page number from annotations
+  svg.setAttribute('data-pdf-annotate-page', annotations[0].page);
+
   return svg;
 }
