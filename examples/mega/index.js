@@ -55,17 +55,14 @@ function render() {
 
 // Pen stuff
 (function () {
-  let penSize = localStorage.getItem(`${DOCUMENT_ID}/pen/size`) || 1;
-  let penColor = localStorage.getItem(`${DOCUMENT_ID}/pen/color`) || '000000';
+  let penSize;
+  let penColor;
 
   function initPen() {
-    Array.prototype.forEach.call(document.querySelectorAll('.pen-color'), (i) => {
-      if (i.getAttribute('data-color') === penColor) {
-        selectPenColor(i);
-      }
-    });
-    document.querySelector('.pen-size').value = penSize;
-    document.querySelector('.pen-size-output').innerHTML = penSize;
+    setPen(
+      localStorage.getItem(`${DOCUMENT_ID}/pen/size`) || 1,
+      localStorage.getItem(`${DOCUMENT_ID}/pen/color`) || '000000'
+    );
   
     UI.initPen(penSize, penColor, (width, color, lines) => {
       PDFJSAnnotate.addAnnotation(DOCUMENT_ID, PAGE_NUMBER, {
@@ -77,42 +74,58 @@ function render() {
     });
   }
 
-  function setPenColorFromEvent(e) {
-    if (e.target.nodeName === 'A' && e.target.getAttribute('data-color')) {
-      penColor = e.target.getAttribute('data-color');
+  function setPen(size, color) {
+    let modified = false;
+
+    if (penSize !== size) {
+      modified = true;
+      penSize = size;
+      localStorage.setItem(`${DOCUMENT_ID}/pen/size`, penSize);
+      document.querySelector('.toolbar .pen-size').value = penSize;
+      document.querySelector('.toolbar .pen-size-output').innerHTML = `${penSize}px`;
+    }
+
+    if (penColor !== color) {
+      modified = true;
+      penColor = color;
       localStorage.setItem(`${DOCUMENT_ID}/pen/color`, penColor);
-      selectPenColor(e.target);
+      
+      let selected = document.querySelector('.toolbar .pen-color-selected');
+      if (selected) {
+        selected.classList.remove('pen-color-selected');
+        selected.removeAttribute('aria-selected');
+      }
+
+      selected = document.querySelector(`.toolbar .pen-color[data-color="${color}"]`);
+      if (selected) {
+        selected.classList.add('pen-color-selected');
+        selected.setAttribute('aria-selected', true);
+      }
+    }
+
+    if (modified) {
       UI.setPen(penSize, penColor);
     }
   }
 
-  function selectPenColor(el) {
-    let old = document.querySelector('.pen-color-selected');
-
-    if (old) {
-      old.classList.remove('pen-color-selected');
-      old.removeAttribute('aria-selected');
+  function setPenColorFromElement(el) {
+    if (el.nodeName === 'A' && el.getAttribute('data-color')) {
+      setPen(penSize, el.getAttribute('data-color'));
     }
-
-    el.classList.add('pen-color-selected');
-    el.setAttribute('aria-selected', true);
   }
 
   function handleMenuClick(e) {
-    setPenColorFromEvent(e);
+    setPenColorFromElement(e.target);
   }
 
   function handleMenuKeyUp(e) {
     if (e.keyCode === 32) {
-      setPenColorFromEvent(e);
+      setPenColorFromElement(e.target);
     }
   }
 
   function handlePenSizeChange(e) {
-    penSize = e.target.value;
-    localStorage.setItem(`${DOCUMENT_ID}/pen/size`, penSize);
-    document.querySelector('.pen-size-output').innerHTML = penSize;
-    UI.setPen(penSize, penColor);
+    setPen(e.target.value, penColor);
   }
 
   document.querySelector('.toolbar').addEventListener('click', handleMenuClick);
@@ -133,8 +146,16 @@ function render() {
     let active = document.querySelector('.toolbar button.active');
     if (active) {
       active.classList.remove('active');
-      if (type === 'draw') {
-        UI.disablePen();
+
+      switch (type) {
+        case 'draw':
+          UI.disablePen();
+          break;
+        case 'area':
+        case 'highlight':
+        case 'strikeout':
+          UI.disableRect();
+          break;
       }
     }
 
@@ -146,8 +167,15 @@ function render() {
     }
     tooltype = type;
 
-    if (type === 'draw') {
-      UI.enablePen();
+    switch (type) {
+      case 'draw':
+        UI.enablePen();
+        break;
+      case 'area':
+      case 'highlight':
+      case 'strikeout':
+        UI.enableRect(type);
+        break;
     }
   }
 
