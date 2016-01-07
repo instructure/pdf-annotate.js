@@ -24,9 +24,9 @@ body {
 }
 .toolbar .spacer {
   display: inline-block;
-  border-left: 1px solid #000;
-  height: 18px;
-  margin: 0 10px -5px;
+  border-left: 1px solid #c1c1c1;
+  height: 34px;
+  margin: 0 5px -11px;
 }
 
 .toolbar a {
@@ -40,12 +40,16 @@ body {
   border-radius: 3px;
   font-size: 15px;
   padding: 3px;
-  margin: 0 5px;
+  margin: 0;
   text-align: center;
   text-shadow: 1px 1px 0 #fff;
   position: relative;
   min-width: 27px;
   min-height: 27px;
+}
+.toolbar button:after {
+  content: ' ';
+  display: block;
 }
 .toolbar button.active {
   border-color: #bababa;
@@ -59,8 +63,6 @@ body {
 }
 
 .toolbar button.rectangle:after {
-  content: ' ';
-  display: block;
   width: 15px;
   height: 15px;
   border: 1px solid red;
@@ -70,8 +72,6 @@ body {
 }
 
 .toolbar button.highlight:after {
-  content: ' ';
-  display: block;
   width: 17px;
   height: 17px;
   background: yellow;
@@ -81,8 +81,6 @@ body {
 }
 
 .toolbar button.strikeout:after {
-  content: ' ';
-  display: block;
   width: 15px;
   height: 1px;
   background: red;
