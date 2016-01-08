@@ -20,8 +20,8 @@ PDFJS.workerSrc = '../pdf.worker.js';
 
 PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
   Promise.all([
-    pdf.getPage(1),
-    PDFJSAnnotate.getAnnotations(DOCUMENT_ID, 1)
+    pdf.getPage(PAGE_NUMBER),
+    PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER)
   ])
   .then(([page, annotations]) => {
     data.page = page;
