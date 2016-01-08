@@ -54,17 +54,20 @@ function transform(node, viewport) {
   return node;
 }
 
-export default function renderView(svg, viewport, annotations) {
+export default function renderView(svg, viewport, data) {
   // Reset the content of the SVG
-  svg.innerHTML = '';
-  svg.setAttribute('data-pdf-annotate-container', true);
+  svg.innerHTML = ''; 
 
   // Make sure annotations is an array
-  if (!Array.isArray(annotations) || annotations.length === 0) {
+  if (!data || !Array.isArray(data.annotations) || data.annotations.length === 0) {
     return svg;
   }
+  
+  svg.setAttribute('data-pdf-annotate-container', true);
+  svg.setAttribute('data-pdf-annotate-document', data.documentId);
+  svg.setAttribute('data-pdf-annotate-page', data.pageNumber);
 
-  annotations.forEach((a) => {
+  data.annotations.forEach((a) => {
     let node;
     switch (a.type) {
       case 'area':
@@ -100,9 +103,6 @@ export default function renderView(svg, viewport, annotations) {
       }
     });
   });
-
-  // SVG should include page number from annotations
-  svg.setAttribute('data-pdf-annotate-page', annotations[0].page);
 
   return svg;
 }

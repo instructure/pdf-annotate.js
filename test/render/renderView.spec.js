@@ -26,9 +26,14 @@ function testRotation(rotation, transX, transY) {
     }
   ];
   
-  renderView(svg, viewport, annotations);
+  renderView(svg, viewport, {annotations});
 
   equal(svg.querySelector('rect').getAttribute('transform'), `scale(1) rotate(${rotation}) translate(${transX}, ${transY})`);
+}
+
+function render(annotations) {
+  let data = Array.isArray(annotations) ? { annotations } : annotations;
+  renderView(svg, viewport, data);
 }
 
 let svg;
@@ -43,7 +48,7 @@ describe('render::renderView', function () {
   it('should reset SVG on each render', function () {
     let viewport = mockViewport(undefined, undefined, .5);    
 
-    renderView(svg, viewport, [
+    render([
       {
         type: 'point',
         x: 0,
@@ -53,7 +58,7 @@ describe('render::renderView', function () {
 
     equal(svg.children.length, 1);
 
-    renderView(svg, viewport, [
+    render([
       {
         type: 'point',
         x: 0,
@@ -70,30 +75,33 @@ describe('render::renderView', function () {
   });
 
   it('should add data-attributes', function () {
-    renderView(svg, viewport, [
-      {
-        page: 1,
-        uuid: 1234,
-        type: 'point',
-        x: 0,
-        y: 0
-      },
-      {
-        page: 1,
-        uuid: 5678,
-        type: 'area',
-        x: 0,
-        y: 0,
-        width: 25,
-        height: 25
-      }
-    ]);
+    render({
+      documentId: '/renderView',
+      pageNumber: 1,
+      annotations: [
+        {
+          uuid: 1234,
+          type: 'point',
+          x: 0,
+          y: 0
+        },
+        {
+          uuid: 5678,
+          type: 'area',
+          x: 0,
+          y: 0,
+          width: 25,
+          height: 25
+        }
+      ]
+    });
 
     let point = svg.querySelector('svg[data-pdf-annotate-id]');
     let area = svg.querySelector('rect[data-pdf-annotate-id]');
 
-    equal(svg.getAttribute('data-pdf-annotate-page'), '1');
     equal(svg.getAttribute('data-pdf-annotate-container'), 'true');
+    equal(svg.getAttribute('data-pdf-annotate-document'), '/renderView');
+    equal(svg.getAttribute('data-pdf-annotate-page'), '1');
     equal(point.getAttribute('data-pdf-annotate-id'), '1234');
     equal(point.getAttribute('data-pdf-annotate-type'), 'point');
     equal(area.getAttribute('data-pdf-annotate-id'), '5678');
@@ -101,7 +109,7 @@ describe('render::renderView', function () {
   });
 
   it('should render area', function () {
-    renderView(svg, viewport, [
+    render([
       {
         type: 'area',
         x: 125,
@@ -116,7 +124,7 @@ describe('render::renderView', function () {
   });
 
   it('should render highlight', function () {
-    renderView(svg, viewport, [
+    render([
       {
         type: 'highlight',
         color: 'FF0000',
@@ -136,7 +144,7 @@ describe('render::renderView', function () {
   });
 
   it('should render strikeout', function () {
-    renderView(svg, viewport, [
+    render([
       {
         type: 'strikeout',
         color: 'FF0000',
@@ -154,7 +162,7 @@ describe('render::renderView', function () {
   });
 
   it('should render textbox', function () {
-    renderView(svg, viewport, [
+    render([
       {
         type: 'textbox',
         x: 125,
@@ -172,7 +180,7 @@ describe('render::renderView', function () {
   });
 
   it('should render point', function () {
-    renderView(svg, viewport, [
+    render([
       {
         type: 'point',
         x: 5,
@@ -185,7 +193,7 @@ describe('render::renderView', function () {
   });
 
   it('should render drawing', function () {
-    renderView(svg, viewport, [
+    render([
       {
         type: 'drawing',
         x: 10,
@@ -201,7 +209,7 @@ describe('render::renderView', function () {
   it('should fail gracefully if no annotations are provided', function () {
     let error = false;
     try {
-      renderView(svg, viewport, null);
+      render(null);
     } catch (e) {
       error = true;
     }
@@ -212,7 +220,7 @@ describe('render::renderView', function () {
   it('should fail gracefully if no type is provided', function () {
     let error = false;
     try {
-      renderView(svg, viewport, [
+      render([
         { x: 1, y: 1 }
       ]);
     } catch (e) {
@@ -232,7 +240,7 @@ describe('render::renderView', function () {
       }
     ];
     
-    renderView(svg, viewport, annotations);
+    render(annotations);
 
     let nested = svg.querySelector('svg');
     

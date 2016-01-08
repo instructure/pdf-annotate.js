@@ -6,7 +6,13 @@ let PDFJSAnnotate = {
   StoreAdapter,
 
   getAnnotations(documentId, pageNumber) {
-    return this.StoreAdapter.getAnnotations(documentId, pageNumber);
+    return this.StoreAdapter.getAnnotations(documentId, pageNumber).then((annotations) => {
+      return {
+        documentId,
+        pageNumber,
+        annotations
+      };
+    });
   },
 
   addAnnotation(documentId, pageNumber, annotation) {
