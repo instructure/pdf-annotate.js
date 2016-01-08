@@ -71,15 +71,6 @@ function render() {
       localStorage.getItem(`${DOCUMENT_ID}/pen/size`) || 1,
       localStorage.getItem(`${DOCUMENT_ID}/pen/color`) || '000000'
     );
-  
-    UI.initPen(penSize, penColor, (width, color, lines) => {
-      PDFJSAnnotate.addAnnotation(DOCUMENT_ID, PAGE_NUMBER, {
-        type: 'drawing',
-        width,
-        color,
-        lines
-      });
-    });
   }
 
   function setPen(size, color) {

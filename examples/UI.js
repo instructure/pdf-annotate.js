@@ -8,11 +8,24 @@ const UI = {};
 
 export default UI;
 
+function findSVGAtPoint(x, y) {
+  let els = document.elementsFromPoint(x, y);
+
+  for (let i=0, l=els.length; i<l; i++) {
+    let el = els[i];
+    if (el.nodeName.toUpperCase() === 'SVG' &&
+        el.getAttribute('data-pdf-annotate-container') === 'true') {
+      return el;
+    }
+  }
+
+  return null;
+}
+
 // Pen stuff
 (function () {
   let _penSize;
   let _penColor;
-  let _onMouseUp;
   let path;
   let lines;
   
@@ -24,9 +37,19 @@ export default UI;
     document.addEventListener('mouseup', handleMouseUp);
   }
 
-  function handleMouseUp() {
+  function handleMouseUp(e) {
     if (lines.length > 1) {
-      _onMouseUp(_penSize, _penColor, lines);
+      let svg = findSVGAtPoint(e.clientX, e.clientY);
+
+      PDFJSAnnotate.addAnnotation(
+        svg.getAttribute('data-pdf-annotate-document'),
+        parseInt(svg.getAttribute('data-pdf-annotate-page'), 10), {
+          type: 'drawing',
+          width: _penSize,
+          color: _penColor,
+          lines
+        }
+      );
     }
 
     document.removeEventListener('mousemove', handleMouseMove);
@@ -59,11 +82,6 @@ export default UI;
     return false;
   }
 
-  UI.initPen = (penSize = 1, penColor = '000000', onMouseUp = function () {}) => {
-    UI.setPen(penSize, penColor);
-    _onMouseUp = onMouseUp;
-  };
-
   UI.setPen = (penSize = 1, penColor = '000000') => {
     _penSize = penSize;
     _penColor = penColor;
@@ -94,20 +112,6 @@ export default UI;
     } catch (e) {}
 
     return false;
-  }
-
-  function findSVGAtPoint(x, y) {
-    let els = document.elementsFromPoint(x, y);
-
-    for (let i=0, l=els.length; i<l; i++) {
-      let el = els[i];
-      if (el.nodeName.toUpperCase() === 'SVG' &&
-          el.getAttribute('data-pdf-annotate-container') === 'true') {
-        return el;
-      }
-    }
-
-    return null;
   }
 
   function handleMouseUp(e) {
