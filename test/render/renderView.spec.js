@@ -108,6 +108,32 @@ describe('render::renderView', function () {
     equal(area.getAttribute('data-pdf-annotate-type'), 'area');
   });
 
+  it('should add document and page if annotations are empty', function () {
+    render({
+      documentId: '/renderView',
+      pageNumber: 1,
+      annotations: []
+    });
+
+    equal(svg.getAttribute('data-pdf-annotate-container'), 'true');
+    equal(svg.getAttribute('data-pdf-annotate-document'), '/renderView');
+    equal(svg.getAttribute('data-pdf-annotate-page'), '1');
+  });
+
+  it('should reset document and page if no data', function () {
+    render({
+      documentId: '/renderView',
+      pageNumber: 1,
+      annotations: []
+    });
+
+    render();
+
+    equal(svg.getAttribute('data-pdf-annotate-container'), 'true');
+    equal(svg.getAttribute('data-pdf-annotate-document'), null);
+    equal(svg.getAttribute('data-pdf-annotate-page'), null);
+  });
+
   it('should render area', function () {
     render([
       {
