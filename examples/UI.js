@@ -22,6 +22,44 @@ function findSVGAtPoint(x, y) {
   return null;
 }
 
+function getOffset(e) {
+  let offsetLeft = 0;
+  let offsetTop = 0;
+  let parentNode = e;
+  let svgFound = false;
+
+  function isContainer() {
+    return parentNode.getAttribute('data-pdf-annotate-container') === 'true';
+  }
+
+  function adjustOffset() {
+    var rect = parentNode.getBoundingClientRect();
+    offsetLeft += rect.left;
+    offsetTop += rect.top;
+  }
+
+  if (isContainer()) {
+    // TODO offset is incorrect when flagging found here, but should be correct
+    // svgFound = true;
+    adjustOffset();
+  }
+
+  while ((parentNode = parentNode.parentNode) && parentNode !== document) {
+    if (!svgFound && isContainer()) {
+      svgFound = true;
+    }
+
+    if (svgFound) {
+      adjustOffset();
+    }
+  }
+
+  return {
+    offsetLeft,
+    offsetTop
+  };
+}
+
 // Pen stuff
 (function () {
   let _penSize;
@@ -57,8 +95,8 @@ function findSVGAtPoint(x, y) {
   }
 
   function handleMouseMove(e) {
-    // TODO adjust the offset of the x/y coords
-    lines.push([e.clientX, e.clientY]);
+    let {offsetLeft, offsetTop} = getOffset(findSVGAtPoint(e.clientX, e.clientY));
+    lines.push([e.clientX - offsetLeft, e.clientY - offsetTop ]);
 
     if (lines.length <= 1) {
       return;
@@ -126,6 +164,7 @@ function findSVGAtPoint(x, y) {
     let rects = range.getClientRects();
     let bounding = selection.anchorNode.parentNode.getBoundingClientRect();
     let svg = findSVGAtPoint(bounding.left, bounding.top);
+    let {offsetLeft, offsetTop} = getOffset(svg);
     let node;
     let annotation;
 
@@ -149,13 +188,18 @@ function findSVGAtPoint(x, y) {
         }
 
         return {
-          y: (r.top + offset) - svg.offsetTop,
-          x: r.left - svg.offsetLeft,
+          y: (r.top + offset) - offsetTop,
+          x: r.left - offsetLeft,
           width: r.width,
           height: r.height
         };
-      })
+      }).filter((r) => r.width > 0 && r.height > 0)
     };
+
+    // Short circuit if no rectangles exist
+    if (annotation.rectangles.length === 0) {
+      return;
+    }
 
     // Add the annotation
     PDFJSAnnotate.addAnnotation(
