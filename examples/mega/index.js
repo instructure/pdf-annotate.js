@@ -61,6 +61,9 @@ function render() {
   PDFJSAnnotate.render(svg, viewport, data.annotations);
 }
 
+// Edit stuff
+UI.enableEdit();
+
 // Pen stuff
 (function () {
   let penSize;
