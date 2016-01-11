@@ -397,12 +397,16 @@ function getBoundingOffset(e) {
       if (confirm('Are you sure you want to delete this annotation?')) {
         let id = overlay.getAttribute('data-target-id');
         let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
+        let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
         
         Array.prototype.forEach.call(nodes, (n) => {
           n.parentNode.removeChild(n);
         });
 
-        PDFJSAnnotate.deleteAnnotation(DOCUMENT_ID, id);
+        PDFJSAnnotate.deleteAnnotation(
+          svg.getAttribute('data-pdf-annotate-document'),
+          id
+        );
 
         destroyEditOverlay();
       }

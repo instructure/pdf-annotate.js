@@ -3,13 +3,21 @@ let annotations;
 
 export default localStoreAdapter;
 
+function updateAnnotations(documentId) {
+  localStorage.setItem(`${documentId}/annotations`, JSON.stringify(annotations[documentId]));
+}
+
 localStoreAdapter.getAnnotations = (documentId, pageNumber) => {
   if (!annotations) {
-    annotations = JSON.parse(localStorage.getItem(`${documentId}/annotations`)) || [];
+    annotations = {};
+  }
+
+  if (!annotations[documentId]) {
+    annotations[documentId] = JSON.parse(localStorage.getItem(`${documentId}/annotations`)) || [];
   }
 
   return new Promise((resolve, reject) => {
-    resolve(annotations.filter((i) => {
+    resolve(annotations[documentId].filter((i) => {
       return i.page === pageNumber;
     }));
   });
@@ -17,7 +25,22 @@ localStoreAdapter.getAnnotations = (documentId, pageNumber) => {
 
 localStoreAdapter.addAnnotation = (documentId, pageNumber, annotation) => {
   annotation.page = pageNumber;
-  annotations.push(annotation);
-  localStorage.setItem(`${documentId}/annotations`, JSON.stringify(annotations));
+  annotations[documentId].push(annotation);
+  updateAnnotations(documentId);
 };
 
+localStoreAdapter.deleteAnnotation = (documentId, annotationId) => {
+  let index = -1;
+  let ann = annotations[documentId];
+  for (let i=0, l=ann.length; i<l; i++) {
+    if (ann[i].uuid === annotationId) {
+      index = i;
+      break;
+    }
+  }
+
+  if (index > -1) {
+    ann.splice(index, 1);
+    updateAnnotations(documentId);
+  }
+};
