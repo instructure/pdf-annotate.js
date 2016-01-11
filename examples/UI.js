@@ -303,6 +303,13 @@ function getDrawingSize(el) {
       w = parseInt(el.getAttribute('x2'), 10) - parseInt(el.getAttribute('x1'), 10);
       x = parseInt(el.getAttribute('x1'), 10);
       y = parseInt(el.getAttribute('y1'), 10);
+
+      if (h === 0) {
+        // TODO this should be calculated somehow
+        let offset = 16;
+        h += offset;
+        y -= (offset / 2)
+      }
       break;
 
       case 'text':
