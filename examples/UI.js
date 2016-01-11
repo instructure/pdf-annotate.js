@@ -429,6 +429,11 @@ function getDrawingSize(el) {
         Array.prototype.forEach.call(target, (t, i) => {
           if (deltaY !== 0) {
             let y = parseInt(t.getAttribute('y'), 10) + deltaY;
+
+            if (type === 'textbox') {
+              y += parseInt(overlay.style.height, 10);
+            }
+
             t.setAttribute('y', y);
             if (annotation.rectangles) {
               annotation.rectangles[i].y = y;
