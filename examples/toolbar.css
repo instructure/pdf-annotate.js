@@ -62,6 +62,16 @@ body {
   border-color: #bababa;
 }
 
+.toolbar button.pen {
+  font-size: 16px;
+}
+
+.toolbar button.comment {
+  font-size: 10px;
+  color: #ffffff;
+  text-shadow: 0 0 0 #000000;
+}
+
 .toolbar button.rectangle:after {
   width: 15px;
   height: 15px;
@@ -92,4 +102,32 @@ body {
 .toolbar button.text:after {
   content: 'T';
   font-family: 'Times New Roman';
+}
+
+.color {
+  display: inline-block;
+  width: 25px;
+  height: 25px;
+  border: 1px solid #000;
+  vertical-align: middle;
+}
+.color-selected {
+  border: 3px solid #666;
+  width: 30px;
+  height: 30px;
+  margin-top: -1px;
+  margin-left: -2px;
+  margin-right: -2px;
+}
+.color-black {
+  background-color: #000;
+}
+.color-white {
+  background-color: #fff;
+}
+.color-magenta {
+  background-color: #fb67fa;
+}
+.color-cyan {
+  background-color: #69fcfc;
 }

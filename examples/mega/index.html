@@ -3,7 +3,6 @@
 <head>
   <meta charset="utf-8"/>
   <title>PDFJSAnnotate</title>
-  <link rel="stylesheet" type="text/css" href="../pen.css"/>
   <link rel="stylesheet" type="text/css" href="../toolbar.css"/>
   <style type="text/css">
     body {
@@ -54,18 +53,25 @@
     <div class="spacer"></div>
     
     <button class="text" type="button" title="Text Tool" data-tooltype="text"></button>
-    <button class="comment" type="button" data-tooltype="comment">comment</button>
+    <select class="text-size"></select>
+    <a href="javascript://" class="color text-color color-black" data-color="000000" title="black"></a>
+    <a href="javascript://" class="color text-color color-white" data-color="ffffff" title="white"></a>
+    <a href="javascript://" class="color text-color color-magenta" data-color="fb67fa" title="magenta"></a>
+    <a href="javascript://" class="color text-color color-cyan" data-color="69fcfc" title="cyan"></a>
     
     <div class="spacer"></div>
 
-    <button class="pen" type="button" title="Pen Tool" data-tooltype="draw">pen</button>
-    <a href="javascript://" class="pen-color pen-color-black" data-color="000000" title="black"></a>
-    <a href="javascript://" class="pen-color pen-color-white" data-color="ffffff" title="white"></a>
-    <a href="javascript://" class="pen-color pen-color-magenta" data-color="fb67fa" title="magenta"></a>
-    <a href="javascript://" class="pen-color pen-color-cyan" data-color="69fcfc" title="cyan"></a>
+    <button class="pen" type="button" title="Pen Tool" data-tooltype="draw">✎</button>
+    <select class="pen-size"></select>
+    <a href="javascript://" class="color pen-color color-black" data-color="000000" title="black"></a>
+    <a href="javascript://" class="color pen-color color-white" data-color="ffffff" title="white"></a>
+    <a href="javascript://" class="color pen-color color-magenta" data-color="fb67fa" title="magenta"></a>
+    <a href="javascript://" class="color pen-color color-cyan" data-color="69fcfc" title="cyan"></a>
 
-    <input type="range" class="pen-size" min="1" max="20"/> <span class="pen-size-output"></span>
+    <div class="spacer"></div>
 
+    <button class="comment" type="button" title="Comment" data-tooltype="comment">🗨</button>
+    
     <div class="spacer"></div>
 
     <select class="scale">

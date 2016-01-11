@@ -3,8 +3,11 @@ import arrayFrom from '../src/utils/arrayFrom';
 import renderPath from '../src/render/renderPath';
 import renderRect from '../src/render/renderRect';
 import renderLine from '../src/render/renderLine';
+import renderText from '../src/render/renderText';
 
 const UI = {};
+
+const BORDER_COLOR = '#00BFFF';
 
 export default UI;
 
@@ -136,7 +139,7 @@ function getBoundingOffset(e) {
     document.removeEventListener('mousedown', handleMouseDown);
     document.removeEventListener('selectstart', handleSelectStart);
   };
-})();
+})(window, document, undefined);
 
 // Rect stuff
 (function () {
@@ -230,7 +233,7 @@ function getBoundingOffset(e) {
   UI.disableRect = () => {
     document.removeEventListener('mouseup', handleMouseUp);
   };
-})();
+})(window, document, undefined);
 
 // Edit stuff
 (function (window, document) {
@@ -365,7 +368,7 @@ function getBoundingOffset(e) {
     overlay.style.left = ((size.x + offsetLeft) - OVERLAY_BORDER_SIZE) + 'px';
     overlay.style.width = size.w + 'px';
     overlay.style.height = size.h + 'px';
-    overlay.style.border = OVERLAY_BORDER_SIZE + 'px solid #00BFFF';
+    overlay.style.border = OVERLAY_BORDER_SIZE + 'px solid ' + BORDER_COLOR;
     overlay.style.borderRadius = OVERLAY_BORDER_SIZE + 'px';
     
     document.body.appendChild(overlay);
@@ -535,5 +538,77 @@ function getBoundingOffset(e) {
 
   UI.disableEdit = function () {
     document.removeEventListener('click', handleDocumentClick);
+  };
+})(window, document, undefined);
+
+// Text stuff
+(function () {
+  let input;
+  let _textSize;
+  let _textColor;
+
+  function handleMouseUp(e) {
+    if (input) {
+      return;
+    }
+
+    if (!findSVGAtPoint(e.clientX, e.clientY)) {
+      return;
+    }
+
+    input = document.createElement('input');
+    input.style.border = `3px solid ${BORDER_COLOR}`;
+    input.style.borderRadius = '3px';
+    input.style.position = 'absolute';
+    input.style.top = `${e.clientY}px`;
+    input.style.left = `${e.clientX}px`;
+
+    input.addEventListener('blur', handleBlur);
+
+    document.body.appendChild(input);
+    input.focus();
+  }
+
+  function handleBlur(e) {
+    if (input.value.trim().length > 0) {
+      let clientX = parseInt(input.style.left, 10);
+      let clientY = parseInt(input.style.top, 10);
+      let svg = findSVGAtPoint(clientX, clientY);
+      let annotation = {
+        type: 'textbox',
+        x: clientX,
+        y: clientY,
+        width: input.offsetWidth,
+        height: input.offsetHeight,
+        size: _textSize,
+        color: _textColor,
+        content: input.value.trim()
+      };
+
+      PDFJSAnnotate.addAnnotation(
+        svg.getAttribute('data-pdf-annotate-document'),
+        parseInt(svg.getAttribute('data-pdf-annotate-page'), 10),
+        annotation
+      );
+
+      let node = renderText(annotation);
+      svg.appendChild(node);
+    }
+
+    document.body.removeChild(input);
+    input = null;
+  }
+
+  UI.setText = function (textSize = 12, textColor = '000') {
+    _textSize = textSize;
+    _textColor = textColor;
+  };
+
+  UI.enableText = function () {
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  UI.disableText = function () {
+    document.removeEventListener('mouseup', handleMouseUp);
   };
 })(window, document, undefined);

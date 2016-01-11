@@ -64,12 +64,97 @@ function render() {
 // Edit stuff
 UI.enableEdit();
 
+// Text stuff
+(function () {
+  let textSize;
+  let textColor;
+
+  function initText() {
+    let size = document.querySelector('.toolbar .text-size');
+    [8, 9, 10, 11, 12, 14, 18, 24, 30, 36, 48, 60, 72, 96].forEach((s) => {
+      size.appendChild(new Option (s, s));
+    });
+
+    setText(
+      localStorage.getItem(`${DOCUMENT_ID}/text/size`) || 10,
+      localStorage.getItem(`${DOCUMENT_ID}/text/color`) || '000000'
+    );
+  }
+
+  function setText(size, color) {
+    let modified = false;
+
+    if (textSize !== size) {
+      modified = true;
+      textSize = size;
+      localStorage.setItem(`${DOCUMENT_ID}/text/size`, textSize);
+      document.querySelector('.toolbar .text-size').value = textSize;
+    }
+
+    if (textColor !== color) {
+      modified = true;
+      textColor = color;
+      localStorage.setItem(`${DOCUMENT_ID}/text/color`, textColor);
+      
+      let selected = document.querySelector('.toolbar .text-color.color-selected');
+      if (selected) {
+        selected.classList.remove('color-selected');
+        selected.removeAttribute('aria-selected');
+      }
+
+      selected = document.querySelector(`.toolbar .text-color[data-color="${color}"]`);
+      if (selected) {
+        selected.classList.add('color-selected');
+        selected.setAttribute('aria-selected', true);
+      }
+
+    }
+
+    if (modified) {
+      UI.setText(textSize, textColor);
+    }
+  }
+  
+  function setTextColorFromElement(el) {
+    if (el.nodeName === 'A' &&
+        el.classList.contains('text-color') &&
+        el.getAttribute('data-color')) {
+      setText(textSize, el.getAttribute('data-color'));
+    }
+  }
+
+  function handleMenuClick(e) {
+    setTextColorFromElement(e.target);
+  }
+
+  function handleMenuKeyUp(e) {
+    if (e.keyCode === 32) {
+      setTextColorFromElement(e.target);
+    }
+  }
+
+  function handleTextSizeChange(e) {
+    setText(e.target.value, textColor);
+  }
+
+  document.querySelector('.toolbar').addEventListener('click', handleMenuClick);
+  document.querySelector('.toolbar').addEventListener('keyup', handleMenuKeyUp);
+  document.querySelector('.toolbar .text-size').addEventListener('change', handleTextSizeChange);
+
+  initText();
+})();
+
 // Pen stuff
 (function () {
   let penSize;
   let penColor;
 
   function initPen() {
+    let size = document.querySelector('.toolbar .pen-size');
+    for (let i=0; i<20; i++) {
+      size.appendChild(new Option(i+1, i+1));
+    }
+
     setPen(
       localStorage.getItem(`${DOCUMENT_ID}/pen/size`) || 1,
       localStorage.getItem(`${DOCUMENT_ID}/pen/color`) || '000000'
@@ -84,7 +169,6 @@ UI.enableEdit();
       penSize = size;
       localStorage.setItem(`${DOCUMENT_ID}/pen/size`, penSize);
       document.querySelector('.toolbar .pen-size').value = penSize;
-      document.querySelector('.toolbar .pen-size-output').innerHTML = `${penSize}px`;
     }
 
     if (penColor !== color) {
@@ -92,15 +176,15 @@ UI.enableEdit();
       penColor = color;
       localStorage.setItem(`${DOCUMENT_ID}/pen/color`, penColor);
       
-      let selected = document.querySelector('.toolbar .pen-color-selected');
+      let selected = document.querySelector('.toolbar .pen-color.color-selected');
       if (selected) {
-        selected.classList.remove('pen-color-selected');
+        selected.classList.remove('color-selected');
         selected.removeAttribute('aria-selected');
       }
 
       selected = document.querySelector(`.toolbar .pen-color[data-color="${color}"]`);
       if (selected) {
-        selected.classList.add('pen-color-selected');
+        selected.classList.add('color-selected');
         selected.setAttribute('aria-selected', true);
       }
     }
@@ -111,7 +195,9 @@ UI.enableEdit();
   }
 
   function setPenColorFromElement(el) {
-    if (el.nodeName === 'A' && el.getAttribute('data-color')) {
+    if (el.nodeName === 'A' &&
+        el.classList.contains('pen-color') &&
+        el.getAttribute('data-color')) {
       setPen(penSize, el.getAttribute('data-color'));
     }
   }
@@ -132,7 +218,7 @@ UI.enableEdit();
 
   document.querySelector('.toolbar').addEventListener('click', handleMenuClick);
   document.querySelector('.toolbar').addEventListener('keyup', handleMenuKeyUp);
-  document.querySelector('.pen-size').addEventListener('change', handlePenSizeChange);
+  document.querySelector('.toolbar .pen-size').addEventListener('change', handlePenSizeChange);
 
   initPen();
 })();
@@ -149,9 +235,12 @@ UI.enableEdit();
     if (active) {
       active.classList.remove('active');
 
-      switch (type) {
+      switch (tooltype) {
         case 'draw':
           UI.disablePen();
+          break;
+        case 'text':
+          UI.disableText();
           break;
         case 'area':
         case 'highlight':
@@ -172,6 +261,9 @@ UI.enableEdit();
     switch (type) {
       case 'draw':
         UI.enablePen();
+        break;
+      case 'text':
+        UI.enableText();
         break;
       case 'area':
       case 'highlight':
