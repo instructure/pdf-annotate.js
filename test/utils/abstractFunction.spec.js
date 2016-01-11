@@ -3,11 +3,10 @@ import { equal } from 'assert';
 
 describe('utils::abstractFunction', function () {
   it('should throw when not implemented', function () {
-    let fn = abstractFunction('fn');
     let err;
 
     try {
-      fn();
+      abstractFunction('fn');
     } catch (e) {
       err = e;
     }
