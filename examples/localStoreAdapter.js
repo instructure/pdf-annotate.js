@@ -12,9 +12,7 @@ localStoreAdapter.getAnnotations = (documentId, pageNumber) => {
     annotations = {};
   }
 
-  if (!annotations[documentId]) {
-    annotations[documentId] = JSON.parse(localStorage.getItem(`${documentId}/annotations`)) || [];
-  }
+  annotations[documentId] = JSON.parse(localStorage.getItem(`${documentId}/annotations`)) || [];
 
   return new Promise((resolve, reject) => {
     resolve(annotations[documentId].filter((i) => {
