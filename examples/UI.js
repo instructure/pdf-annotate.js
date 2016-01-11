@@ -26,46 +26,6 @@ function findSVGAtPoint(x, y) {
   return null;
 }
 
-function getBoundingOffset(e) {
-  let offsetLeft = 0;
-  let offsetTop = 0;
-  let parentNode = e;
-  let svgFound = false;
-
-  if (parentNode) {
-    function isContainer() {
-      return parentNode.getAttribute('data-pdf-annotate-container') === 'true';
-    }
-
-    function adjustOffset() {
-      var rect = parentNode.getBoundingClientRect();
-      offsetLeft += rect.left;
-      offsetTop += rect.top;
-    }
-
-    if (isContainer()) {
-      // TODO offset is incorrect when flagging found here, but should be correct
-      // svgFound = true;
-      adjustOffset();
-    }
-
-    while ((parentNode = parentNode.parentNode) && parentNode !== document) {
-      if (!svgFound && isContainer()) {
-        svgFound = true;
-      }
-
-      if (svgFound) {
-        adjustOffset();
-      }
-    }
-  }
-
-  return {
-    offsetLeft,
-    offsetTop
-  };
-}
-
 function getDrawingSize(el) {
   let parts = el.getAttribute('d').replace(/(M|Z)/g, '').split(',');
   let minX, maxX, minY, maxY;
@@ -116,8 +76,13 @@ function getDrawingSize(el) {
   }
 
   function handleMouseMove(e) {
-    let {offsetLeft, offsetTop} = getBoundingOffset(findSVGAtPoint(e.clientX, e.clientY));
-    lines.push([e.clientX - offsetLeft, e.clientY - offsetTop ]);
+    let svg = findSVGAtPoint(e.clientX, e.clientY);
+    if (!svg) {
+      return;
+    }
+
+    let rect = svg.getBoundingClientRect();
+    lines.push([e.clientX - rect.left, e.clientY - rect.top]);
 
     if (lines.length <= 1) {
       return;
@@ -192,7 +157,7 @@ function getDrawingSize(el) {
       return;
     }
 
-    let { offsetLeft, offsetTop } = getBoundingOffset(svg);
+    let boundingRect = svg.getBoundingClientRect();
 
     if (!color) {
       if (type === 'highlight') {
@@ -214,8 +179,8 @@ function getDrawingSize(el) {
         }
 
         return {
-          y: (r.top + offset) - offsetTop,
-          x: r.left - offsetLeft,
+          y: (r.top + offset) - boundingRect.top,
+          x: r.left - boundingRect.left,
           width: r.width,
           height: r.height
         };
@@ -273,10 +238,10 @@ function getDrawingSize(el) {
     return !isAbove && !isBelow && !isLeft && !isRight;
   }
 
-  function getOffset(e) {
+  function getOffset(el) {
     let offsetLeft = 0;
     let offsetTop = 0;
-    let parentNode = e;
+    let parentNode = el;
 
     while ((parentNode = parentNode.parentNode) &&
             parentNode !== document) {
@@ -616,11 +581,15 @@ function getDrawingSize(el) {
       let clientX = parseInt(input.style.left, 10);
       let clientY = parseInt(input.style.top, 10);
       let svg = findSVGAtPoint(clientX, clientY);
-      let { offsetLeft, offsetTop } = getBoundingOffset(svg);
+      if (!svg) {
+        return;
+      }
+
+      let rect = svg.getBoundingClientRect();
       let annotation = {
         type: 'textbox',
-        x: clientX - offsetLeft,
-        y: clientY -  offsetTop,
+        x: clientX - rect.left,
+        y: clientY -  rect.top,
         width: input.offsetWidth,
         height: input.offsetHeight,
         size: _textSize,
@@ -709,12 +678,16 @@ function getDrawingSize(el) {
       let clientY = parseInt(input.style.top, 10);
       let content = input.value.trim();
       let svg = findSVGAtPoint(clientX, clientY);
-      let { offsetLeft, offsetTop } = getBoundingOffset(svg);
+      if (!svg) {
+        return;
+      }
+
+      let rect = svg.getBoundingClientRect();
       let documentId = svg.getAttribute('data-pdf-annotate-document');
       let annotation = {
         type: 'point',
-        x: clientX - offsetLeft,
-        y: clientY - offsetTop
+        x: clientX - rect.left,
+        y: clientY - rect.top
       };
 
       PDFJSAnnotate.addAnnotation(
