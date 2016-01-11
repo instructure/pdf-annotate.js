@@ -281,7 +281,7 @@ function getDrawingSize(el) {
       h = el.offsetHeight;
       w = el.offsetWidth;
       x = parseInt(el.getAttribute('x'), 10);
-      y = parseInt(el.getAttribute('y'), 10);
+      y = parseInt(el.getAttribute('y'), 10) - h;
       break;
 
       default:
@@ -430,14 +430,29 @@ function getDrawingSize(el) {
           if (deltaY !== 0) {
             let y = parseInt(t.getAttribute('y'), 10) + deltaY;
             t.setAttribute('y', y);
-            annotation.rectangles[i].y = y;
+            if (annotation.rectangles) {
+              annotation.rectangles[i].y = y;
+            } else if (annotation.y) {
+              annotation.y = y;
+            }
           }
           if (deltaX !== 0) {
             let x = parseInt(t.getAttribute('x'), 10) + deltaX;
             t.setAttribute('x', x);
-            annotation.rectangles[i].x = x;
+            if (annotation.rectangles) {
+              annotation.rectangles[i].x = x;
+            } else if (annotation.x) {
+              annotation.x = x;
+            }
           }
         });
+      // } else if (type === 'textbox') {
+      //   let { deltaY, deltaX } = getDelta('x', 'y');
+      //   if (deltaY !== 0) {
+      //     let y = parseInt
+      //   }
+      //   if (deltaX !== 0) {
+      //   }
       } else if (type === 'strikeout') {
         let { deltaY, deltaX } = getDelta('x1', 'y1');
         Array.prototype.forEach.call(target, (t, i) => {
