@@ -66,6 +66,22 @@ function getBoundingOffset(e) {
   };
 }
 
+function getDrawingSize(el) {
+  let parts = el.getAttribute('d').replace(/(M|Z)/g, '').split(',');
+  let minX, maxX, minY, maxY;
+
+  parts.forEach((p) => {
+    var s = p.split(' ').map(i => parseInt(i, 10));
+
+    if (typeof minX === 'undefined' || s[0] < minX) { minX = s[0]; }
+    if (typeof maxX === 'undefined' || s[2] > maxX) { maxX = s[2]; }
+    if (typeof minY === 'undefined' || s[1] < minY) { minY = s[1]; }
+    if (typeof maxY === 'undefined' || s[3] > maxY) { maxY = s[3]; }
+  });
+
+  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+}
+
 // Pen stuff
 (function () {
   let _penSize;
@@ -323,22 +339,6 @@ function getBoundingOffset(e) {
     return size;
   }
 
-  function getDrawingSize(el) {
-    let parts = el.getAttribute('d').replace(/(M|Z)/g, '').split(',');
-    let minX, maxX, minY, maxY;
-
-    parts.forEach((p) => {
-      var s = p.split(' ').map(i => parseInt(i, 10));
-
-      if (typeof minX === 'undefined' || s[0] < minX) { minX = s[0]; }
-      if (typeof maxX === 'undefined' || s[2] > maxX) { maxX = s[2]; }
-      if (typeof minY === 'undefined' || s[1] < minY) { minY = s[1]; }
-      if (typeof maxY === 'undefined' || s[3] > maxY) { maxY = s[3]; }
-    });
-
-    return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
-  }
-
   let isDragging = false, overlay;
   let dragOffsetX, dragOffsetY, dragStartX, dragStartY;
   const OVERLAY_BORDER_SIZE = 3;
@@ -440,16 +440,20 @@ function getBoundingOffset(e) {
     let svg = findSVGAtPoint(e.clientX, e.clientY);
     let documentId = svg.getAttribute('data-pdf-annotate-document');
 
-    function getDelta(propY, propX) {
+    function getDelta(propX, propY) {
+      return calcDelta(parseInt(target[0].getAttribute(propX), 10), parseInt(target[0].getAttribute(propY), 10));
+    }
+
+    function calcDelta(x, y) {
       return {
-        deltaY: OVERLAY_BORDER_SIZE + (overlay.offsetTop - offsetTop) - parseInt(target[0].getAttribute(propY), 10),
-        deltaX: OVERLAY_BORDER_SIZE + (overlay.offsetLeft - offsetLeft) - parseInt(target[0].getAttribute(propX), 10)
-      };
+        deltaY: OVERLAY_BORDER_SIZE + (overlay.offsetTop - offsetTop) - y,
+        deltaX: OVERLAY_BORDER_SIZE + (overlay.offsetLeft - offsetLeft) - x
+      }
     }
 
     PDFJSAnnotate.getAnnotation(documentId, annotationId).then((annotation) => {
       if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
-        let { deltaY, deltaX } = getDelta('y', 'x');
+        let { deltaY, deltaX } = getDelta('x', 'y');
         Array.prototype.forEach.call(target, (t, i) => {
           if (deltaY !== 0) {
             let y = parseInt(t.getAttribute('y'), 10) + deltaY;
@@ -463,7 +467,7 @@ function getBoundingOffset(e) {
           }
         });
       } else if (type === 'strikeout') {
-        let { deltaY, deltaX } = getDelta('y1', 'x1');
+        let { deltaY, deltaX } = getDelta('x1', 'y1');
         Array.prototype.forEach.call(target, (t, i) => {
           if (deltaY !== 0) {
             t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
@@ -476,9 +480,24 @@ function getBoundingOffset(e) {
             annotation.rectangles[i].x = parseInt(t.getAttribute('x1'), 10);
           }
         });
-      } else {
-        // TODO: Adjust x/y map for drawing
-        console.warn(`Repositioning is not yet supported for "${type}"`);
+      } else if (type === 'drawing') {
+        let size = getDrawingSize(target[0]);
+        let [originX, originY] = annotation.lines[0];
+        let { deltaY, deltaX } = calcDelta(originX, originY);
+
+        // origin isn't necessarily at 0/0 in relation to overlay x/y
+        // adjust the difference between overlay and drawing coords
+        deltaY += (originY - size.y);
+        deltaX += (originX - size.x);
+
+        annotation.lines.forEach((line, i) => {
+          let [x, y] = annotation.lines[i];
+          annotation.lines[i][0] = x + deltaX;
+          annotation.lines[i][1] = y + deltaY;
+        });
+
+        let node = renderPath(annotation);
+        target[0].setAttribute('d', node.getAttribute('d'));
       }
 
       PDFJSAnnotate.editAnnotation(documentId, annotationId, annotation);
