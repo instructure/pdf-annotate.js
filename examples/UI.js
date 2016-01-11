@@ -242,18 +242,6 @@ function getBoundingOffset(e) {
 
 // Edit stuff
 (function (window, document) {
-  function drawPoint(x, y) {
-    let point = document.createElement('div');
-    point.style.position = 'absolute';
-    point.style.background = 'red';
-    point.style.borderRadius = '6px';
-    point.style.width = '3px';
-    point.style.height = '3px';
-    point.style.top = y + 'px';
-    point.style.left = x + 'px';
-    document.body.appendChild(point);
-  }
-
   function isAtPoint(el, x, y) {
     // Account for scroll
     x += window.scrollX;
@@ -265,9 +253,6 @@ function getBoundingOffset(e) {
     let isLeft = x < (size.x + offsetLeft);
     let isBelow = y > (size.y + offsetTop + size.h);
     let isRight = x > (size.x + offsetLeft + size.w);
-
-    // TODO y is off due to position absolute
-    // drawPoint(x, y);
 
     return !isAbove && !isBelow && !isLeft && !isRight;
   }
@@ -369,12 +354,12 @@ function getBoundingOffset(e) {
     overlay.setAttribute('data-target-id', id);
     overlay.style.boxSizing = 'content-box';
     overlay.style.position = 'absolute';
-    overlay.style.top = ((size.y + offsetTop) - OVERLAY_BORDER_SIZE) + 'px';
-    overlay.style.left = ((size.x + offsetLeft) - OVERLAY_BORDER_SIZE) + 'px';
-    overlay.style.width = size.w + 'px';
-    overlay.style.height = size.h + 'px';
-    overlay.style.border = OVERLAY_BORDER_SIZE + 'px solid ' + BORDER_COLOR;
-    overlay.style.borderRadius = OVERLAY_BORDER_SIZE + 'px';
+    overlay.style.top = `${((size.y + offsetTop) - OVERLAY_BORDER_SIZE)}px`;
+    overlay.style.left = `${((size.x + offsetLeft) - OVERLAY_BORDER_SIZE)}px`;
+    overlay.style.width = `${size.w}px`;
+    overlay.style.height = `${size.h}px`;
+    overlay.style.border = `${OVERLAY_BORDER_SIZE}px solid ${BORDER_COLOR}`;
+    overlay.style.borderRadius = `${OVERLAY_BORDER_SIZE}px`;
     
     document.body.appendChild(overlay);
     document.addEventListener('keyup', handleDocumentKeyup);
@@ -439,11 +424,11 @@ function getBoundingOffset(e) {
     let maxX = parent.offsetLeft + parent.offsetWidth;
 
     if (y > minY && y + overlay.offsetHeight < maxY) {
-      overlay.style.top = y + 'px';
+      overlay.style.top = `${y}px`;
     }
 
     if (x > minX && x + overlay.offsetWidth < maxX) {
-      overlay.style.left = x + 'px';
+      overlay.style.left = `${x}px`;
     }
   }
 
@@ -483,7 +468,7 @@ function getBoundingOffset(e) {
         }
       });
     } else {
-      console.warn('Repositioning is not yet supported for "' + type + '"');
+      console.warn(`Repositioning is not yet supported for "${type}"`);
     }
     
     // TODO:
