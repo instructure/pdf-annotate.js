@@ -1,4 +1,5 @@
 import PDFJSAnnotate from '../src/PDFJSAnnotate';
+import uuid from '../src/utils/uuid';
 import arrayFrom from '../src/utils/arrayFrom';
 import renderPath from '../src/render/renderPath';
 import renderRect from '../src/render/renderRect';
@@ -81,12 +82,12 @@ function getBoundingOffset(e) {
   }
 
   function handleMouseUp(e) {
-    if (lines.length > 1) {
-      let svg = findSVGAtPoint(e.clientX, e.clientY);
-
+    let svg;
+    if (lines.length > 1 && (svg = findSVGAtPoint(e.clientX, e.clientY))) {
       PDFJSAnnotate.addAnnotation(
         svg.getAttribute('data-pdf-annotate-document'),
         parseInt(svg.getAttribute('data-pdf-annotate-page'), 10), {
+          uuid: uuid(),
           type: 'drawing',
           width: _penSize,
           color: _penColor,
@@ -169,9 +170,14 @@ function getBoundingOffset(e) {
     let rects = range.getClientRects();
     let bounding = selection.anchorNode.parentNode.getBoundingClientRect();
     let svg = findSVGAtPoint(bounding.left, bounding.top);
-    let {offsetLeft, offsetTop} = getBoundingOffset(svg);
     let node;
     let annotation;
+
+    if (!svg) {
+      return;
+    }
+
+    let { offsetLeft, offsetTop } = getBoundingOffset(svg);
 
     if (!color) {
       if (type === 'highlight') {
@@ -185,6 +191,7 @@ function getBoundingOffset(e) {
     annotation = {
       type,
       color,
+      uuid: uuid(),
       rectangles: Array.prototype.map.call(rects, (r) => {
         let offset = 0;
 
@@ -575,6 +582,7 @@ function getBoundingOffset(e) {
       let clientY = parseInt(input.style.top, 10);
       let svg = findSVGAtPoint(clientX, clientY);
       let annotation = {
+        uuid: uuid(),
         type: 'textbox',
         x: clientX,
         y: clientY,
