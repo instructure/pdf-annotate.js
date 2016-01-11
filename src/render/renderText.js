@@ -5,7 +5,7 @@ export default function renderText(a) {
 
   setAttributes(text, {
     x: a.x,
-    y: a.y,
+    y: a.y + parseInt(a.size, 10),
     fill: `#${a.color}`,
     fontSize: a.size
   });

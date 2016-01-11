@@ -126,7 +126,7 @@ function getBoundingOffset(e) {
   }
 
   UI.setPen = (penSize = 1, penColor = '000000') => {
-    _penSize = penSize;
+    _penSize = parseInt(penSize, 10);
     _penColor = penColor;
   };
 
@@ -616,9 +616,8 @@ function getBoundingOffset(e) {
     }
   }
 
-
   UI.setText = function (textSize = 12, textColor = '000') {
-    _textSize = textSize;
+    _textSize = parseInt(textSize, 10);
     _textColor = textColor;
   };
 

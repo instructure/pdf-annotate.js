@@ -3,17 +3,21 @@ import { equal } from 'assert';
 
 describe('render::renderText', function () {
   it('should render text', function () {
+    const x = 50;
+    const y = 100;
+    const size = 20;
+    const color = '000';
     let text = renderText({
-      x: 50,
-      y: 100,
-      color: '000',
-      size: 20
+      x,
+      y,
+      size,
+      color
     });
 
     equal(text.nodeName, 'text');
-    equal(text.getAttribute('x'), 50);
-    equal(text.getAttribute('y'), 100);
-    equal(text.getAttribute('fill'), '#000');
-    equal(text.getAttribute('font-size'), 20);
+    equal(text.getAttribute('x'), x);
+    equal(text.getAttribute('y'), y + size);
+    equal(text.getAttribute('fill'), `#${color}`);
+    equal(text.getAttribute('font-size'), size);
   });
 });
