@@ -571,6 +571,7 @@ function getBoundingOffset(e) {
     input.style.position = 'absolute';
     input.style.top = `${e.clientY}px`;
     input.style.left = `${e.clientX}px`;
+    input.style.fontSize = `${_textSize}px`;
 
     input.addEventListener('blur', handleBlur);
     input.addEventListener('keyup', handleKeyUp);
@@ -596,10 +597,11 @@ function getBoundingOffset(e) {
       let clientX = parseInt(input.style.left, 10);
       let clientY = parseInt(input.style.top, 10);
       let svg = findSVGAtPoint(clientX, clientY);
+      let { offsetLeft, offsetTop } = getBoundingOffset(svg);
       let annotation = {
         type: 'textbox',
-        x: clientX,
-        y: clientY,
+        x: clientX - offsetLeft,
+        y: clientY -  offsetTop,
         width: input.offsetWidth,
         height: input.offsetHeight,
         size: _textSize,
@@ -689,11 +691,12 @@ function getBoundingOffset(e) {
       let clientY = parseInt(input.style.top, 10);
       let content = input.value.trim();
       let svg = findSVGAtPoint(clientX, clientY);
+      let { offsetLeft, offsetTop } = getBoundingOffset(svg);
       let documentId = svg.getAttribute('data-pdf-annotate-document');
       let annotation = {
         type: 'point',
-        x: clientX,
-        y: clientY
+        x: clientX - offsetLeft,
+        y: clientY - offsetTop
       };
 
       PDFJSAnnotate.addAnnotation(
