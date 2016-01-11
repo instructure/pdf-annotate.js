@@ -61,9 +61,6 @@ function render() {
   PDFJSAnnotate.render(svg, viewport, data.annotations);
 }
 
-// Edit stuff
-UI.enableEdit();
-
 // Text stuff
 (function () {
   let textSize;
@@ -225,7 +222,7 @@ UI.enableEdit();
 
 // Toolbar buttons
 (function () {
-  let tooltype = localStorage.getItem(`${DOCUMENT_ID}/tooltype`);
+  let tooltype = localStorage.getItem(`${DOCUMENT_ID}/tooltype`) || 'cursor';
   if (tooltype) {
     setActiveToolbarItem(tooltype, document.querySelector(`.toolbar button[data-tooltype=${tooltype}]`));
   }
@@ -236,13 +233,16 @@ UI.enableEdit();
       active.classList.remove('active');
 
       switch (tooltype) {
+        case 'cursor':
+          UI.disableEdit();
+          break;
         case 'draw':
           UI.disablePen();
           break;
         case 'text':
           UI.disableText();
           break;
-        case '':
+        case 'point':
           UI.disablePoint();
           break;
         case 'area':
@@ -262,6 +262,9 @@ UI.enableEdit();
     tooltype = type;
 
     switch (type) {
+      case 'cursor':
+        UI.enableEdit();
+        break;
       case 'draw':
         UI.enablePen();
         break;
