@@ -1,10 +1,10 @@
 import PDFJSAnnotate from '../src/PDFJSAnnotate';
-import uuid from '../src/utils/uuid';
 import arrayFrom from '../src/utils/arrayFrom';
 import renderPath from '../src/render/renderPath';
 import renderRect from '../src/render/renderRect';
 import renderLine from '../src/render/renderLine';
 import renderText from '../src/render/renderText';
+import renderPoint from '../src/render/renderPoint';
 
 const UI = {};
 
@@ -87,7 +87,6 @@ function getBoundingOffset(e) {
       PDFJSAnnotate.addAnnotation(
         svg.getAttribute('data-pdf-annotate-document'),
         parseInt(svg.getAttribute('data-pdf-annotate-page'), 10), {
-          uuid: uuid(),
           type: 'drawing',
           width: _penSize,
           color: _penColor,
@@ -191,7 +190,6 @@ function getBoundingOffset(e) {
     annotation = {
       type,
       color,
-      uuid: uuid(),
       rectangles: Array.prototype.map.call(rects, (r) => {
         let offset = 0;
 
@@ -398,7 +396,7 @@ function getBoundingOffset(e) {
         let id = overlay.getAttribute('data-target-id');
         let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
         let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
-        
+
         Array.prototype.forEach.call(nodes, (n) => {
           n.parentNode.removeChild(n);
         });
@@ -575,18 +573,30 @@ function getBoundingOffset(e) {
     input.style.left = `${e.clientX}px`;
 
     input.addEventListener('blur', handleBlur);
+    input.addEventListener('keyup', handleKeyUp);
 
     document.body.appendChild(input);
     input.focus();
   }
 
   function handleBlur(e) {
+    saveText();
+  }
+  
+  function handleKeyUp(e) {
+    if (e.keyCode === 27) {
+      closeInput();
+    } else if (e.keyCode === 13) {
+      saveText();
+    }
+  }
+
+  function saveText() {
     if (input.value.trim().length > 0) {
       let clientX = parseInt(input.style.left, 10);
       let clientY = parseInt(input.style.top, 10);
       let svg = findSVGAtPoint(clientX, clientY);
       let annotation = {
-        uuid: uuid(),
         type: 'textbox',
         x: clientX,
         y: clientY,
@@ -606,10 +616,19 @@ function getBoundingOffset(e) {
       let node = renderText(annotation);
       svg.appendChild(node);
     }
-
-    document.body.removeChild(input);
-    input = null;
+    
+    closeInput();
   }
+
+  function closeInput() {
+    if (input) {
+      input.removeEventListener('blur', handleBlur);
+      input.removeEventListener('keyup', handleKeyUp);
+      document.body.removeChild(input);
+      input = null;
+    }
+  }
+
 
   UI.setText = function (textSize = 12, textColor = '000') {
     _textSize = textSize;
@@ -621,6 +640,93 @@ function getBoundingOffset(e) {
   };
 
   UI.disableText = function () {
+    document.removeEventListener('mouseup', handleMouseUp);
+  };
+})(window, document, undefined);
+
+// Point stuff
+(function () {
+  let input;
+
+  function handleMouseUp(e) {
+    if (input) {
+      return;
+    }
+
+    if (!findSVGAtPoint(e.clientX, e.clientY)) {
+      return;
+    }
+
+    input = document.createElement('input');
+    input.style.border = `3px solid ${BORDER_COLOR}`;
+    input.style.borderRadius = '3px';
+    input.style.position = 'absolute';
+    input.style.top = `${e.clientY}px`;
+    input.style.left = `${e.clientX}px`;
+
+    input.addEventListener('blur', handleBlur);
+    input.addEventListener('keyup', handleKeyUp);
+
+    document.body.appendChild(input);
+    input.focus();
+  }
+
+  function handleBlur(e) {
+    savePoint();
+  }
+
+  function handleKeyUp(e) {
+    if (e.keyCode === 27) {
+      closeInput();
+    } else if (e.keyCode === 13) {
+      savePoint();
+    }
+  }
+
+  function savePoint() {
+    if (input.value.trim().length > 0) {
+      let clientX = parseInt(input.style.left, 10);
+      let clientY = parseInt(input.style.top, 10);
+      let content = input.value.trim();
+      let svg = findSVGAtPoint(clientX, clientY);
+      let documentId = svg.getAttribute('data-pdf-annotate-document');
+      let annotation = {
+        type: 'point',
+        x: clientX,
+        y: clientY
+      };
+
+      PDFJSAnnotate.addAnnotation(
+        documentId,
+        parseInt(svg.getAttribute('data-pdf-annotate-page'), 10),
+        annotation
+      ).then((annotationId) => {
+        PDFJSAnnotate.addComment(
+          documentId,
+          annotationId,
+          content
+        );
+      });
+
+      let node = renderPoint(annotation);
+      svg.appendChild(node);
+    }
+
+    closeInput();
+  }
+
+  function closeInput() {
+    input.removeEventListener('blur', handleBlur);
+    input.removeEventListener('keyup', handleKeyUp);
+    document.body.removeChild(input);
+    input = null;
+  }
+
+  UI.enablePoint = function () {
+    document.addEventListener('mouseup', handleMouseUp);
+  };
+
+  UI.disablePoint = function () {
     document.removeEventListener('mouseup', handleMouseUp);
   };
 })(window, document, undefined);

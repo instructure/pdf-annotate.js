@@ -242,6 +242,9 @@ UI.enableEdit();
         case 'text':
           UI.disableText();
           break;
+        case '':
+          UI.disablePoint();
+          break;
         case 'area':
         case 'highlight':
         case 'strikeout':
@@ -264,6 +267,9 @@ UI.enableEdit();
         break;
       case 'text':
         UI.enableText();
+        break;
+      case 'point':
+        UI.enablePoint();
         break;
       case 'area':
       case 'highlight':
