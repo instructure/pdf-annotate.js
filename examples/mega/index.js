@@ -320,7 +320,9 @@ UI.enableEdit();
     if (confirm('Are you sure you want to clear annotations?')) {
       svg.innerHTML = '';
       localStorage.removeItem(`${DOCUMENT_ID}/annotations`);
-      PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER);
+      PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
+        data.annotations = annotations;
+      });
     }
   }
   document.querySelector('a.clear').addEventListener('click', handleClearClick);
