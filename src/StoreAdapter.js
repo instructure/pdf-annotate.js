@@ -3,6 +3,7 @@ import abstractFunction from './utils/abstractFunction';
 // Adapter should never be invoked publicly
 let StoreAdapter = {
   getAnnotations: abstractFunction('getAnnotations'),
+  getAnnotation: abstractFunction('getAnnotation'),
   addAnnotation: abstractFunction('addAnnotation'),
   editAnnotation: abstractFunction('editAnnotation'),
   deleteAnnotation: abstractFunction('deleteAnnotation'),

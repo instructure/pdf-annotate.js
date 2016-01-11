@@ -15,12 +15,16 @@ let PDFJSAnnotate = {
     });
   },
 
+  getAnnotation(documentId, annotationId) {
+    return this.StoreAdapter.getAnnotation(...arguments);
+  },
+
   addAnnotation(documentId, pageNumber, annotation) {
     return this.StoreAdapter.addAnnotation(...arguments);
   },
 
   editAnnotation(documentId, pageNumber, annotation) {
-    return this.StoreAdapter.addAnnotation(...arguments);
+    return this.StoreAdapter.editAnnotation(...arguments);
   },
 
   deleteAnnotation(documentId, annotationId) {

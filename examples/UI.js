@@ -433,10 +433,12 @@ function getBoundingOffset(e) {
   }
 
   function handleDocumentMouseup(e) {
-    let id = overlay.getAttribute('data-target-id');
-    let target = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
+    let annotationId = overlay.getAttribute('data-target-id');
+    let target = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
     let type = target[0].getAttribute('data-pdf-annotate-type');
     let { offsetTop, offsetLeft } = getOffset(target[0]);
+    let svg = findSVGAtPoint(e.clientX, e.clientY);
+    let documentId = svg.getAttribute('data-pdf-annotate-document');
 
     function getDelta(propY, propX) {
       return {
@@ -445,36 +447,42 @@ function getBoundingOffset(e) {
       };
     }
 
-    if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
-      let { deltaY, deltaX } = getDelta('y', 'x');
-      Array.prototype.forEach.call(target, (t) => {
-        if (deltaY !== 0) {
-          t.setAttribute('y', parseInt(t.getAttribute('y'), 10) + deltaY);
-        }
-        if (deltaX !== 0) {
-          t.setAttribute('x', parseInt(t.getAttribute('x'), 10) + deltaX);
-        }
-      });
-    } else if (type === 'strikeout') {
-      let { deltaY, deltaX } = getDelta('y1', 'x1');
-      Array.prototype.forEach.call(target, (t) => {
-        if (deltaY !== 0) {
-          t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
-          t.setAttribute('y2', parseInt(t.getAttribute('y2'), 10) + deltaY);
-        }
-        if (deltaX !== 0) {
-          t.setAttribute('x1', parseInt(t.getAttribute('x1'), 10) + deltaX);
-          t.setAttribute('x2', parseInt(t.getAttribute('x2'), 10) + deltaX);
-        }
-      });
-    } else {
-      console.warn(`Repositioning is not yet supported for "${type}"`);
-    }
-    
-    // TODO:
-    //  - Adjust x/y map for drawing
-    //  - Fix click area for drawing
-    // PDFJSAnnotate.editAnnotation(DOCUMENT_ID, id, {});
+    PDFJSAnnotate.getAnnotation(documentId, annotationId).then((annotation) => {
+      if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
+        let { deltaY, deltaX } = getDelta('y', 'x');
+        Array.prototype.forEach.call(target, (t, i) => {
+          if (deltaY !== 0) {
+            let y = parseInt(t.getAttribute('y'), 10) + deltaY;
+            t.setAttribute('y', y);
+            annotation.rectangles[i].y = y;
+          }
+          if (deltaX !== 0) {
+            let x = parseInt(t.getAttribute('x'), 10) + deltaX;
+            t.setAttribute('x', x);
+            annotation.rectangles[i].x = x;
+          }
+        });
+      } else if (type === 'strikeout') {
+        let { deltaY, deltaX } = getDelta('y1', 'x1');
+        Array.prototype.forEach.call(target, (t, i) => {
+          if (deltaY !== 0) {
+            t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
+            t.setAttribute('y2', parseInt(t.getAttribute('y2'), 10) + deltaY);
+            annotation.rectangles[i].y = parseInt(t.getAttribute('y1'), 10);
+          }
+          if (deltaX !== 0) {
+            t.setAttribute('x1', parseInt(t.getAttribute('x1'), 10) + deltaX);
+            t.setAttribute('x2', parseInt(t.getAttribute('x2'), 10) + deltaX);
+            annotation.rectangles[i].x = parseInt(t.getAttribute('x1'), 10);
+          }
+        });
+      } else {
+        // TODO: Adjust x/y map for drawing
+        console.warn(`Repositioning is not yet supported for "${type}"`);
+      }
+
+      PDFJSAnnotate.editAnnotation(documentId, annotationId, annotation);
+    });
 
     setTimeout(() => {
       isDragging = false;
