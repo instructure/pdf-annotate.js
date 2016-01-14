@@ -350,17 +350,17 @@ function getDrawingSize(el) {
   function handleDocumentKeyup(e) {
     if (overlay && e.keyCode === 46) {
       if (confirm('Are you sure you want to delete this annotation?')) {
-        let id = overlay.getAttribute('data-target-id');
-        let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
+        let annotationId = overlay.getAttribute('data-target-id');
+        let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
         let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
 
         Array.prototype.forEach.call(nodes, (n) => {
           n.parentNode.removeChild(n);
         });
-
+        
         PDFJSAnnotate.deleteAnnotation(
           svg.getAttribute('data-pdf-annotate-document'),
-          id
+          annotationId 
         );
 
         destroyEditOverlay();
