@@ -60,11 +60,15 @@ localStoreAdapter.editAnnotation = (documentId, annotationId, annotation) => {
 };
 
 localStoreAdapter.deleteAnnotation = (documentId, annotationId) => {
-  let index = findAnnotation(...arguments);
-  if (index > -1) {
-    annotations[documentId].splice(index, 1);
-    updateAnnotations(documentId);
-  }
+  return new Promise((resolve, reject) => {
+    let index = findAnnotation(documentId, annotationId);
+    if (index > -1) {
+      annotations[documentId].splice(index, 1);
+      updateAnnotations(documentId);
+    }
+
+    resolve(true);
+  });
 };
 
 localStoreAdapter.addComment = (documentId, annotationId, content) => {
@@ -84,17 +88,21 @@ localStoreAdapter.addComment = (documentId, annotationId, content) => {
 };
 
 localStoreAdapter.deleteComment = (documentId, commentId) => {
-  let index = -1;
-  let ann = annotations[documentId];
-  for (let i=0, l=ann.length; i<l; i++) {
-    if (ann[i].uuid === commendId) {
-      index = i;
-      break;
+  return new Promise((resolve, reject) => {
+    let index = -1;
+    let ann = annotations[documentId];
+    for (let i=0, l=ann.length; i<l; i++) {
+      if (ann[i].uuid === commendId) {
+        index = i;
+        break;
+      }
     }
-  }
 
-  if (index > -1) {
-    ann.splice(index, 1);
-    updateAnnotations(documentId);
-  }
+    if (index > -1) {
+      ann.splice(index, 1);
+      updateAnnotations(documentId);
+    }
+
+    resolve(true);
+  });
 };
