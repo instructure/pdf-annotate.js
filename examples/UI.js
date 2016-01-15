@@ -42,6 +42,11 @@ function getDrawingSize(el) {
   return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
 }
 
+function preventDefault(e) {
+  e.preventDefault();
+  return false;
+}
+
 // Pen stuff
 (function () {
   let _penSize;
@@ -101,11 +106,6 @@ function getDrawingSize(el) {
     svg.appendChild(path);
   }
 
-  function handleSelectStart(e) {
-    e.preventDefault();
-    return false;
-  }
-
   UI.setPen = (penSize = 1, penColor = '000000') => {
     _penSize = parseInt(penSize, 10);
     _penColor = penColor;
@@ -113,43 +113,83 @@ function getDrawingSize(el) {
 
   UI.enablePen = () => {
     document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('selectstart', handleSelectStart);
+    document.addEventListener('selectstart', preventDefault);
   };
 
   UI.disablePen = () => {
     document.removeEventListener('mousedown', handleMouseDown);
-    document.removeEventListener('selectstart', handleSelectStart);
+    document.removeEventListener('selectstart', preventDefault);
   };
 })(window, document, undefined);
 
 // Rect stuff
 (function () {
   let _type;
+  let overlay;
+  let originY;
+  let originX;
 
-  function hasSelection() {
+  function getSelectionRects() {
     try {
       let selection = window.getSelection();
       let range = selection.getRangeAt(0);
       let rects = range.getClientRects();
 
-      return rects.length > 0;
+      if (rects.length > 0) {
+        return rects;
+      }
     } catch (e) {}
+    
+    return null;
+  }
 
-    return false;
+  function handleMouseDown(e) {
+    if (_type !== 'area') {
+      return;
+    }
+
+    originY = e.clientY;
+    originX = e.clientX;
+
+    overlay = document.createElement('div');
+    overlay.style.position = 'absolute';
+    overlay.style.top = `${originY}px`;
+    overlay.style.left = `${originX}px`;
+    overlay.style.border = `3px solid ${BORDER_COLOR}`;
+    overlay.style.borderRadius = '3px';
+    document.body.appendChild(overlay);
+    
+    document.addEventListener('mousemove', handleMouseMove);
+    document.addEventListener('selectstart', preventDefault);
+  }
+
+  function handleMouseMove(e) {
+    overlay.style.width = `${e.clientX - originX}px`;
+    overlay.style.height = `${e.clientY - originY}px`;
   }
 
   function handleMouseUp(e) {
-    if (hasSelection()) {
-      createRect(_type);
+    let rects;
+    if (_type !== 'area' && (rects = getSelectionRects())) {
+      createRect(_type, rects);
+    } else if (_type === 'area' && overlay) {
+      createRect(_type, [{
+        top: parseInt(overlay.style.top, 10),
+        left: parseInt(overlay.style.left, 10),
+        width: parseInt(overlay.style.width, 10),
+        height: parseInt(overlay.style.height, 10)
+      }]);
+
+      document.body.removeChild(overlay);
+      overlay = null;
+
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('selectstart', preventDefault);
     }
   }
 
-  function createRect(type, color) {
-    let selection = window.getSelection();
-    let range = selection.getRangeAt(0);
-    let rects = range.getClientRects();
-    let bounding = selection.anchorNode.parentNode.getBoundingClientRect();
-    let svg = findSVGAtPoint(bounding.left, bounding.top);
+  function createRect(type, rects, color) {
+    let svg = findSVGAtPoint(rects[0].left, rects[0].top);
     let node;
     let annotation;
 
@@ -214,10 +254,12 @@ function getDrawingSize(el) {
   UI.enableRect = (type) => {
     _type = type;
     document.addEventListener('mouseup', handleMouseUp);
+    document.addEventListener('mousedown', handleMouseDown);
   };
 
   UI.disableRect = () => {
     document.removeEventListener('mouseup', handleMouseUp);
+    document.removeEventListener('mousedown', handleMouseDown);
   };
 })(window, document, undefined);
 
@@ -349,22 +391,20 @@ function getDrawingSize(el) {
 
   function handleDocumentKeyup(e) {
     if (overlay && e.keyCode === 46) {
-      if (confirm('Are you sure you want to delete this annotation?')) {
-        let annotationId = overlay.getAttribute('data-target-id');
-        let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
-        let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
+      let annotationId = overlay.getAttribute('data-target-id');
+      let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
+      let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
 
-        Array.prototype.forEach.call(nodes, (n) => {
-          n.parentNode.removeChild(n);
-        });
-        
-        PDFJSAnnotate.deleteAnnotation(
-          svg.getAttribute('data-pdf-annotate-document'),
-          annotationId 
-        );
+      Array.prototype.forEach.call(nodes, (n) => {
+        n.parentNode.removeChild(n);
+      });
+      
+      PDFJSAnnotate.deleteAnnotation(
+        svg.getAttribute('data-pdf-annotate-document'),
+        annotationId 
+      );
 
-        destroyEditOverlay();
-      }
+      destroyEditOverlay();
     }
   }
 
@@ -382,7 +422,7 @@ function getDrawingSize(el) {
 
     document.addEventListener('mousemove', handleDocumentMousemove);
     document.addEventListener('mouseup', handleDocumentMouseup);
-    document.addEventListener('selectstart', handleDocumentSelectstart);
+    document.addEventListener('selectstart', preventDefault);
   }
 
   function handleDocumentMousemove(e) {
@@ -451,13 +491,6 @@ function getDrawingSize(el) {
             }
           }
         });
-      // } else if (type === 'textbox') {
-      //   let { deltaY, deltaX } = getDelta('x', 'y');
-      //   if (deltaY !== 0) {
-      //     let y = parseInt
-      //   }
-      //   if (deltaX !== 0) {
-      //   }
       } else if (type === 'strikeout') {
         let { deltaY, deltaX } = getDelta('x1', 'y1');
         Array.prototype.forEach.call(target, (t, i) => {
@@ -504,13 +537,9 @@ function getDrawingSize(el) {
 
     document.removeEventListener('mousemove', handleDocumentMousemove);
     document.removeEventListener('mouseup', handleDocumentMouseup);
-    document.removeEventListener('selectstart', handleDocumentSelectstart);
+    document.removeEventListener('selectstart', preventDefault);
   }
 
-  function handleDocumentSelectstart(e) {
-    e.preventDefault();
-  }
-  
   function handleDocumentClick(e) {
     // Remove current overlay
     let overlay = document.getElementById('pdf-annotate-edit-overlay');
