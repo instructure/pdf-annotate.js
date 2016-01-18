@@ -1,0 +1,180 @@
+import appendChild from '../../src/render/appendChild';
+import mockViewport from './mockViewport';
+import { equal } from 'assert';
+
+function testScale(scale = 0.5, passViewportArg = true) {
+  viewport = mockViewport(undefined, undefined, scale);
+  svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(viewport));
+
+  let annotation = {
+    type: 'point',
+    x: 100,
+    y: 100
+  };
+  
+  let nested = appendChild(svg, annotation, passViewportArg ? viewport : undefined)[0];
+  
+  equal(nested.getAttribute('x'), 50);
+  equal(nested.getAttribute('y'), 50);
+  equal(nested.querySelector('svg').getAttribute('x'), 1);
+  equal(nested.querySelector('svg').getAttribute('y'), scale);
+  equal(nested.getAttribute('transform'), `scale(${scale}) rotate(0) translate(0, 0)`);
+  equal(nested.querySelector('rect').getAttribute('transform'), `scale(${scale}) rotate(0) translate(0, 0)`);
+  equal(nested.querySelector('path').getAttribute('transform'), `scale(${scale}) rotate(0) translate(0, 0)`);
+}
+
+function testRotation(rotation, transX, transY) {
+  viewport = mockViewport(undefined, undefined, undefined, rotation);
+  let annotation = {
+    type: 'highlight',
+    color: 'FFFF00',
+    rectangles: [{
+      x: 125,
+      y: 150,
+      width: 275,
+      height: 40
+    }] 
+  };
+  let node = appendChild(svg, annotation, viewport)[0];
+
+  equal(node.getAttribute('transform'), `scale(1) rotate(${rotation}) translate(${transX}, ${transY})`);
+}
+
+let svg;
+let viewport;
+
+describe('render::appendChild', function () {
+  beforeEach(function () {
+    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+    viewport = mockViewport();
+  });
+
+  it('should add data-attributes', function () {
+    let point = appendChild(svg, {
+      uuid: 1234,
+      type: 'point',
+      x: 0,
+      y: 0
+    }, viewport)[0];
+    let area = appendChild(svg, {
+      uuid: 5678,
+      type: 'area',
+      x: 0,
+      y: 0,
+      width: 25,
+      height: 25
+    }, viewport)[0];
+    
+    equal(point.getAttribute('data-pdf-annotate-id'), '1234');
+    equal(point.getAttribute('data-pdf-annotate-type'), 'point');
+    equal(area.getAttribute('data-pdf-annotate-id'), '5678');
+    equal(area.getAttribute('data-pdf-annotate-type'), 'area');
+  });
+  
+  it('should render area', function () {
+    let area = appendChild(svg, {
+      type: 'area',
+      x: 125,
+      y: 225,
+      width: 100,
+      height: 50
+    }, viewport);
+
+    equal(area.length, 1);
+    equal(area[0].nodeName.toLowerCase(), 'rect');
+  });
+
+  it('should render highlight', function () {
+    let highlight = appendChild(svg, {
+      type: 'highlight',
+      color: 'FF0000',
+      rectangles: [
+        {
+          x: 1,
+          y: 1,
+          width: 50,
+          height: 50
+        }
+      ]
+    }, viewport);
+
+    equal(highlight.length, 1);
+    equal(highlight[0].nodeName.toLowerCase(), 'rect');
+  });
+
+  it('should render strikeout', function () {
+    let strikeout = appendChild(svg, {
+      type: 'strikeout',
+      color: 'FF0000',
+      rectangles: [{
+        x: 125,
+        y: 320,
+        width: 270,
+        height: 1
+      }],
+    }, viewport);
+
+    equal(strikeout.length, 1);
+    equal(strikeout[0].nodeName.toLowerCase(), 'line');
+  });
+
+  it('should render textbox', function () {
+    let textbox = appendChild(svg, {
+      type: 'textbox',
+      x: 125,
+      y: 400,
+      width: 50,
+      height: 100,
+      size: 20,
+      color: '000000',
+      content: 'Lorem Ipsum'
+    }, viewport);
+
+    equal(textbox.length, 1);
+    equal(textbox[0].nodeName.toLowerCase(), 'text');
+  });
+
+  it('should render point', function () {
+    let point = appendChild(svg, {
+      type: 'point',
+      x: 5,
+      y: 5
+    }, viewport);
+
+    equal(point.length, 1);
+    equal(point[0].nodeName.toLowerCase(), 'svg');
+  });
+
+  it('should render drawing', function () {
+    let drawing = appendChild(svg, {
+      type: 'drawing',
+      x: 10,
+      y: 10,
+      lines: [[0, 0], [1, 1]]
+    }, viewport);
+
+    equal(drawing.length, 1);
+    equal(drawing[0].nodeName.toLowerCase(), 'path');
+  });
+
+  it('should fail gracefully if no type is provided', function () {
+    let error = false;
+    try {
+      appendChild(svg, { x: 1, y: 1 }, viewport);
+    } catch (e) {
+      error = true;
+    }
+
+    equal(error, false);
+  });
+
+  it('should transform scale', function () { testScale(0.5); });
+  it('should use viewport from svg data-attribute', function () { testScale(0.5, false); });
+
+  it('should transform rotation 0', function () { testRotation(0, 0, 0); });
+  it('should transform rotation 90', function () { testRotation(90, 0, -100); });
+  it('should transform rotation 180', function () { testRotation(180, -100, -100); });
+  it('should transform rotation 270', function () { testRotation(270, -100, 0); });
+  it('should transform rotation 360', function () { testRotation(360, 0, 0); });
+  it('should transform rotation 540', function () { testRotation(540, -100, -100); });
+});
