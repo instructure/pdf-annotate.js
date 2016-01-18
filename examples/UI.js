@@ -1,13 +1,7 @@
 import PDFJSAnnotate from '../src/PDFJSAnnotate';
-import arrayFrom from '../src/utils/arrayFrom';
-import renderPath from '../src/render/renderPath';
-import renderRect from '../src/render/renderRect';
-import renderLine from '../src/render/renderLine';
-import renderText from '../src/render/renderText';
-import renderPoint from '../src/render/renderPoint';
+import appendChild from '../src/render/appendChild';
 
 const UI = {};
-
 const BORDER_COLOR = '#00BFFF';
 
 export default UI;
@@ -47,6 +41,14 @@ function preventDefault(e) {
   return false;
 }
 
+function getMetadata(svg) {
+  return {
+    documentId: svg.getAttribute('data-pdf-annotate-document'),
+    pageNumber: parseInt(svg.getAttribute('data-pdf-annotate-page'), 10),
+    viewport: JSON.parse(svg.getAttribute('data-pdf-annotate-viewport'))
+  };
+}
+
 // Pen stuff
 (function () {
   let _penSize;
@@ -73,7 +75,13 @@ function preventDefault(e) {
           color: _penColor,
           lines
         }
-      );
+      ).then((annotation) => {
+        if (path) {
+          svg.removeChild(path);
+        }
+
+        appendChild(svg, annotation);
+      });
     }
 
     document.removeEventListener('mousemove', handleMouseMove);
@@ -97,13 +105,12 @@ function preventDefault(e) {
       svg.removeChild(path);
     }
 
-    path = renderPath({
+    path = appendChild(svg, {
+      type: 'drawing',
       color: _penColor,
       width: _penSize,
       lines
-    });
-
-    svg.appendChild(path);
+    })[0];
   }
 
   UI.setPen = (penSize = 1, penColor = '000000') => {
@@ -237,17 +244,8 @@ function preventDefault(e) {
       svg.getAttribute('data-pdf-annotate-document'),
       parseInt(svg.getAttribute('data-pdf-annotate-page'), 10),
       annotation
-    );
-
-    // Render the annotation
-    if (type === 'strikeout') {
-      node = renderLine(annotation);
-    } else {
-      node = renderRect(annotation);
-    }
-
-    arrayFrom(node).forEach((el) => {
-      svg.appendChild(el);
+    ).then((annotation) => {
+      appendChild(svg, annotation);
     });
   }
 
@@ -521,8 +519,8 @@ function preventDefault(e) {
           annotation.lines[i][1] = y + deltaY;
         });
 
-        let node = renderPath(annotation);
-        target[0].setAttribute('d', node.getAttribute('d'));
+        target[0].parentNode.removeChild(target[0]);
+        appendChild(svg, annotation);
       }
 
       PDFJSAnnotate.editAnnotation(documentId, annotationId, annotation);
@@ -650,10 +648,9 @@ function preventDefault(e) {
         svg.getAttribute('data-pdf-annotate-document'),
         parseInt(svg.getAttribute('data-pdf-annotate-page'), 10),
         annotation
-      );
-
-      let node = renderText(annotation);
-      svg.appendChild(node);
+      ).then((annotation) => {
+        appendChild(svg, annotation);
+      });
     }
     
     closeInput();
@@ -743,16 +740,15 @@ function preventDefault(e) {
         documentId,
         parseInt(svg.getAttribute('data-pdf-annotate-page'), 10),
         annotation
-      ).then((annotationId) => {
+      ).then((annotation) => {
         PDFJSAnnotate.addComment(
           documentId,
-          annotationId,
+          annotation.uuid,
           content
         );
-      });
 
-      let node = renderPoint(annotation);
-      svg.appendChild(node);
+        appendChild(svg, annotation);
+      });
     }
 
     closeInput();

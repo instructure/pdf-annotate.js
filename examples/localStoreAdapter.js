@@ -46,7 +46,7 @@ localStoreAdapter.addAnnotation = (documentId, pageNumber, annotation) => {
     annotations[documentId].push(annotation);
     updateAnnotations(documentId);
 
-    resolve(annotation.uuid);
+    resolve(annotation);
   });
 };
 
@@ -83,7 +83,7 @@ localStoreAdapter.addComment = (documentId, annotationId, content) => {
     annotations[documentId].push(comment);
     updateAnnotations(documentId);
 
-    resolve(comment.uuid);
+    resolve(comment);
   });
 };
 
