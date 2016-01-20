@@ -87,7 +87,7 @@ An `area` annotation is a free hand rectangle.
   "rectangles": [
     {
       "height": 75,
-      "width: 150,
+      "width": 150,
       "x": 19,
       "y": 37
     }
@@ -109,7 +109,7 @@ A `highlight` annotation is used to highlight text.
   "rectangles": [
     {
       "height": 12,
-      "width: 335,
+      "width": 335,
       "x": 188,
       "y": 189
     },
