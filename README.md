@@ -68,3 +68,148 @@ PDFJS.getDocument(DOCUMENT_ID).then((pdf) => {
 ```
 
 See more [examples](https://github.com/mzabriskie/pdf-annotate.js/examples).
+
+## Annotation Schema
+
+This is a definition of what annotation types are supported and how they should be represented in JSON.
+
+### Area
+
+An `area` annotation is a free hand rectangle.
+
+```js
+{
+  "class": "Annotation",
+  "type": "area",
+  "page": 1,
+  "uuid": "839f4817-c82d-4620-a59b-6408b1dc0855",
+  "color": "FF0000",
+  "rectangles": [
+    {
+      "height": 75,
+      "width: 150,
+      "x": 19,
+      "y": 37
+    }
+  ]
+}
+```
+
+### Highlight
+
+A `highlight` annotation is used to highlight text.
+
+```js
+{
+  "class": "Annotation",
+  "type": "highlight",
+  "page": 1,
+  "uuid": "99c84974-b899-4de9-8c6c-28e541c03db8",
+  "color": "FFFF00",
+  "rectangles": [
+    {
+      "height": 12,
+      "width: 335,
+      "x": 188,
+      "y": 189
+    },
+    {
+      "height": 12,
+      "width": 431,
+      "x": 72,
+      "y": 205
+    }
+  ]
+}
+```
+
+### Strikeout
+
+A `strikeout` annotation is used to draw a line through text.
+
+```js
+{
+  "class": "Annotation",
+  "type": "strikeout"
+  "page": 1,
+  "uuid": "ad9fe5b8-699d-4711-a94e-4b0eb02e551f",
+  "color": "FF0000",
+  "rectangles": [
+    {
+      "height": 12,
+      "width": 457,
+      "x": 72,
+      "y": 147
+    },
+    {
+      "height": 12,
+      "width": 427,
+      "x": 72,
+      "y": 163
+    }
+  ]
+}
+```
+
+### Textbox
+
+A `textbox` annotation is used to render free form text.
+
+```js
+{
+  "class": "Annotation",
+  "type": "textbox",
+  "page": 1,
+  "uuid": "efd4ded2-c5cb-4064-8fe8-4217a0565e97",
+  "content": "Hello World!",
+  "color": "000000",
+  "size": 24,
+  "width": 259,
+  "height": 36,
+  "x": 126,
+  "y": 82
+}
+```
+
+### Point
+
+A `point` annotation is used for placing a comment.
+
+```js
+{
+  "class": "Annotation",
+  "type": "point",
+  "page": 1,
+  "uuid": "e101a5aa-0a85-4b60-86ff-bcf411a1f7f3",
+  "x": 150,
+  "y": 135
+},
+{
+  "class": "Comment",
+  "uuid": "a9501784-b7a8-4c5b-8243-d7c93ce9dc79",
+  "annotation": "e101a5aa-0a85-4b60-86ff-bcf411a1f7f3",
+  "content": "This is a comment"
+}
+```
+
+### Drawing
+
+A `drawing` annotation is used to render free form drawing.
+
+```js
+{
+  "class": "Annotation",
+  "type": "drawing",
+  "page": 1,
+  "uuid": "2748a2d6-4089-4f63-b3b8-a61910487bdb",
+  "color": "000000",
+  "width": 1,
+  "lines": [
+    [113, 81],
+    [115, 80],
+    [119, 79],
+    [123, 77],
+    [126, 75]
+  ]
+}
+```
