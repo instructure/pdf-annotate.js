@@ -69,6 +69,110 @@ PDFJS.getDocument(DOCUMENT_ID).then((pdf) => {
 
 See more [examples](https://github.com/mzabriskie/pdf-annotate.js/examples).
 
+## API
+
+There are two main objects that you will work with `PDFJSAnnotate` and `StoreAdapter`.
+
+### PDFJSAnnotate
+
+`PDFJSAnnotate` is the top level object that you will be working with.
+
+#### `getAnnotations(documentId, pageNumber)`
+Get all the annotations for a specific page within a document
+
+##### `documentId`
+The ID of the document
+
+##### `pageNumber`
+The page number within the document
+
+#### `getAnnotation(documentId, annotationId)`
+Get a specific annotation
+
+##### `documentId`
+The ID of the document
+
+##### `annotationId`
+The ID of the annotation
+
+#### `addAnnotation(documentId, pageNumber, annotation)`
+Add an annotation to a document
+
+##### `documentId`
+The ID of the document
+
+##### `pageNumber`
+The page number within the document
+
+##### `annotation`
+The JSON definition for the annotation
+
+#### `editAnnotation(documentId, pageNumber, annotation)`
+Edit an annotation
+
+##### `documentId`
+The ID of the document
+
+##### `pageNumber`
+The page number within the document
+
+##### `annotation`
+The JSON definition for the annotation
+
+#### `deleteAnnotation(documentId, annotationId)`
+Delete an annotation
+
+##### `documentId`
+The ID of the document
+
+##### `annotationId`
+The ID of the annotation
+
+#### `addComment(documentId, annotationId, content)`
+Add a comment to an annotation
+
+##### `documentId`
+The ID of the document
+
+##### `annotationId`
+The ID of the annotation
+
+##### `content`
+The content of the comment
+
+#### `deleteComment(documentId, commentId)`
+Delete a comment
+
+##### `documentId`
+The ID of the document
+
+##### `commentId`
+The ID of the comment
+
+#### `render(svg, viewport, annotations)`
+Render the annotations
+
+##### `svg`
+The SVG node that the annotations should be rendered to
+
+##### `viewport`
+The viewport data that is returned from `PDFJS.getDocument(_documentId_).getPage(_pageNumber_).getViewPort(_scale_, _rotation_)`
+
+##### `annotations`
+The annotation data that is returned from `PDFJSAnnotation.getAnnotations(_documentId_, _pageNumber_)`
+
+### StoreAdapter
+
+`StoreAdapter` is an abstract object that will need to be implemented for fetching annotation data.
+
+#### `getAnnotations(documentId, pageNumber)`
+#### `getAnnotation(documentId, annotationId)`
+#### `addAnnotation(documentId, pageNumber, annotation)`
+#### `editAnnotation(documentId, pageNumber, annotation)`
+#### `deleteAnnotation(documentId, annotationId)`
+#### `addComment(documentId, annotationId, content)`
+#### `deleteComment(documentId, commentId)`
+
 ## Annotation Schema
 
 This is a definition of what annotation types are supported and how they should be represented in JSON.
