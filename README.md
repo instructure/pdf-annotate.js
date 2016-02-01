@@ -77,7 +77,7 @@ There are two main objects that you will work with `PDFJSAnnotate` and `StoreAda
 
 `PDFJSAnnotate` is the top level object that you will be working with.
 
-#### `getAnnotations(documentId, pageNumber)`
+#### `getAnnotations(documentId, pageNumber): Promise`
 Get all the annotations for a specific page within a document
 
 ##### `documentId`
@@ -86,7 +86,7 @@ The ID of the document
 ##### `pageNumber`
 The page number within the document
 
-#### `getAnnotation(documentId, annotationId)`
+#### `getAnnotation(documentId, annotationId): Promise`
 Get a specific annotation
 
 ##### `documentId`
@@ -95,7 +95,7 @@ The ID of the document
 ##### `annotationId`
 The ID of the annotation
 
-#### `addAnnotation(documentId, pageNumber, annotation)`
+#### `addAnnotation(documentId, pageNumber, annotation): Promise`
 Add an annotation to a document
 
 ##### `documentId`
@@ -107,7 +107,7 @@ The page number within the document
 ##### `annotation`
 The JSON definition for the annotation
 
-#### `editAnnotation(documentId, pageNumber, annotation)`
+#### `editAnnotation(documentId, pageNumber, annotation): Promise`
 Edit an annotation
 
 ##### `documentId`
@@ -119,7 +119,7 @@ The page number within the document
 ##### `annotation`
 The JSON definition for the annotation
 
-#### `deleteAnnotation(documentId, annotationId)`
+#### `deleteAnnotation(documentId, annotationId): Promise`
 Delete an annotation
 
 ##### `documentId`
@@ -128,7 +128,7 @@ The ID of the document
 ##### `annotationId`
 The ID of the annotation
 
-#### `addComment(documentId, annotationId, content)`
+#### `addComment(documentId, annotationId, content): Promise`
 Add a comment to an annotation
 
 ##### `documentId`
@@ -140,7 +140,7 @@ The ID of the annotation
 ##### `content`
 The content of the comment
 
-#### `deleteComment(documentId, commentId)`
+#### `deleteComment(documentId, commentId): Promise`
 Delete a comment
 
 ##### `documentId`
@@ -149,7 +149,7 @@ The ID of the document
 ##### `commentId`
 The ID of the comment
 
-#### `render(svg, viewport, annotations)`
+#### `render(svg, viewport, annotations): Promise`
 Render the annotations
 
 ##### `svg`
@@ -165,13 +165,13 @@ The annotation data that is returned from `PDFJSAnnotation.getAnnotations(_docum
 
 `StoreAdapter` is an abstract object that will need to be implemented for fetching annotation data.
 
-#### `getAnnotations(documentId, pageNumber)`
-#### `getAnnotation(documentId, annotationId)`
-#### `addAnnotation(documentId, pageNumber, annotation)`
-#### `editAnnotation(documentId, pageNumber, annotation)`
-#### `deleteAnnotation(documentId, annotationId)`
-#### `addComment(documentId, annotationId, content)`
-#### `deleteComment(documentId, commentId)`
+#### `getAnnotations(documentId, pageNumber): Promise`
+#### `getAnnotation(documentId, annotationId): Promise`
+#### `addAnnotation(documentId, pageNumber, annotation): Promise`
+#### `editAnnotation(documentId, pageNumber, annotation): Promise`
+#### `deleteAnnotation(documentId, annotationId): Promise`
+#### `addComment(documentId, annotationId, content): Promise`
+#### `deleteComment(documentId, commentId): Promise`
 
 ## Annotation Schema
 
