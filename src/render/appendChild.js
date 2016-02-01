@@ -44,12 +44,30 @@ function transform(node, viewport) {
   if (node.nodeName.toLowerCase() === 'svg') {
     node.setAttribute('x', parseInt(node.getAttribute('x'), 10) * viewport.scale);
     node.setAttribute('y', parseInt(node.getAttribute('y'), 10) * viewport.scale);
+
+    let x = parseInt(node.getAttribute('x', 10));
+    let y = parseInt(node.getAttribute('y', 10));
+    let width = parseInt(node.getAttribute('width'), 10);
+    let height = parseInt(node.getAttribute('height'), 10);
+    
+    switch(viewport.rotation % 360) {
+      case 90:
+        node.setAttribute('x', viewport.width - x - width);
+        break;
+      case 180:
+        node.setAttribute('x', viewport.width - x - width);
+        node.setAttribute('y', viewport.height - y - height);
+        break;
+      case 270:
+        node.setAttribute('y', viewport.height - y - height);
+        break;
+    }
   }
 
   // Recurse on child nodes
-  forEach.call(node.children, (child) => {
-    transform(child, viewport);
-  });
+  // forEach.call(node.children, (child) => {
+  //   transform(child, viewport);
+  // });
 
   return node;
 }
