@@ -49,25 +49,29 @@ function transform(node, viewport) {
     let y = parseInt(node.getAttribute('y', 10));
     let width = parseInt(node.getAttribute('width'), 10);
     let height = parseInt(node.getAttribute('height'), 10);
+    let path = node.querySelector('path');
+    let svg = path.parentNode;
+    
+    transform(path, viewport);
     
     switch(viewport.rotation % 360) {
       case 90:
         node.setAttribute('x', viewport.width - x - width);
+        svg.setAttribute('x', parseInt(svg.getAttribute('x'), 10) * 4);
+        svg.setAttribute('y', parseInt(svg.getAttribute('y'), 10) * 3);
         break;
       case 180:
         node.setAttribute('x', viewport.width - x - width);
         node.setAttribute('y', viewport.height - y - height);
+        svg.setAttribute('x', parseInt(svg.getAttribute('x'), 10) * 5);
+        svg.setAttribute('y', parseInt(svg.getAttribute('y'), 10) * 8);
         break;
       case 270:
         node.setAttribute('y', viewport.height - y - height);
+        svg.setAttribute('y', parseInt(svg.getAttribute('y'), 10) * 10);
         break;
     }
   }
-
-  // Recurse on child nodes
-  // forEach.call(node.children, (child) => {
-  //   transform(child, viewport);
-  // });
 
   return node;
 }

@@ -16,10 +16,6 @@ function testScale(scale = 0.5, passViewportArg = true) {
   
   equal(nested.getAttribute('x'), 50);
   equal(nested.getAttribute('y'), 50);
-  equal(nested.querySelector('svg').getAttribute('x'), 1);
-  equal(nested.querySelector('svg').getAttribute('y'), scale);
-  equal(nested.getAttribute('transform'), `scale(${scale}) rotate(0) translate(0, 0)`);
-  equal(nested.querySelector('rect').getAttribute('transform'), `scale(${scale}) rotate(0) translate(0, 0)`);
   equal(nested.querySelector('path').getAttribute('transform'), `scale(${scale}) rotate(0) translate(0, 0)`);
 }
 
