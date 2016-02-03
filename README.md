@@ -67,7 +67,7 @@ PDFJS.getDocument(DOCUMENT_ID).then((pdf) => {
 });
 ```
 
-See more [examples](https://github.com/mzabriskie/pdf-annotate.js/examples).
+See more [examples](https://github.com/mzabriskie/pdf-annotate.js/tree/master/examples).
 
 ## API
 
