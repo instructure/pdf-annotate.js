@@ -9,7 +9,7 @@ Annotation layer for [pdf.js](https://github.com/mozilla/pdf.js)
 
 ```bash
 # clone the repo
-$ git clone git@github.com:mzabriskie/pdf-annotate.js.git
+$ git clone https://github.com/mzabriskie/pdf-annotate.js.git
 $ cd pdf-annotate.js
 
 # intall dependencies
