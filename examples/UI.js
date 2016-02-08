@@ -338,7 +338,8 @@ function getMetadata(svg) {
     let id = el.getAttribute('data-pdf-annotate-id');
     let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
     let size = {};
-
+    let lastSize;
+    
     Array.prototype.map.call(nodes, getSize).forEach((s) => {
       if (typeof size.x === 'undefined' || s.x < size.x) { size.x = s.x; }
       if (typeof size.y === 'undefined' || s.y < size.y) { size.y = s.y; }
@@ -346,6 +347,13 @@ function getMetadata(svg) {
       if (typeof size.h === 'undefined') { size.h = 0; }
 
       size.h += s.h;
+
+      // This accounts for the spacing between selected lines
+      if (lastSize) {
+        size.h += s.y - (lastSize.y + lastSize.h);
+      }
+
+      lastSize = s;
     });
 
     return size;
