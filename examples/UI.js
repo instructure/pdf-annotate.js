@@ -167,23 +167,33 @@ function getMetadata(svg) {
 }
 
 // Annotation event stuff
-document.addEventListener('click', function handleDocumentClick(e) {
-  let target = findAnnotationAtPoint(e.clientX, e.clientY);
+(function () {
+  document.addEventListener('click', function handleDocumentClick(e) {
+    let target = findAnnotationAtPoint(e.clientX, e.clientY);
 
-  // Emit annotation:click if target was clicked
-  if (target) {
-    emitter.emit('annotation:click', target);
-  }
-});
+    // Emit annotation:click if target was clicked
+    if (target) {
+      emitter.emit('annotation:click', target);
+    }
+  });
 
-// document.addEventListener('mousemove', function handleDocumentMousemove(e) {
-//   let target = findAnnotationAtPoint(e.clientX, e.clientY);
-//
-//   // Emit annotation:mouseover if target was clicked
-//   if (target) {
-//     emitter.emit('annotation:mouseover', target);
-//   }
-// });
+  let mouseOverNode;
+  document.addEventListener('mousemove', function handleDocumentMousemove(e) {
+    let target = findAnnotationAtPoint(e.clientX, e.clientY);
+
+    // Emit annotation:mouseout if target was mouseout'd
+    if (mouseOverNode && !target) {
+      emitter.emit('annotation:mouseout', mouseOverNode);
+    }
+
+    // Emit annotation:mouseover if target was mouseover'd
+    if (target && mouseOverNode !== target) {
+      emitter.emit('annotation:mouseover', target);
+    }
+
+    mouseOverNode = target;
+  });
+})();
 
 // Edit stuff
 (function (window, document) { 
