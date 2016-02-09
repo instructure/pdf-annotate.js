@@ -1,8 +1,10 @@
 import PDFJSAnnotate from '../src/PDFJSAnnotate';
 import appendChild from '../src/render/appendChild';
+import EventEmitter from 'events';
 
 const UI = {};
 const BORDER_COLOR = '#00BFFF';
+const emitter = new EventEmitter;
 
 export default UI;
 
@@ -18,6 +20,104 @@ function findSVGAtPoint(x, y) {
   }
 
   return null;
+}
+
+function findAnnotationAtPoint(x, y) {
+  // Find all SVG elements at the point of the event
+  let elements = document.elementsFromPoint(x, y).filter((e) => {
+    return e.getAttribute('data-pdf-annotate-container') === 'true';
+  });
+
+  // Find a target element within SVG
+  for (let i=0, l=elements.length; i<l; i++) {
+    let children = elements[i].children;
+    for (let j=0, c=children.length; j<c; j++) {
+      if (isAtPoint(children[j], x, y)) {
+        return children[j];
+      }
+    }
+  }
+
+  return null;
+}
+
+function isAtPoint(el, x, y) {
+  // Account for scroll
+  x += window.scrollX;
+  y += window.scrollY;
+  
+  let { offsetLeft, offsetTop } = getOffset(el);
+  let size = getSize(el);
+  let isAbove = y < (size.y + offsetTop);
+  let isLeft = x < (size.x + offsetLeft);
+  let isBelow = y > (size.y + offsetTop + size.h);
+  let isRight = x > (size.x + offsetLeft + size.w);
+
+  return !isAbove && !isBelow && !isLeft && !isRight;
+}
+
+function getSize(el) {
+  let h = 0, w = 0, x = 0, y = 0;
+
+  switch (el.nodeName.toLowerCase()) {
+    case 'path':
+    return getDrawingSize(el);
+    break;
+
+    case 'line':
+    h = parseInt(el.getAttribute('y2'), 10) - parseInt(el.getAttribute('y1'), 10);
+    w = parseInt(el.getAttribute('x2'), 10) - parseInt(el.getAttribute('x1'), 10);
+    x = parseInt(el.getAttribute('x1'), 10);
+    y = parseInt(el.getAttribute('y1'), 10);
+
+    if (h === 0) {
+      // TODO this should be calculated somehow
+      let offset = 16;
+      h += offset;
+      y -= (offset / 2)
+    }
+    break;
+
+    case 'text':
+    h = el.offsetHeight;
+    w = el.offsetWidth;
+    x = parseInt(el.getAttribute('x'), 10);
+    y = parseInt(el.getAttribute('y'), 10) - h;
+    break;
+
+    default:
+    h = parseInt(el.getAttribute('height'), 10);
+    w = parseInt(el.getAttribute('width'), 10);
+    x = parseInt(el.getAttribute('x'), 10);
+    y = parseInt(el.getAttribute('y'), 10);
+  }
+
+  return { h, w, x, y };
+}
+  
+function getRectangleSize(el) {
+  let id = el.getAttribute('data-pdf-annotate-id');
+  let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
+  let size = {};
+  let lastSize;
+  
+  Array.prototype.map.call(nodes, getSize).forEach((s) => {
+    if (typeof size.x === 'undefined' || s.x < size.x) { size.x = s.x; }
+    if (typeof size.y === 'undefined' || s.y < size.y) { size.y = s.y; }
+    if (typeof size.w === 'undefined' || s.w > size.w) { size.w = s.w; }
+    if (typeof size.h === 'undefined') { size.h = 0; }
+
+    size.h += s.h;
+
+    // This accounts for the spacing between selected lines
+    if (lastSize) {
+      size.h += s.y - (lastSize.y + lastSize.h);
+    }
+
+    lastSize = s;
+  });
+
+  return size;
 }
 
 function getDrawingSize(el) {
@@ -36,6 +136,23 @@ function getDrawingSize(el) {
   return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
 }
 
+function getOffset(el) {
+  let offsetLeft = 0;
+  let offsetTop = 0;
+  let parentNode = el;
+
+  while ((parentNode = parentNode.parentNode) &&
+          parentNode !== document) {
+    offsetLeft += parentNode.offsetLeft;
+    offsetTop += parentNode.offsetTop;
+  }
+
+  return {
+    offsetLeft,
+    offsetTop
+  };
+}
+  
 function preventDefault(e) {
   e.preventDefault();
   return false;
@@ -48,6 +165,242 @@ function getMetadata(svg) {
     viewport: JSON.parse(svg.getAttribute('data-pdf-annotate-viewport'))
   };
 }
+
+// Annotation event stuff
+document.addEventListener('click', function handleDocumentClick(e) {
+  let target = findAnnotationAtPoint(e.clientX, e.clientY);
+
+  // Emit annotation:click if target was clicked
+  if (target) {
+    emitter.emit('annotation:click', target);
+  }
+});
+
+// document.addEventListener('mousemove', function handleDocumentMousemove(e) {
+//   let target = findAnnotationAtPoint(e.clientX, e.clientY);
+//
+//   // Emit annotation:mouseover if target was clicked
+//   if (target) {
+//     emitter.emit('annotation:mouseover', target);
+//   }
+// });
+
+// Edit stuff
+(function (window, document) { 
+  let isDragging = false, overlay;
+  let dragOffsetX, dragOffsetY, dragStartX, dragStartY;
+  const OVERLAY_BORDER_SIZE = 3;
+
+  function createEditOverlay(target) {
+    overlay = document.createElement('div');
+    let id = target.getAttribute('data-pdf-annotate-id');
+    let type = target.getAttribute('data-pdf-annotate-type');
+    let size = type === 'drawing' ? getDrawingSize(target) : getRectangleSize(target);
+    let { offsetLeft, offsetTop } = getOffset(target);
+    
+    overlay.setAttribute('id', 'pdf-annotate-edit-overlay');
+    overlay.setAttribute('data-target-id', id);
+    overlay.style.boxSizing = 'content-box';
+    overlay.style.position = 'absolute';
+    overlay.style.top = `${((size.y + offsetTop) - OVERLAY_BORDER_SIZE)}px`;
+    overlay.style.left = `${((size.x + offsetLeft) - OVERLAY_BORDER_SIZE)}px`;
+    overlay.style.width = `${size.w}px`;
+    overlay.style.height = `${size.h}px`;
+    overlay.style.border = `${OVERLAY_BORDER_SIZE}px solid ${BORDER_COLOR}`;
+    overlay.style.borderRadius = `${OVERLAY_BORDER_SIZE}px`;
+    
+    document.body.appendChild(overlay);
+    document.addEventListener('click', handleDocumentClick);
+    document.addEventListener('keyup', handleDocumentKeyup);
+    document.addEventListener('mousedown', handleDocumentMousedown);
+  }
+
+  function destroyEditOverlay() {
+    if (!overlay) { return; }
+
+    overlay.parentNode.removeChild(overlay);
+
+    document.removeEventListener('click', handleDocumentClick);
+    document.removeEventListener('keyup', handleDocumentKeyup);
+    document.removeEventListener('mousedown', handleDocumentMousedown);
+  }
+  
+  function handleDocumentClick(e) {
+    // Remove current overlay
+    let overlay = document.getElementById('pdf-annotate-edit-overlay');
+    if (overlay) {
+      if (isDragging || e.target === overlay) {
+        return;
+      }
+
+      destroyEditOverlay();
+    }
+  }
+
+  function handleDocumentKeyup(e) {
+    if (overlay && e.keyCode === 46) {
+      let annotationId = overlay.getAttribute('data-target-id');
+      let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
+      let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
+
+      Array.prototype.forEach.call(nodes, (n) => {
+        n.parentNode.removeChild(n);
+      });
+      
+      PDFJSAnnotate.deleteAnnotation(
+        svg.getAttribute('data-pdf-annotate-document'),
+        annotationId 
+      );
+
+      destroyEditOverlay();
+    }
+  }
+
+  function handleDocumentMousedown(e) {
+    if (e.target !== overlay) { return; }
+
+    isDragging = true;
+    dragOffsetX = e.clientX;
+    dragOffsetY = e.clientY;
+    dragStartX = overlay.offsetLeft;
+    dragStartY = overlay.offsetTop;
+
+    overlay.style.background = 'rgba(255, 255, 255, 0.7)';
+    overlay.style.cursor = 'move';
+
+    document.addEventListener('mousemove', handleDocumentMousemove);
+    document.addEventListener('mouseup', handleDocumentMouseup);
+    document.addEventListener('selectstart', preventDefault);
+  }
+
+  function handleDocumentMousemove(e) {
+    let id = overlay.getAttribute('data-target-id');
+    let parent = document.querySelector(`[data-pdf-annotate-id="${id}"]`).parentNode;
+    let y = (dragStartY + (e.clientY - dragOffsetY));
+    let x = (dragStartX + (e.clientX - dragOffsetX));
+    let minY = parent.offsetTop;
+    let maxY = parent.offsetTop + parent.offsetHeight;
+    let minX = parent.offsetLeft;
+    let maxX = parent.offsetLeft + parent.offsetWidth;
+
+    if (y > minY && y + overlay.offsetHeight < maxY) {
+      overlay.style.top = `${y}px`;
+    }
+
+    if (x > minX && x + overlay.offsetWidth < maxX) {
+      overlay.style.left = `${x}px`;
+    }
+  }
+
+  function handleDocumentMouseup(e) {
+    let annotationId = overlay.getAttribute('data-target-id');
+    let target = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
+    let type = target[0].getAttribute('data-pdf-annotate-type');
+    let { offsetTop, offsetLeft } = getOffset(target[0]);
+    let svg = findSVGAtPoint(e.clientX, e.clientY);
+    let documentId = svg.getAttribute('data-pdf-annotate-document');
+
+    function getDelta(propX, propY) {
+      return calcDelta(parseInt(target[0].getAttribute(propX), 10), parseInt(target[0].getAttribute(propY), 10));
+    }
+
+    function calcDelta(x, y) {
+      return {
+        deltaY: OVERLAY_BORDER_SIZE + (overlay.offsetTop - offsetTop) - y,
+        deltaX: OVERLAY_BORDER_SIZE + (overlay.offsetLeft - offsetLeft) - x
+      }
+    }
+
+    PDFJSAnnotate.getAnnotation(documentId, annotationId).then((annotation) => {
+      if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
+        let { deltaY, deltaX } = getDelta('x', 'y');
+        Array.prototype.forEach.call(target, (t, i) => {
+          if (deltaY !== 0) {
+            let y = parseInt(t.getAttribute('y'), 10) + deltaY;
+
+            if (type === 'textbox') {
+              y += parseInt(overlay.style.height, 10);
+            }
+
+            t.setAttribute('y', y);
+            if (annotation.rectangles) {
+              annotation.rectangles[i].y = y;
+            } else if (annotation.y) {
+              annotation.y = y;
+            }
+          }
+          if (deltaX !== 0) {
+            let x = parseInt(t.getAttribute('x'), 10) + deltaX;
+            t.setAttribute('x', x);
+            if (annotation.rectangles) {
+              annotation.rectangles[i].x = x;
+            } else if (annotation.x) {
+              annotation.x = x;
+            }
+          }
+        });
+      } else if (type === 'strikeout') {
+        let { deltaY, deltaX } = getDelta('x1', 'y1');
+        Array.prototype.forEach.call(target, (t, i) => {
+          if (deltaY !== 0) {
+            t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
+            t.setAttribute('y2', parseInt(t.getAttribute('y2'), 10) + deltaY);
+            annotation.rectangles[i].y = parseInt(t.getAttribute('y1'), 10);
+          }
+          if (deltaX !== 0) {
+            t.setAttribute('x1', parseInt(t.getAttribute('x1'), 10) + deltaX);
+            t.setAttribute('x2', parseInt(t.getAttribute('x2'), 10) + deltaX);
+            annotation.rectangles[i].x = parseInt(t.getAttribute('x1'), 10);
+          }
+        });
+      } else if (type === 'drawing') {
+        let size = getDrawingSize(target[0]);
+        let [originX, originY] = annotation.lines[0];
+        let { deltaY, deltaX } = calcDelta(originX, originY);
+
+        // origin isn't necessarily at 0/0 in relation to overlay x/y
+        // adjust the difference between overlay and drawing coords
+        deltaY += (originY - size.y);
+        deltaX += (originX - size.x);
+
+        annotation.lines.forEach((line, i) => {
+          let [x, y] = annotation.lines[i];
+          annotation.lines[i][0] = x + deltaX;
+          annotation.lines[i][1] = y + deltaY;
+        });
+
+        target[0].parentNode.removeChild(target[0]);
+        appendChild(svg, annotation);
+      }
+
+      PDFJSAnnotate.editAnnotation(documentId, annotationId, annotation);
+    });
+
+    setTimeout(() => {
+      isDragging = false;
+    }, 0);
+
+    overlay.style.background = '';
+    overlay.style.cursor = '';
+
+    document.removeEventListener('mousemove', handleDocumentMousemove);
+    document.removeEventListener('mouseup', handleDocumentMouseup);
+    document.removeEventListener('selectstart', preventDefault);
+  }
+
+  function handleAnnotationClick(target) {
+    createEditOverlay(target);
+  }
+
+  UI.enableEdit = function () {
+    emitter.on('annotation:click', handleAnnotationClick);
+  };
+
+  UI.disableEdit = function () {
+    document.removeEventListener('click', handleDocumentClick);
+    emitter.removeListener('annotation:click', handleAnnotationClick);
+  };
+})(window, document, undefined);
 
 // Pen stuff
 (function () {
@@ -258,334 +611,6 @@ function getMetadata(svg) {
   UI.disableRect = () => {
     document.removeEventListener('mouseup', handleMouseUp);
     document.removeEventListener('mousedown', handleMouseDown);
-  };
-})(window, document, undefined);
-
-// Edit stuff
-(function (window, document) {
-  function isAtPoint(el, x, y) {
-    // Account for scroll
-    x += window.scrollX;
-    y += window.scrollY;
-    
-    let { offsetLeft, offsetTop } = getOffset(el);
-    let size = getSize(el);
-    let isAbove = y < (size.y + offsetTop);
-    let isLeft = x < (size.x + offsetLeft);
-    let isBelow = y > (size.y + offsetTop + size.h);
-    let isRight = x > (size.x + offsetLeft + size.w);
-
-    return !isAbove && !isBelow && !isLeft && !isRight;
-  }
-
-  function getOffset(el) {
-    let offsetLeft = 0;
-    let offsetTop = 0;
-    let parentNode = el;
-
-    while ((parentNode = parentNode.parentNode) &&
-            parentNode !== document) {
-      offsetLeft += parentNode.offsetLeft;
-      offsetTop += parentNode.offsetTop;
-    }
-
-    return {
-      offsetLeft,
-      offsetTop
-    };
-  }
-
-  function getSize(el) {
-    let h = 0, w = 0, x = 0, y = 0;
-
-    switch (el.nodeName.toLowerCase()) {
-      case 'path':
-      return getDrawingSize(el);
-      break;
-
-      case 'line':
-      h = parseInt(el.getAttribute('y2'), 10) - parseInt(el.getAttribute('y1'), 10);
-      w = parseInt(el.getAttribute('x2'), 10) - parseInt(el.getAttribute('x1'), 10);
-      x = parseInt(el.getAttribute('x1'), 10);
-      y = parseInt(el.getAttribute('y1'), 10);
-
-      if (h === 0) {
-        // TODO this should be calculated somehow
-        let offset = 16;
-        h += offset;
-        y -= (offset / 2)
-      }
-      break;
-
-      case 'text':
-      h = el.offsetHeight;
-      w = el.offsetWidth;
-      x = parseInt(el.getAttribute('x'), 10);
-      y = parseInt(el.getAttribute('y'), 10) - h;
-      break;
-
-      default:
-      h = parseInt(el.getAttribute('height'), 10);
-      w = parseInt(el.getAttribute('width'), 10);
-      x = parseInt(el.getAttribute('x'), 10);
-      y = parseInt(el.getAttribute('y'), 10);
-    }
-
-    return { h, w, x, y };
-  }
-  
-  function getRectangleSize(el) {
-    let id = el.getAttribute('data-pdf-annotate-id');
-    let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
-    let size = {};
-    let lastSize;
-    
-    Array.prototype.map.call(nodes, getSize).forEach((s) => {
-      if (typeof size.x === 'undefined' || s.x < size.x) { size.x = s.x; }
-      if (typeof size.y === 'undefined' || s.y < size.y) { size.y = s.y; }
-      if (typeof size.w === 'undefined' || s.w > size.w) { size.w = s.w; }
-      if (typeof size.h === 'undefined') { size.h = 0; }
-
-      size.h += s.h;
-
-      // This accounts for the spacing between selected lines
-      if (lastSize) {
-        size.h += s.y - (lastSize.y + lastSize.h);
-      }
-
-      lastSize = s;
-    });
-
-    return size;
-  }
-
-  let isDragging = false, overlay;
-  let dragOffsetX, dragOffsetY, dragStartX, dragStartY;
-  const OVERLAY_BORDER_SIZE = 3;
-
-  function createEditOverlay(target) {
-    overlay = document.createElement('div');
-    let id = target.getAttribute('data-pdf-annotate-id');
-    let type = target.getAttribute('data-pdf-annotate-type');
-    let size = type === 'drawing' ? getDrawingSize(target) : getRectangleSize(target);
-    let { offsetLeft, offsetTop } = getOffset(target);
-    
-    overlay.setAttribute('id', 'pdf-annotate-edit-overlay');
-    overlay.setAttribute('data-target-id', id);
-    overlay.style.boxSizing = 'content-box';
-    overlay.style.position = 'absolute';
-    overlay.style.top = `${((size.y + offsetTop) - OVERLAY_BORDER_SIZE)}px`;
-    overlay.style.left = `${((size.x + offsetLeft) - OVERLAY_BORDER_SIZE)}px`;
-    overlay.style.width = `${size.w}px`;
-    overlay.style.height = `${size.h}px`;
-    overlay.style.border = `${OVERLAY_BORDER_SIZE}px solid ${BORDER_COLOR}`;
-    overlay.style.borderRadius = `${OVERLAY_BORDER_SIZE}px`;
-    
-    document.body.appendChild(overlay);
-    document.addEventListener('keyup', handleDocumentKeyup);
-    document.addEventListener('mousedown', handleDocumentMousedown);
-  }
-
-  function destroyEditOverlay() {
-    if (!overlay) { return; }
-
-    overlay.parentNode.removeChild(overlay);
-
-    document.removeEventListener('keyup', handleDocumentKeyup);
-    document.removeEventListener('mousedown', handleDocumentMousedown);
-  }
-
-  function handleDocumentKeyup(e) {
-    if (overlay && e.keyCode === 46) {
-      let annotationId = overlay.getAttribute('data-target-id');
-      let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
-      let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
-
-      Array.prototype.forEach.call(nodes, (n) => {
-        n.parentNode.removeChild(n);
-      });
-      
-      PDFJSAnnotate.deleteAnnotation(
-        svg.getAttribute('data-pdf-annotate-document'),
-        annotationId 
-      );
-
-      destroyEditOverlay();
-    }
-  }
-
-  function handleDocumentMousedown(e) {
-    if (e.target !== overlay) { return; }
-
-    isDragging = true;
-    dragOffsetX = e.clientX;
-    dragOffsetY = e.clientY;
-    dragStartX = overlay.offsetLeft;
-    dragStartY = overlay.offsetTop;
-
-    overlay.style.background = 'rgba(255, 255, 255, 0.7)';
-    overlay.style.cursor = 'move';
-
-    document.addEventListener('mousemove', handleDocumentMousemove);
-    document.addEventListener('mouseup', handleDocumentMouseup);
-    document.addEventListener('selectstart', preventDefault);
-  }
-
-  function handleDocumentMousemove(e) {
-    let id = overlay.getAttribute('data-target-id');
-    let parent = document.querySelector(`[data-pdf-annotate-id="${id}"]`).parentNode;
-    let y = (dragStartY + (e.clientY - dragOffsetY));
-    let x = (dragStartX + (e.clientX - dragOffsetX));
-    let minY = parent.offsetTop;
-    let maxY = parent.offsetTop + parent.offsetHeight;
-    let minX = parent.offsetLeft;
-    let maxX = parent.offsetLeft + parent.offsetWidth;
-
-    if (y > minY && y + overlay.offsetHeight < maxY) {
-      overlay.style.top = `${y}px`;
-    }
-
-    if (x > minX && x + overlay.offsetWidth < maxX) {
-      overlay.style.left = `${x}px`;
-    }
-  }
-
-  function handleDocumentMouseup(e) {
-    let annotationId = overlay.getAttribute('data-target-id');
-    let target = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
-    let type = target[0].getAttribute('data-pdf-annotate-type');
-    let { offsetTop, offsetLeft } = getOffset(target[0]);
-    let svg = findSVGAtPoint(e.clientX, e.clientY);
-    let documentId = svg.getAttribute('data-pdf-annotate-document');
-
-    function getDelta(propX, propY) {
-      return calcDelta(parseInt(target[0].getAttribute(propX), 10), parseInt(target[0].getAttribute(propY), 10));
-    }
-
-    function calcDelta(x, y) {
-      return {
-        deltaY: OVERLAY_BORDER_SIZE + (overlay.offsetTop - offsetTop) - y,
-        deltaX: OVERLAY_BORDER_SIZE + (overlay.offsetLeft - offsetLeft) - x
-      }
-    }
-
-    PDFJSAnnotate.getAnnotation(documentId, annotationId).then((annotation) => {
-      if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
-        let { deltaY, deltaX } = getDelta('x', 'y');
-        Array.prototype.forEach.call(target, (t, i) => {
-          if (deltaY !== 0) {
-            let y = parseInt(t.getAttribute('y'), 10) + deltaY;
-
-            if (type === 'textbox') {
-              y += parseInt(overlay.style.height, 10);
-            }
-
-            t.setAttribute('y', y);
-            if (annotation.rectangles) {
-              annotation.rectangles[i].y = y;
-            } else if (annotation.y) {
-              annotation.y = y;
-            }
-          }
-          if (deltaX !== 0) {
-            let x = parseInt(t.getAttribute('x'), 10) + deltaX;
-            t.setAttribute('x', x);
-            if (annotation.rectangles) {
-              annotation.rectangles[i].x = x;
-            } else if (annotation.x) {
-              annotation.x = x;
-            }
-          }
-        });
-      } else if (type === 'strikeout') {
-        let { deltaY, deltaX } = getDelta('x1', 'y1');
-        Array.prototype.forEach.call(target, (t, i) => {
-          if (deltaY !== 0) {
-            t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
-            t.setAttribute('y2', parseInt(t.getAttribute('y2'), 10) + deltaY);
-            annotation.rectangles[i].y = parseInt(t.getAttribute('y1'), 10);
-          }
-          if (deltaX !== 0) {
-            t.setAttribute('x1', parseInt(t.getAttribute('x1'), 10) + deltaX);
-            t.setAttribute('x2', parseInt(t.getAttribute('x2'), 10) + deltaX);
-            annotation.rectangles[i].x = parseInt(t.getAttribute('x1'), 10);
-          }
-        });
-      } else if (type === 'drawing') {
-        let size = getDrawingSize(target[0]);
-        let [originX, originY] = annotation.lines[0];
-        let { deltaY, deltaX } = calcDelta(originX, originY);
-
-        // origin isn't necessarily at 0/0 in relation to overlay x/y
-        // adjust the difference between overlay and drawing coords
-        deltaY += (originY - size.y);
-        deltaX += (originX - size.x);
-
-        annotation.lines.forEach((line, i) => {
-          let [x, y] = annotation.lines[i];
-          annotation.lines[i][0] = x + deltaX;
-          annotation.lines[i][1] = y + deltaY;
-        });
-
-        target[0].parentNode.removeChild(target[0]);
-        appendChild(svg, annotation);
-      }
-
-      PDFJSAnnotate.editAnnotation(documentId, annotationId, annotation);
-    });
-
-    setTimeout(() => {
-      isDragging = false;
-    }, 0);
-
-    overlay.style.background = '';
-    overlay.style.cursor = '';
-
-    document.removeEventListener('mousemove', handleDocumentMousemove);
-    document.removeEventListener('mouseup', handleDocumentMouseup);
-    document.removeEventListener('selectstart', preventDefault);
-  }
-
-  function handleDocumentClick(e) {
-    // Remove current overlay
-    let overlay = document.getElementById('pdf-annotate-edit-overlay');
-    if (overlay) {
-      if (isDragging || e.target === overlay) {
-        return;
-      }
-
-      destroyEditOverlay();
-    }
-
-    // Find all SVG elements at the point of the event
-    let elements = document.elementsFromPoint(e.clientX, e.clientY).filter((e) => {
-      return e.getAttribute('data-pdf-annotate-container') === 'true';
-    });
-
-    // Find a target element within SVG
-    let target;
-    for (let i=0, l=elements.length; i<l; i++) {
-      let children = elements[i].children;
-      for (let j=0, c=children.length; j<c; j++) {
-        if (isAtPoint(children[j], e.clientX, e.clientY)) {
-          target = children[j];
-          break;
-        }
-      }
-    }
-
-    // Make edit overlay
-    if (target) {
-      createEditOverlay(target);
-    }
-  }
-
-  UI.enableEdit = function () {
-    document.addEventListener('click', handleDocumentClick);
-  };
-
-  UI.disableEdit = function () {
-    document.removeEventListener('click', handleDocumentClick);
   };
 })(window, document, undefined);
 
