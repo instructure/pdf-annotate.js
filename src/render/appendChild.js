@@ -56,7 +56,8 @@ function transform(node, viewport) {
     
     switch(viewport.rotation % 360) {
       case 90:
-        node.setAttribute('x', viewport.width - x - width);
+        node.setAttribute('x', viewport.width - y - width);
+        node.setAttribute('y', x);
         svg.setAttribute('x', parseInt(svg.getAttribute('x'), 10) * 4);
         svg.setAttribute('y', parseInt(svg.getAttribute('y'), 10) * 3);
         break;
@@ -67,7 +68,8 @@ function transform(node, viewport) {
         svg.setAttribute('y', parseInt(svg.getAttribute('y'), 10) * 8);
         break;
       case 270:
-        node.setAttribute('y', viewport.height - y - height);
+        node.setAttribute('x', y);
+        node.setAttribute('y', viewport.height - x - height);
         svg.setAttribute('y', parseInt(svg.getAttribute('y'), 10) * 10);
         break;
     }

@@ -8,32 +8,49 @@ function testScale(scale = 0.5, passViewportArg = true) {
 
   let annotation = {
     type: 'point',
-    x: 100,
+    x: 200,
     y: 100
   };
   
   let nested = appendChild(svg, annotation, passViewportArg ? viewport : undefined)[0];
   
-  equal(nested.getAttribute('x'), 50);
-  equal(nested.getAttribute('y'), 50);
+  equal(nested.getAttribute('x'), annotation.x * scale);
+  equal(nested.getAttribute('y'), annotation.y * scale);
   equal(nested.querySelector('path').getAttribute('transform'), `scale(${scale}) rotate(0) translate(0, 0)`);
 }
 
 function testRotation(rotation, transX, transY) {
   viewport = mockViewport(undefined, undefined, undefined, rotation);
   let annotation = {
-    type: 'highlight',
-    color: 'FFFF00',
-    rectangles: [{
-      x: 125,
-      y: 150,
-      width: 275,
-      height: 40
-    }] 
+    type: 'point',
+    x: 200,
+    y: 100
   };
   let node = appendChild(svg, annotation, viewport)[0];
+  let width = parseInt(node.getAttribute('width'), 10);
+  let height = parseInt(node.getAttribute('height'), 10);
+  let expectX = annotation.x;
+  let expectY = annotation.y;
+
+  switch(viewport.rotation % 360) {
+    case 90:
+      expectX = viewport.width - annotation.y - width;
+      expectY = annotation.x;
+      break;
+    case 180:
+      expectX = viewport.width - annotation.x - width;
+      expectY = viewport.height - annotation.y - height;
+      break;
+    case 270:
+      expectX = annotation.y;
+      expectY = viewport.height - annotation.x - height;
+      break;
+  }
+
 
   equal(node.getAttribute('transform'), `scale(1) rotate(${rotation}) translate(${transX}, ${transY})`);
+  equal(parseInt(node.getAttribute('x'), 10), expectX);
+  equal(parseInt(node.getAttribute('y'), 10), expectY);
 }
 
 let svg;
