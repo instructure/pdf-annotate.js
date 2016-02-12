@@ -92,7 +92,18 @@ function getSize(el) {
     y = parseInt(el.getAttribute('y'), 10);
   }
 
-  return { h, w, x, y };
+  // For the case of nested SVG (point annotations)
+  // no adjustment needs to be made for scale.
+  // I assume that the scale is already being handled
+  // natively by virtue of the `transform` attribute.
+  if (el.nodeName.toLowerCase() === 'svg') {
+    return { h, w, x, y };
+  }
+
+  let rect = el.getBoundingClientRect();
+  let svg = findSVGAtPoint(rect.left, rect.top);
+
+  return scaleUp(svg, { h, w, x, y });
 }
   
 function getRectangleSize(el) {
@@ -122,6 +133,8 @@ function getRectangleSize(el) {
 
 function getDrawingSize(el) {
   let parts = el.getAttribute('d').replace(/(M|Z)/g, '').split(',');
+  let rect = el.getBoundingClientRect();
+  let svg = findSVGAtPoint(rect.left, rect.top);
   let minX, maxX, minY, maxY;
 
   parts.forEach((p) => {
@@ -133,7 +146,36 @@ function getDrawingSize(el) {
     if (typeof maxY === 'undefined' || s[3] > maxY) { maxY = s[3]; }
   });
 
-  return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+  return scaleUp(svg, {
+    x: minX,
+    y: minY,
+    w: maxX - minX,
+    h: maxY - minY
+  });
+}
+
+// Adjust scale from normalized scale (100%) to rendered scale
+function scaleUp(svg, rect) {
+  let result = {};
+  let { viewport } = getMetadata(svg);
+
+  Object.keys(rect).forEach((key) => {
+    result[key] = rect[key] * viewport.scale;
+  });
+
+  return result;
+}
+
+// Adjust scale from rendered scale to a normalized scale (100%)
+function scaleDown(svg, rect) {
+  let result = {};
+  let { viewport } = getMetadata(svg);
+
+  Object.keys(rect).forEach((key) => {
+    result[key] = rect[key] / viewport.scale;
+  });
+
+  return result;
 }
 
 function getOffset(el) {
@@ -177,31 +219,34 @@ function getMetadata(svg) {
     }
   });
 
-  let mouseOverNode;
-  document.addEventListener('mousemove', function handleDocumentMousemove(e) {
-    let target = findAnnotationAtPoint(e.clientX, e.clientY);
-
-    // Emit annotation:mouseout if target was mouseout'd
-    if (mouseOverNode && !target) {
-      emitter.emit('annotation:mouseout', mouseOverNode);
-    }
-
-    // Emit annotation:mouseover if target was mouseover'd
-    if (target && mouseOverNode !== target) {
-      emitter.emit('annotation:mouseover', target);
-    }
-
-    mouseOverNode = target;
-  });
+  // let mouseOverNode;
+  // document.addEventListener('mousemove', function handleDocumentMousemove(e) {
+  //   let target = findAnnotationAtPoint(e.clientX, e.clientY);
+  //
+  //   // Emit annotation:mouseout if target was mouseout'd
+  //   if (mouseOverNode && !target) {
+  //     emitter.emit('annotation:mouseout', mouseOverNode);
+  //   }
+  //
+  //   // Emit annotation:mouseover if target was mouseover'd
+  //   if (target && mouseOverNode !== target) {
+  //     emitter.emit('annotation:mouseover', target);
+  //   }
+  //
+  //   mouseOverNode = target;
+  // });
 })();
 
 // Edit stuff
 (function (window, document) { 
+  let _enabled = false;
   let isDragging = false, overlay;
   let dragOffsetX, dragOffsetY, dragStartX, dragStartY;
   const OVERLAY_BORDER_SIZE = 3;
 
   function createEditOverlay(target) {
+    destroyEditOverlay();
+
     overlay = document.createElement('div');
     let id = target.getAttribute('data-pdf-annotate-id');
     let type = target.getAttribute('data-pdf-annotate-type');
@@ -229,6 +274,7 @@ function getMetadata(svg) {
     if (!overlay) { return; }
 
     overlay.parentNode.removeChild(overlay);
+    overlay = null;
 
     document.removeEventListener('click', handleDocumentClick);
     document.removeEventListener('keyup', handleDocumentKeyup);
@@ -321,6 +367,7 @@ function getMetadata(svg) {
       }
     }
 
+    // TODO Scale is off when dragging annotation position
     PDFJSAnnotate.getAnnotation(documentId, annotationId).then((annotation) => {
       if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
         let { deltaY, deltaX } = getDelta('x', 'y');
@@ -341,6 +388,7 @@ function getMetadata(svg) {
           }
           if (deltaX !== 0) {
             let x = parseInt(t.getAttribute('x'), 10) + deltaX;
+
             t.setAttribute('x', x);
             if (annotation.rectangles) {
               annotation.rectangles[i].x = x;
@@ -403,17 +451,23 @@ function getMetadata(svg) {
   }
 
   UI.enableEdit = function () {
+    if (_enabled) { return; }
+
+    _enabled = true;
     emitter.on('annotation:click', handleAnnotationClick);
   };
 
   UI.disableEdit = function () {
-    document.removeEventListener('click', handleDocumentClick);
+    if (!_enabled) { return; }
+
+    _enabled = false;
     emitter.removeListener('annotation:click', handleAnnotationClick);
   };
 })(window, document, undefined);
 
 // Pen stuff
 (function () {
+  let _enabled = false;
   let _penSize;
   let _penColor;
   let path;
@@ -452,13 +506,22 @@ function getMetadata(svg) {
   }
 
   function handleMouseMove(e) {
-    let svg = findSVGAtPoint(e.clientX, e.clientY);
+    savePoint(e.clientX, e.clientY);
+  }
+
+  function savePoint(x, y) {
+    let svg = findSVGAtPoint(x, y);
     if (!svg) {
       return;
     }
 
     let rect = svg.getBoundingClientRect();
-    lines.push([e.clientX - rect.left, e.clientY - rect.top]);
+    let point = scaleDown(svg, {
+      x: x - rect.left,
+      y: y - rect.top
+    });
+
+    lines.push([point.x, point.y]);
 
     if (lines.length <= 1) {
       return;
@@ -482,11 +545,17 @@ function getMetadata(svg) {
   };
 
   UI.enablePen = () => {
+    if (_enabled) { return; }
+
+    _enabled = true;
     document.addEventListener('mousedown', handleMouseDown);
     document.addEventListener('selectstart', preventDefault);
   };
 
   UI.disablePen = () => {
+    if (!_enabled) { return; }
+
+    _enabled = false;
     document.removeEventListener('mousedown', handleMouseDown);
     document.removeEventListener('selectstart', preventDefault);
   };
@@ -494,6 +563,7 @@ function getMetadata(svg) {
 
 // Rect stuff
 (function () {
+  let _enabled = false;
   let _type;
   let overlay;
   let originY;
@@ -505,7 +575,9 @@ function getMetadata(svg) {
       let range = selection.getRangeAt(0);
       let rects = range.getClientRects();
 
-      if (rects.length > 0) {
+      if (rects.length > 0 &&
+          rects[0].width > 0 &&
+          rects[0].height > 0) {
         return rects;
       }
     } catch (e) {}
@@ -541,9 +613,22 @@ function getMetadata(svg) {
   function handleMouseUp(e) {
     let rects;
     if (_type !== 'area' && (rects = getSelectionRects())) {
-      createRect(_type, rects);
+      let svg = findSVGAtPoint(rects[0].left, rects[0].top);
+      saveRect(_type, Array.prototype.map.call(rects, (r) => {
+        // It seems counter-intuitive to scale up here only
+        // to scale down within saveRect, but the browser
+        // is handling the scaling natively using CSS zoom.
+        // It is necessary to adjust the scale up to account
+        // for the native browser scaling.
+        return scaleUp(svg, {
+          top: r.top,
+          left: r.left,
+          width: r.width,
+          height: r.height
+        });
+      }));
     } else if (_type === 'area' && overlay) {
-      createRect(_type, [{
+      saveRect(_type, [{
         top: parseInt(overlay.style.top, 10),
         left: parseInt(overlay.style.left, 10),
         width: parseInt(overlay.style.width, 10),
@@ -558,7 +643,7 @@ function getMetadata(svg) {
     }
   }
 
-  function createRect(type, rects, color) {
+  function saveRect(type, rects, color) {
     let svg = findSVGAtPoint(rects[0].left, rects[0].top);
     let node;
     let annotation;
@@ -588,12 +673,12 @@ function getMetadata(svg) {
           offset = r.height / 2;
         }
 
-        return {
+        return scaleDown(svg, {
           y: (r.top + offset) - boundingRect.top,
           x: r.left - boundingRect.left,
           width: r.width,
           height: r.height
-        };
+        });
       }).filter((r) => r.width > 0 && r.height > 0)
     };
 
@@ -614,11 +699,18 @@ function getMetadata(svg) {
 
   UI.enableRect = (type) => {
     _type = type;
+    
+    if (_enabled) { return; }
+
+    _enabled = true;
     document.addEventListener('mouseup', handleMouseUp);
     document.addEventListener('mousedown', handleMouseDown);
   };
 
   UI.disableRect = () => {
+    if (!_enabled) { return; }
+
+    _enabled = false;
     document.removeEventListener('mouseup', handleMouseUp);
     document.removeEventListener('mousedown', handleMouseDown);
   };
@@ -626,6 +718,7 @@ function getMetadata(svg) {
 
 // Text stuff
 (function () {
+  let _enabled = false;
   let input;
   let _textSize;
   let _textColor;
@@ -676,16 +769,18 @@ function getMetadata(svg) {
       }
 
       let rect = svg.getBoundingClientRect();
-      let annotation = {
-        type: 'textbox',
-        x: clientX - rect.left,
-        y: clientY -  rect.top,
-        width: input.offsetWidth,
-        height: input.offsetHeight,
-        size: _textSize,
-        color: _textColor,
-        content: input.value.trim()
-      };
+      let annotation = Object.assign({
+          type: 'textbox',
+          size: _textSize,
+          color: _textColor,
+          content: input.value.trim()
+        }, scaleDown(svg, {
+          x: clientX - rect.left,
+          y: clientY -  rect.top,
+          width: input.offsetWidth,
+          height: input.offsetHeight
+        })
+      );
 
       PDFJSAnnotate.addAnnotation(
         svg.getAttribute('data-pdf-annotate-document'),
@@ -714,16 +809,23 @@ function getMetadata(svg) {
   };
 
   UI.enableText = function () {
+    if (_enabled) { return; }
+
+    _enabled = true;
     document.addEventListener('mouseup', handleMouseUp);
   };
 
   UI.disableText = function () {
+    if (!_enabled) { return; }
+
+    _enabled = false;
     document.removeEventListener('mouseup', handleMouseUp);
   };
 })(window, document, undefined);
 
 // Point stuff
 (function () {
+  let _enabled = false;
   let input;
 
   function handleMouseUp(e) {
@@ -772,12 +874,14 @@ function getMetadata(svg) {
       }
 
       let rect = svg.getBoundingClientRect();
-      let documentId = svg.getAttribute('data-pdf-annotate-document');
-      let annotation = {
-        type: 'point',
-        x: clientX - rect.left,
-        y: clientY - rect.top
-      };
+      let { documentId } = getMetadata(svg);
+      let annotation = Object.assign({
+          type: 'point'
+        }, scaleDown(svg, {
+          x: clientX - rect.left,
+          y: clientY - rect.top
+        })
+      );
 
       PDFJSAnnotate.addAnnotation(
         documentId,
@@ -805,10 +909,16 @@ function getMetadata(svg) {
   }
 
   UI.enablePoint = function () {
+    if (_enabled) { return; }
+
+    _enabled = true;
     document.addEventListener('mouseup', handleMouseUp);
   };
 
   UI.disablePoint = function () {
+    if (!_enabled) { return; }
+
+    _enabled = false;
     document.removeEventListener('mouseup', handleMouseUp);
   };
 })(window, document, undefined);
