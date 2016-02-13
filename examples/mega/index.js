@@ -51,11 +51,11 @@ function render() {
 
   overlay.style.zoom = SCALE;
   overlay.style.transform = `rotate(${ROTATE}deg)`;
-  overlay.style.top = (parseInt(getComputedStyle(overlay).top, 10) / SCALE) + 'px';
+  overlay.style.top = ((canvas.getBoundingClientRect().top + window.scrollY) / SCALE) + 'px';
   overlay.style.height = (overlayHeight / SCALE) + 'px';
   overlay.style.width = (overlayWidth / SCALE) + 'px';
   overlay.style.marginLeft = (((overlayWidth / SCALE) / 2) * -1) + 'px';
-  overlay.style.marginTop = (((overlayHeight - viewport.height) / 2) * -1) + 'px';
+  overlay.style.marginTop = ((((overlayHeight - viewport.height) / SCALE) / 2) * -1) + 'px';
 
   data.page.render({canvasContext, viewport});
   PDFJSAnnotate.render(svg, viewport, data.annotations);
@@ -294,6 +294,9 @@ function render() {
 // Scale/rotate
 (function () {
   function setScaleRotate(scale, rotate) {
+    scale = parseFloat(scale, 10);
+    rotate = parseInt(rotate, 10);
+
     if (SCALE !== scale || ROTATE !== rotate) {
       SCALE = scale;
       ROTATE = rotate;
