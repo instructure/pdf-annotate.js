@@ -63,7 +63,13 @@ function transform(node, viewport) {
     let height = parseInt(node.getAttribute('height'), 10);
     let path = node.querySelector('path');
     let svg = path.parentNode;
-    
+   
+    // Scale width/height
+    [node, svg, path, node.querySelector('rect')].forEach((n) => {
+      n.setAttribute('width', parseInt(n.getAttribute('width'), 10) * viewport.scale);
+      n.setAttribute('height', parseInt(n.getAttribute('height'), 10) * viewport.scale);
+    });
+
     // Transform path but keep scale at 100% since it will be handled natively
     transform(path, Object.assign({}, viewport, { scale: 1 }));
     
