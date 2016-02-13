@@ -16,7 +16,7 @@ function testScale(scale = 0.5, passViewportArg = true) {
   
   equal(nested.getAttribute('x'), annotation.x * scale);
   equal(nested.getAttribute('y'), annotation.y * scale);
-  equal(nested.querySelector('path').getAttribute('transform'), `scale(${scale}) rotate(0) translate(0, 0)`);
+  equal(nested.querySelector('path').getAttribute('transform'), `scale(1) rotate(0) translate(0, 0)`);
 }
 
 function testRotation(rotation, transX, transY) {

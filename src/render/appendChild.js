@@ -37,6 +37,7 @@ function getTranslation(viewport) {
 function transform(node, viewport) {
   let trans = getTranslation(viewport);
   let isNestedPath = node.nodeName.toLowerCase() === 'path' &&
+      node.parentNode &&
       node.parentNode.getAttribute('viewBox') === '0 0 1000 1000';
 
   // This feels like a hack, but it fixes weird positioning of comment bubble.
