@@ -71,19 +71,19 @@ function transform(node, viewport) {
       case 90:
         node.setAttribute('x', viewport.width - y - width);
         node.setAttribute('y', x);
-        svg.setAttribute('x', 3);
-        svg.setAttribute('y', 2);
+        svg.setAttribute('x', 1);
+        svg.setAttribute('y', 0);
         break;
       case 180:
         node.setAttribute('x', viewport.width - x - width);
         node.setAttribute('y', viewport.height - y - height);
-        svg.setAttribute('y', 3);
+        svg.setAttribute('y', 2);
         break;
       case 270:
         node.setAttribute('x', y);
         node.setAttribute('y', viewport.height - x - height);
-        svg.setAttribute('x', 1);
-        svg.setAttribute('y', 2);
+        svg.setAttribute('x', -1);
+        svg.setAttribute('y', 0);
         break;
     }
   }
