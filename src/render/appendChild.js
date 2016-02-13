@@ -36,6 +36,17 @@ function getTranslation(viewport) {
 
 function transform(node, viewport) {
   let trans = getTranslation(viewport);
+  let isNestedPath = node.nodeName.toLowerCase() === 'path' &&
+      node.parentNode.getAttribute('viewBox') === '0 0 1000 1000';
+
+  // This feels like a hack, but it fixes weird positioning of comment bubble.
+  // I suspect that this correlates with the viewBox attribute (0 0 1000 1000).
+  if (isNestedPath && trans.x !== 0) {
+    trans.x = -1000;
+  }
+  if (isNestedPath && trans.y !== 0) {
+    trans.y = -1000;
+  }
 
   // Let SVG natively transform the element
   node.setAttribute('transform', `scale(${viewport.scale}) rotate(${viewport.rotation}) translate(${trans.x}, ${trans.y})`);
@@ -52,25 +63,26 @@ function transform(node, viewport) {
     let path = node.querySelector('path');
     let svg = path.parentNode;
     
-    transform(path, viewport);
+    // Transform path but keep scale at 100% since it will be handled natively
+    transform(path, Object.assign({}, viewport, { scale: 1 }));
     
     switch(viewport.rotation % 360) {
       case 90:
         node.setAttribute('x', viewport.width - y - width);
         node.setAttribute('y', x);
-        svg.setAttribute('x', parseInt(svg.getAttribute('x'), 10) * 4);
-        svg.setAttribute('y', parseInt(svg.getAttribute('y'), 10) * 3);
+        svg.setAttribute('x', 3);
+        svg.setAttribute('y', 2);
         break;
       case 180:
         node.setAttribute('x', viewport.width - x - width);
         node.setAttribute('y', viewport.height - y - height);
-        svg.setAttribute('x', parseInt(svg.getAttribute('x'), 10) * 5);
-        svg.setAttribute('y', parseInt(svg.getAttribute('y'), 10) * 8);
+        svg.setAttribute('y', 3);
         break;
       case 270:
         node.setAttribute('x', y);
         node.setAttribute('y', viewport.height - x - height);
-        svg.setAttribute('y', parseInt(svg.getAttribute('y'), 10) * 10);
+        svg.setAttribute('x', 1);
+        svg.setAttribute('y', 2);
         break;
     }
   }
