@@ -226,6 +226,8 @@ function getMetadata(svg) {
 (function () {
   let clickNode;
   document.addEventListener('click', function handleDocumentClick(e) {
+    if (!findSVGAtPoint(e.clientX, e.clientY)) { return; }
+
     let target = findAnnotationAtPoint(e.clientX, e.clientY);
 
     // Emit annotation:blur if clickNode is no longer clicked
@@ -340,6 +342,8 @@ function getMetadata(svg) {
   }
   
   function handleDocumentClick(e) {
+    if (!findSVGAtPoint(e.clientX, e.clientY)) { return; }
+
     // Remove current overlay
     let overlay = document.getElementById('pdf-annotate-edit-overlay');
     if (overlay) {
