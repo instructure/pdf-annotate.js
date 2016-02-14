@@ -31,6 +31,10 @@ let PDFJSAnnotate = {
     return this.StoreAdapter.deleteAnnotation(...arguments);
   },
 
+  getComments(documentId, annotationId) {
+    return this.StoreAdapter.getComments(...arguments);
+  },
+
   addComment(documentId, annotationId, content) {
     return this.StoreAdapter.addComment(...arguments);
   },

@@ -8,6 +8,20 @@ const emitter = new EventEmitter;
 
 export default UI;
 
+function findSVGContainer(node) {
+  let parentNode = node;
+
+  while ((parentNode = parentNode.parentNode) &&
+          parentNode !== document) {
+    if (parentNode.nodeName.toUpperCase() === 'SVG' &&
+        parentNode.getAttribute('data-pdf-annotate-container') === 'true') {
+      return parentNode;
+    }
+  }
+
+  return null;
+}
+
 function findSVGAtPoint(x, y) {
   let els = document.elementsFromPoint(x, y);
 
@@ -210,13 +224,21 @@ function getMetadata(svg) {
 
 // Annotation event stuff
 (function () {
+  let clickNode;
   document.addEventListener('click', function handleDocumentClick(e) {
     let target = findAnnotationAtPoint(e.clientX, e.clientY);
+
+    // Emit annotation:blur if clickNode is no longer clicked
+    if (clickNode && clickNode !== target) {
+      emitter.emit('annotation:blur', clickNode);
+    }
 
     // Emit annotation:click if target was clicked
     if (target) {
       emitter.emit('annotation:click', target);
     }
+
+    clickNode = target;
   });
 
   // let mouseOverNode;
@@ -236,6 +258,42 @@ function getMetadata(svg) {
   //   mouseOverNode = target;
   // });
 })();
+
+// Comment stuff
+(function (window, document, undefined) {
+  let commentList = document.querySelector('#comment-wrapper .comment-list');
+
+  function handleAnnotationClick(target) {
+    let type = target.getAttribute('data-pdf-annotate-type');
+
+    if (['point', 'highlight', 'area'].indexOf(type) > -1) {
+      let { documentId } = getMetadata(findSVGContainer(target));
+      let annotationId = target.getAttribute('data-pdf-annotate-id');
+      PDFJSAnnotate.getComments(documentId, annotationId).then((comments) => {
+        commentList.innerHTML = '';
+        comments.forEach((c) => {
+          let child = document.createElement('div');
+          child.className = 'comment-list-item';
+
+          child.appendChild(document.createTextNode(c.content));
+          commentList.appendChild(child);
+        });
+      });
+    }
+  }
+
+  function handleAnnotationBlur(target) {
+    commentList.innerHTML = '';
+    let child = document.createElement('div');
+    child.className = 'comment-list-item';
+
+    child.appendChild(document.createTextNode('No comments'));
+    commentList.appendChild(child);
+  }
+
+  emitter.on('annotation:click', handleAnnotationClick);
+  emitter.on('annotation:blur', handleAnnotationBlur);
+})(window, document, undefined);
 
 // Edit stuff
 (function (window, document) { 
@@ -354,7 +412,7 @@ function getMetadata(svg) {
     let type = target[0].getAttribute('data-pdf-annotate-type');
     let { offsetTop, offsetLeft } = getOffset(target[0]);
     let svg = findSVGAtPoint(e.clientX, e.clientY);
-    let documentId = svg.getAttribute('data-pdf-annotate-document');
+    let { documentId } = getMetadata(svg);
 
     function getDelta(propX, propY) {
       return calcDelta(parseInt(target[0].getAttribute(propX), 10), parseInt(target[0].getAttribute(propY), 10));

@@ -51,7 +51,7 @@ function render() {
 
   overlay.style.zoom = SCALE;
   overlay.style.transform = `rotate(${ROTATE}deg)`;
-  overlay.style.top = ((canvas.getBoundingClientRect().top + window.scrollY) / SCALE) + 'px';
+  overlay.style.top = (parseInt(getComputedStyle(canvas).top + window.scrollY) / SCALE) + 'px';
   overlay.style.height = (overlayHeight / SCALE) + 'px';
   overlay.style.width = (overlayWidth / SCALE) + 'px';
   overlay.style.marginLeft = (((overlayWidth / SCALE) / 2) * -1) + 'px';

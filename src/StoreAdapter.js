@@ -7,6 +7,7 @@ let StoreAdapter = {
   addAnnotation: (documentId, pageNumber, annotation) => { abstractFunction('addAnnotation'); },
   editAnnotation: (documentId, pageNumber, annotation) => { abstractFunction('editAnnotation'); },
   deleteAnnotation: (documentId, annotationId) => { abstractFunction('deleteAnnotation'); },
+  getComments: (documentId, annotationId) => { abstractFunction('getComments'); },
   addComment: (documentId, annotationId, content) => { abstractFunction('addComment'); },
   deleteComment: (documentId, commentId) => { abstractFunction('deleteComment'); }
 };
