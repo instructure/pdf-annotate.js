@@ -347,6 +347,11 @@ function render() {
   let commentForm = document.querySelector('#comment-wrapper .comment-list-form');
   let commentText = commentForm.querySelector('input[type="text"]');
 
+  function supportsComments(target) {
+    let type = target.getAttribute('data-pdf-annotate-type');
+    return ['point', 'highlight', 'area'].indexOf(type) > -1;
+  }
+
   function insertComment(comment) {
     let child = document.createElement('div');
     child.className = 'comment-list-item';
@@ -356,9 +361,7 @@ function render() {
   }
 
   function handleAnnotationClick(target) {
-    let type = target.getAttribute('data-pdf-annotate-type');
-
-    if (['point', 'highlight', 'area'].indexOf(type) > -1) {
+    if (supportsComments(target)) {
       let documentId = target.parentNode.getAttribute('data-pdf-annotate-document');
       let annotationId = target.getAttribute('data-pdf-annotate-id');
 
@@ -384,11 +387,13 @@ function render() {
   }
 
   function handleAnnotationBlur(target) {
-    commentList.innerHTML = '';
-    commentForm.style.display = 'none';
-    commentForm.onsubmit = null;
-    
-    insertComment({content: 'No comments'});
+    if (supportsComments(target)) {
+      commentList.innerHTML = '';
+      commentForm.style.display = 'none';
+      commentForm.onsubmit = null;
+      
+      insertComment({content: 'No comments'});
+    }
   }
 
   UI.addEventListener('annotation:click', handleAnnotationClick);
