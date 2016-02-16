@@ -62,9 +62,33 @@
     }
     #comment-wrapper .comment-list {
       font-size: 12px;
+      position: absolute;
+      top: 38px;
+      left: 0;
+      right: 0;
+      bottom: 0;
     }
     #comment-wrapper .comment-list-item {
+      border-bottom: 1px solid #d0d0d0;
       padding: 10px;
+    }
+    #comment-wrapper .comment-list-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 75px;
+      overflow: auto;
+    }
+    #comment-wrapper .comment-list-form {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 10px;
+    }
+    #comment-wrapper .comment-list-form textarea {
+      width: 100%;
     }
   </style>
 </head>
@@ -132,7 +156,13 @@
   <div id="comment-wrapper">
     <h4>Comments</h4>
     <div class="comment-list">
-      <div class="comment-list-item">No comments</div>
+      <div class="comment-list-container">
+        <div class="comment-list-item">No comments</div>
+      </div>
+      <form class="comment-list-form" style="display:none;">
+        <textarea></textarea>
+        <button type="submit">Add Comment</button>
+      </form>
     </div>
   </div>
   <script src="../__build__/shared.js"></script>

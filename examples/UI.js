@@ -259,43 +259,10 @@ function getMetadata(svg) {
   //
   //   mouseOverNode = target;
   // });
+
+  UI.addEventListener = function () { emitter.on(...arguments); };
+  UI.removeEventListener = function () { emitter.removeListener(...arguments); };
 })();
-
-// Comment stuff
-(function (window, document, undefined) {
-  let commentList = document.querySelector('#comment-wrapper .comment-list');
-
-  function handleAnnotationClick(target) {
-    let type = target.getAttribute('data-pdf-annotate-type');
-
-    if (['point', 'highlight', 'area'].indexOf(type) > -1) {
-      let { documentId } = getMetadata(findSVGContainer(target));
-      let annotationId = target.getAttribute('data-pdf-annotate-id');
-      PDFJSAnnotate.getComments(documentId, annotationId).then((comments) => {
-        commentList.innerHTML = '';
-        comments.forEach((c) => {
-          let child = document.createElement('div');
-          child.className = 'comment-list-item';
-
-          child.appendChild(document.createTextNode(c.content));
-          commentList.appendChild(child);
-        });
-      });
-    }
-  }
-
-  function handleAnnotationBlur(target) {
-    commentList.innerHTML = '';
-    let child = document.createElement('div');
-    child.className = 'comment-list-item';
-
-    child.appendChild(document.createTextNode('No comments'));
-    commentList.appendChild(child);
-  }
-
-  emitter.on('annotation:click', handleAnnotationClick);
-  emitter.on('annotation:blur', handleAnnotationBlur);
-})(window, document, undefined);
 
 // Edit stuff
 (function (window, document) { 
@@ -356,7 +323,9 @@ function getMetadata(svg) {
   }
 
   function handleDocumentKeyup(e) {
-    if (overlay && e.keyCode === 46) {
+    if (overlay && e.keyCode === 46 &&
+        e.target.nodeName.toLowerCase() !== 'textarea' &&
+        e.target.nodeName.toLowerCase() !== 'input') {
       let annotationId = overlay.getAttribute('data-target-id');
       let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
       let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
@@ -516,14 +485,14 @@ function getMetadata(svg) {
     if (_enabled) { return; }
 
     _enabled = true;
-    emitter.on('annotation:click', handleAnnotationClick);
+    UI.addEventListener('annotation:click', handleAnnotationClick);
   };
 
   UI.disableEdit = function () {
     if (!_enabled) { return; }
 
     _enabled = false;
-    emitter.removeListener('annotation:click', handleAnnotationClick);
+    UI.removeEventListener('annotation:click', handleAnnotationClick);
   };
 })(window, document, undefined);
 

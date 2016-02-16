@@ -339,3 +339,58 @@ function render() {
   }
   document.querySelector('a.clear').addEventListener('click', handleClearClick);
 })();
+
+// Comment stuff
+(function (window, document) {
+  let commentList = document.querySelector('#comment-wrapper .comment-list-container');
+  let commentForm = document.querySelector('#comment-wrapper .comment-list-form');
+  let commentText = commentForm.querySelector('textarea');
+
+  function insertComment(comment) {
+    let child = document.createElement('div');
+    child.className = 'comment-list-item';
+
+    child.appendChild(document.createTextNode(comment.content));
+    commentList.appendChild(child);
+  }
+
+  function handleAnnotationClick(target) {
+    let type = target.getAttribute('data-pdf-annotate-type');
+
+    if (['point', 'highlight', 'area'].indexOf(type) > -1) {
+      let documentId = target.parentNode.getAttribute('data-pdf-annotate-document');
+      let annotationId = target.getAttribute('data-pdf-annotate-id');
+
+      PDFJSAnnotate.getComments(documentId, annotationId).then((comments) => {
+        commentList.innerHTML = '';
+        commentForm.style.display = '';
+        commentText.focus();
+
+        commentForm.onsubmit = function () {
+          PDFJSAnnotate.addComment(documentId, annotationId, commentText.value.trim())
+            .then(insertComment)
+            .then(() => {
+              commentText.value = '';
+              commentText.focus();
+            });
+
+          return false;
+        };
+
+        comments.forEach(insertComment);
+      });
+    }
+  }
+
+  function handleAnnotationBlur(target) {
+    commentList.innerHTML = '';
+    commentForm.style.display = 'none';
+    commentForm.onsubmit = null;
+    
+    insertComment({content: 'No comments'});
+  }
+
+  UI.addEventListener('annotation:click', handleAnnotationClick);
+  UI.addEventListener('annotation:blur', handleAnnotationBlur);
+})(window, document);
+
