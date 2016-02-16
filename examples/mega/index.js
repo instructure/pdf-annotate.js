@@ -344,7 +344,7 @@ function render() {
 (function (window, document) {
   let commentList = document.querySelector('#comment-wrapper .comment-list-container');
   let commentForm = document.querySelector('#comment-wrapper .comment-list-form');
-  let commentText = commentForm.querySelector('textarea');
+  let commentText = commentForm.querySelector('input[type="text"]');
 
   function insertComment(comment) {
     let child = document.createElement('div');

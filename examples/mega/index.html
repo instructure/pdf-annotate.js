@@ -77,7 +77,7 @@
       top: 0;
       left: 0;
       right: 0;
-      bottom: 75px;
+      bottom: 47px;
       overflow: auto;
     }
     #comment-wrapper .comment-list-form {
@@ -87,7 +87,8 @@
       bottom: 0;
       padding: 10px;
     }
-    #comment-wrapper .comment-list-form textarea {
+    #comment-wrapper .comment-list-form input {
+      padding: 5px;
       width: 100%;
     }
   </style>
@@ -160,8 +161,7 @@
         <div class="comment-list-item">No comments</div>
       </div>
       <form class="comment-list-form" style="display:none;">
-        <textarea></textarea>
-        <button type="submit">Add Comment</button>
+        <input type="text" placeholder="Add a Comment"/>
       </form>
     </div>
   </div>
