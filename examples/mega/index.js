@@ -1,4 +1,5 @@
 import __pdfjs from 'pdfjs-dist/build/pdf.js';
+import twitter from 'twitter-text';
 import PDFJSAnnotate from '../../';
 import localStoreAdapter from '../localStoreAdapter';
 import UI from '../UI';
@@ -349,8 +350,8 @@ function render() {
   function insertComment(comment) {
     let child = document.createElement('div');
     child.className = 'comment-list-item';
+    child.innerHTML = twitter.autoLink(twitter.htmlEscape(comment.content));
 
-    child.appendChild(document.createTextNode(comment.content));
     commentList.appendChild(child);
   }
 
