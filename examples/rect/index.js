@@ -4,6 +4,7 @@ import renderRect from '../../src/render/renderRect';
 import renderLine from '../../src/render/renderLine';
 import localStoreAdapter from '../localStoreAdapter';
 import mockViewport from '../mockViewport';
+import UI from '../UI';
 
 let page1 = document.getElementById('page1');
 let page2 = document.getElementById('page2');
@@ -20,67 +21,43 @@ Promise.all([
     PDFJSAnnotate.render(page2, mockViewport(page2), ann2);
   });
 
-// Event handling
+// Rect stuff
 (function () {
-  function handleButtonClick(type, color) {
-    let selection = window.getSelection();
-    let range = selection.getRangeAt(0);
-    let rects = range.getClientRects();
-    let parent = selection.anchorNode.parentNode;
-    let node;
-    let svg;
-    let annotation;
-
-    // Find the parent that contains page info
-    while (parent && !parent.getAttribute('data-page')) {
-      parent = parent.parentNode;
-    }
-
-    // Initialize the annotation
-    annotation = {
-      type,
-      color,
-      rectangles: Array.prototype.map.call(rects, (r) => {
-        let offset = 0;
-
-        if (type === 'strikeout') {
-          offset = r.height / 2;
-        }
-
-        return {
-          y: (r.top + offset) - parent.offsetTop,
-          x: r.left - parent.offsetLeft,
-          width: r.width,
-          height: r.height
-        };
-      })
-    };
-
-    // Add the annotation
-    PDFJSAnnotate.addAnnotation(DOCUMENT_ID, parseInt(parent.getAttribute('data-page'), 10), annotation);
-
-    // Render the annotation
-    if (type === 'strikeout') {
-      node = renderLine(annotation);
-    } else {
-      node = renderRect(annotation);
-    }
-
-    svg = parent.querySelector('svg');
-
-    arrayFrom(node).forEach((el) => {
-      svg.appendChild(el);
-    });
+  let tooltype = localStorage.getItem(`${DOCUMENT_ID}/tooltype`) || 'cursor';
+  if (tooltype) {
+    setActiveToolbarItem(tooltype, document.querySelector(`.toolbar button[data-tooltype=${tooltype}]`));
   }
 
-  function handleClearClick() {
-    localStorage.removeItem(`${DOCUMENT_ID}/annotations`);
-    page1.innerHTML = '';
-    page2.innerHTML = '';
+  function setActiveToolbarItem(type, button) {
+    let active = document.querySelector('.toolbar button.active');
+    if (active) {
+      active.classList.remove('active');
+    }
+    if (button) {
+      button.classList.add('active');
+    }
+    if (tooltype !== type) {
+      localStorage.setItem(`${DOCUMENT_ID}/tooltype`, type);
+    }
+    tooltype = type;
+    
+    UI.enableRect(type);
   }
 
-  document.querySelector('button.rectangle').addEventListener('click', handleButtonClick.bind(null, 'area', null));
-  document.querySelector('button.highlight').addEventListener('click', handleButtonClick.bind(null, 'highlight', 'FFFF00'));
-  document.querySelector('button.strikeout').addEventListener('click', handleButtonClick.bind(null, 'strikeout', 'FF0000'));
-  document.querySelector('button.clear').addEventListener('click', handleClearClick);
+  function handleToolbarClick(e) {
+    if (e.target.nodeName === 'BUTTON') {
+      setActiveToolbarItem(e.target.getAttribute('data-tooltype'), e.target);
+    }
+  }
+
+  function handleClearClick(e) {
+    if (confirm('Are you sure you want to throw your work away?')) {
+      localStorage.removeItem(`${DOCUMENT_ID}/annotations`);
+      page1.innerHTML = '';
+      page2.innerHTML = '';
+    }
+  }
+
+  document.querySelector('.toolbar').addEventListener('click', handleToolbarClick);
+  document.querySelector('.toolbar .clear').addEventListener('click', handleClearClick);
 })();

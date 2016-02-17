@@ -12,7 +12,7 @@ let mockText = (x, y, content) => mock('textbox', {
 });
 
 export default [
-  mockLabel(175, 'Highlight:'),
+  mockLabel(155, 'Highlight:'),
   mock('highlight', {
     color: 'FFFF00',
     rectangles: [{
@@ -22,10 +22,10 @@ export default [
       height: 40
     }]
   }),
-  mockText(125, 175, 'Highlight this text so it stands out'),
+  mockText(125, 155, 'Highlight this text so it stands out'),
   
-  mockLabel(250, 'Area:'),
-  mockText(125, 250, 'I\'m the text in the box'),
+  mockLabel(230, 'Area:'),
+  mockText(125, 230, 'I\'m the text in the box'),
   mock('area', {
     x: 125,
     y: 225,
@@ -33,8 +33,8 @@ export default [
     height: 40
   }),
   
-  mockLabel(325, 'Strikeout:'),
-  mockText(125, 325, 'Text to be struck from the record'),
+  mockLabel(305, 'Strikeout:'),
+  mockText(125, 305, 'Text to be struck from the record'),
   mock('strikeout', {
     color: 'FF0000',
     rectangles: [{
@@ -45,10 +45,10 @@ export default [
     }],
   }),
 
-  mockLabel(400, 'Textbox:'),
+  mockLabel(380, 'Textbox:'),
   mock('textbox', {
     x: 125,
-    y: 400,
+    y: 380,
     width: 50,
     height: 100,
     size: 20,
@@ -56,13 +56,13 @@ export default [
     content: 'Custom text that has been provided by user'
   }),
 
-  mockLabel(475, 'Point:'),
+  mockLabel(455, 'Point:'),
   mock('point', {
     x: 125,
     y: 460
   }),
   
-  mockLabel(550, 'Drawing:'),
+  mockLabel(530, 'Drawing:'),
   mock('drawing', {
     color: '000000',
     x: 100,

@@ -5,12 +5,18 @@
   <title>PDFJSAnnotate</title>
   <link rel="stylesheet" type="text/css" href="../toolbar.css"/>
   <style type="text/css">
-    .container {
-      width: 500px;
-      height: 500px;
-      position: relative;
-      margin: 0 auto;
+    .wrapper {
+      padding: 25px;
+      width: 550px;
+      height: 700px;
+      margin: 0 auto 25px;
       background-color: #fff;
+      border: 1px solid #ccc;
+    }
+    .container {
+      position: relative;
+      width: 100%;
+      height: 100%;
     }
     .container > svg,
     .container > div {
@@ -24,13 +30,15 @@
 </head>
 <body>
   <div class="toolbar">
-    <button class="rectangle" type="button">rectangle</button>
-    <button class="highlight" type="button">highlight</button>
-    <button class="strikeout" type="button">strikeout</button>
-    <div class="spacer"></div>
-    <button class="clear" type="button">clear</button>
+    <button class="rectangle" type="button" title="Rectangle" data-tooltype="area">&nbsp;</button>
+    <button class="highlight" type="button" title="Highlight" data-tooltype="highlight">&nbsp;</button>
+    <button class="strikeout" type="button" title="Strikeout" data-tooltype="strikeout">&nbsp;</button>
 
+    <div class="spacer"></div>
+    
+    <a href="javascript://" class="clear" title="Clear">×</a>
   </div>
+  <div class="wrapper">
   <div class="container" data-page="1">
     <svg id="page1" xmlns="http://www.w3.org/2000/svg"></svg>
     <div>
@@ -40,6 +48,8 @@
     </p>
     </div>
   </div>
+  </div>
+  <div class="wrapper">
   <div class="container" data-page="2">
     <svg id="page2" xmlns="http://www.w3.org/2000/svg"></svg>
     <div>
@@ -47,6 +57,7 @@
       <p>Donec hendrerit risus ac eros imperdiet laoreet. Mauris nec leo velit. Pellentesque tincidunt lacus eros, in vulputate risus efficitur a. In hac habitasse platea dictumst. Nam egestas, sapien vitae blandit semper, ante sapien tempus tellus, eget semper ex purus blandit ante. Nam a sapien ac nulla elementum tempor. Morbi venenatis at lorem non mattis. Maecenas nec sem id nulla fermentum porta in at augue. Donec id lacus sed urna faucibus pellentesque. Aenean dignissim iaculis leo, id dapibus risus euismod id.</p>
       <p>Vivamus ornare lorem rutrum, consequat nunc at, rhoncus nunc. Quisque et dictum lacus, eget consequat justo. Nunc vestibulum tellus erat, non tincidunt dui fermentum ac. Fusce non felis mollis orci dictum tincidunt in nec dolor. Morbi est mi, elementum eget commodo nec, eleifend vestibulum sapien. Vestibulum venenatis eget sapien vel sollicitudin. Nunc libero neque, rhoncus sit amet accumsan ut, commodo et dui. Cras quis dui eget quam posuere eleifend. Cras tortor massa, scelerisque vitae diam ac, bibendum placerat ligula. Nunc sed turpis sit amet nisi efficitur euismod hendrerit at mauris. Integer pellentesque metus eu semper fringilla. Suspendisse eget nisi ullamcorper, sagittis est aliquam, dictum felis. Interdum et malesuada fames ac ante ipsum primis in faucibus.</p>
     </div>
+  </div>
   </div>
   <script src="../__build__/shared.js"></script>
   <script src="../__build__/rect.js"></script>
