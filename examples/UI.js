@@ -617,7 +617,9 @@ function getMetadata(svg) {
   }
 
   function handleMouseDown(e) {
-    if (_type !== 'area') {
+    let svg = findSVGAtPoint(e.clientX, e.clientY);
+
+    if (!svg || _type !== 'area') {
       return;
     }
 
