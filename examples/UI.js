@@ -626,8 +626,8 @@ function getMetadata(svg) {
 
     overlay = document.createElement('div');
     overlay.style.position = 'absolute';
-    overlay.style.top = `${originY}px`;
-    overlay.style.left = `${originX}px`;
+    overlay.style.top = `${originY + window.scrollY}px`;
+    overlay.style.left = `${originX + window.scrollX}px`;
     overlay.style.border = `3px solid ${BORDER_COLOR}`;
     overlay.style.borderRadius = '3px';
     document.body.appendChild(overlay);
@@ -660,8 +660,8 @@ function getMetadata(svg) {
       }));
     } else if (_type === 'area' && overlay) {
       saveRect(_type, [{
-        top: parseInt(overlay.style.top, 10),
-        left: parseInt(overlay.style.left, 10),
+        top: parseInt(overlay.style.top, 10) - window.scrollY,
+        left: parseInt(overlay.style.left, 10) - window.scrollX,
         width: parseInt(overlay.style.width, 10),
         height: parseInt(overlay.style.height, 10)
       }]);
