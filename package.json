@@ -40,5 +40,8 @@
     "twitter-text": "^1.13.3",
     "webpack": "1.11.0",
     "webpack-dev-server": "1.10.1"
+  },
+  "dependencies": {
+    "object-assign": "^4.0.1"
   }
 }
