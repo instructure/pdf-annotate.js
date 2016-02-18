@@ -23,51 +23,52 @@ function findSVGContainer(node) {
 }
 
 function findSVGAtPoint(x, y) {
-  let els = document.elementsFromPoint(x, y);
+  let elements = document.querySelectorAll('svg[data-pdf-annotate-container="true"]');
 
-  for (let i=0, l=els.length; i<l; i++) {
-    let el = els[i];
-    if (el.nodeName.toUpperCase() === 'SVG' &&
-        el.getAttribute('data-pdf-annotate-container') === 'true') {
-      return el;
+  for (let i=0, l=elements.length; i<l; i++) {
+    let el = elements[i];
+    let rect = el.getBoundingClientRect();
+    
+    // Check if coords lie outside bounds of element
+    if (y < rect.top ||
+        x < rect.left ||
+        y > rect.bottom ||
+        x > rect.right) {
+      continue;
     }
+
+    return el;
   }
 
   return null;
 }
 
 function findAnnotationAtPoint(x, y) {
-  // Find all SVG elements at the point of the event
-  let elements = document.elementsFromPoint(x, y).filter((e) => {
-    return e.getAttribute('data-pdf-annotate-container') === 'true';
-  });
+  let elements = document.querySelectorAll('svg[data-pdf-annotate-container="true"] [data-pdf-annotate-type]');
 
+  // Account for scroll
+  // TODO This needs to account for parent scroll container not window
+  // x += window.scrollX;
+  // y += window.scrollY;  
+  
   // Find a target element within SVG
   for (let i=0, l=elements.length; i<l; i++) {
-    let children = elements[i].children;
-    for (let j=0, c=children.length; j<c; j++) {
-      if (isAtPoint(children[j], x, y)) {
-        return children[j];
-      }
+    let el = elements[i];
+    let { offsetLeft, offsetTop } = getOffset(el);
+    let size = getSize(el);
+
+    // Check if coords lie outside bounds of element
+    if (y < (size.y + offsetTop) ||
+        x < (size.x + offsetLeft) ||
+        y > (size.y + offsetTop + size.h) ||
+        x > (size.x + offsetLeft + size.w)) {
+      continue;
     }
+
+    return el;
   }
 
   return null;
-}
-
-function isAtPoint(el, x, y) {
-  // Account for scroll
-  x += window.scrollX;
-  y += window.scrollY;
-  
-  let { offsetLeft, offsetTop } = getOffset(el);
-  let size = getSize(el);
-  let isAbove = y < (size.y + offsetTop);
-  let isLeft = x < (size.x + offsetLeft);
-  let isBelow = y > (size.y + offsetTop + size.h);
-  let isRight = x > (size.x + offsetLeft + size.w);
-
-  return !isAbove && !isBelow && !isLeft && !isRight;
 }
 
 function getSize(el) {
