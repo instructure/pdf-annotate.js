@@ -330,15 +330,13 @@ function getMetadata(svg) {
       let annotationId = overlay.getAttribute('data-target-id');
       let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
       let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
+      let { documentId } = getMetadata(svg);
 
       Array.prototype.forEach.call(nodes, (n) => {
         n.parentNode.removeChild(n);
       });
       
-      PDFJSAnnotate.deleteAnnotation(
-        svg.getAttribute('data-pdf-annotate-document'),
-        annotationId 
-      );
+      PDFJSAnnotate.deleteAnnotation(documentId, annotationId);
 
       destroyEditOverlay();
     }
@@ -516,9 +514,9 @@ function getMetadata(svg) {
   function handleMouseUp(e) {
     let svg;
     if (lines.length > 1 && (svg = findSVGAtPoint(e.clientX, e.clientY))) {
-      PDFJSAnnotate.addAnnotation(
-        svg.getAttribute('data-pdf-annotate-document'),
-        parseInt(svg.getAttribute('data-pdf-annotate-page'), 10), {
+      let { documentId, pageNumber } = getMetadata(svg);
+
+      PDFJSAnnotate.addAnnotation(documentId, pageNumber, {
           type: 'drawing',
           width: _penSize,
           color: _penColor,
@@ -729,14 +727,13 @@ function getMetadata(svg) {
       return;
     }
 
+    let { documentId, pageNumber } = getMetadata(svg);
+
     // Add the annotation
-    PDFJSAnnotate.addAnnotation(
-      svg.getAttribute('data-pdf-annotate-document'),
-      parseInt(svg.getAttribute('data-pdf-annotate-page'), 10),
-      annotation
-    ).then((annotation) => {
-      appendChild(svg, annotation);
-    });
+    PDFJSAnnotate.addAnnotation(documentId, pageNumber, annotation)
+      .then((annotation) => {
+        appendChild(svg, annotation);
+      });
   }
 
   UI.enableRect = (type) => {
@@ -810,6 +807,7 @@ function getMetadata(svg) {
         return;
       }
 
+      let { documentId, pageNumber } = getMetadata(svg);
       let rect = svg.getBoundingClientRect();
       let annotation = Object.assign({
           type: 'textbox',
@@ -824,13 +822,10 @@ function getMetadata(svg) {
         })
       );
 
-      PDFJSAnnotate.addAnnotation(
-        svg.getAttribute('data-pdf-annotate-document'),
-        parseInt(svg.getAttribute('data-pdf-annotate-page'), 10),
-        annotation
-      ).then((annotation) => {
-        appendChild(svg, annotation);
-      });
+      PDFJSAnnotate.addAnnotation(documentId, pageNumber, annotation)
+        .then((annotation) => {
+          appendChild(svg, annotation);
+        });
     }
     
     closeInput();
@@ -916,7 +911,7 @@ function getMetadata(svg) {
       }
 
       let rect = svg.getBoundingClientRect();
-      let { documentId } = getMetadata(svg);
+      let { documentId, pageNumber } = getMetadata(svg);
       let annotation = Object.assign({
           type: 'point'
         }, scaleDown(svg, {
@@ -925,19 +920,16 @@ function getMetadata(svg) {
         })
       );
 
-      PDFJSAnnotate.addAnnotation(
-        documentId,
-        parseInt(svg.getAttribute('data-pdf-annotate-page'), 10),
-        annotation
-      ).then((annotation) => {
-        PDFJSAnnotate.addComment(
-          documentId,
-          annotation.uuid,
-          content
-        );
+      PDFJSAnnotate.addAnnotation(documentId, pageNumber, annotation)
+        .then((annotation) => {
+          PDFJSAnnotate.addComment(
+            documentId,
+            annotation.uuid,
+            content
+          );
 
-        appendChild(svg, annotation);
-      });
+          appendChild(svg, annotation);
+        });
     }
 
     closeInput();
