@@ -28,16 +28,10 @@ function findSVGAtPoint(x, y) {
   for (let i=0, l=elements.length; i<l; i++) {
     let el = elements[i];
     let rect = el.getBoundingClientRect();
-    
-    // Check if coords lie outside bounds of element
-    if (y < rect.top ||
-        x < rect.left ||
-        y > rect.bottom ||
-        x > rect.right) {
-      continue;
-    }
 
-    return el;
+    if (collidesWithPoint(rect, x, y)) {  
+      return el;
+    }
   }
 
   return null;
@@ -52,19 +46,23 @@ function findAnnotationAtPoint(x, y) {
     let size = getSize(el);
     let { offsetLeft, offsetTop } = getOffset(el);
     let { scrollLeft, scrollTop } = getScroll(el);
+    let rect = {
+      top: size.y + offsetTop - scrollTop,
+      left: size.x + offsetLeft - scrollLeft,
+      right: size.x + size.w + offsetLeft - scrollLeft,
+      bottom: size.y + size.h + offsetTop - scrollTop
+    };
 
-    // Check if coords lie outside bounds of element
-    if ((y + scrollTop) < (size.y + offsetTop) ||
-        (x + scrollLeft) < (size.x + offsetLeft) ||
-        (y + scrollTop) > (size.y + offsetTop + size.h) ||
-        (x + scrollLeft) > (size.x + offsetLeft + size.w)) {
-      continue;
+    if (collidesWithPoint(rect, x, y)) {   
+      return el;
     }
-
-    return el;
   }
 
   return null;
+}
+
+function collidesWithPoint(rect, x, y) {
+  return y > rect.top && y < rect.bottom && x > rect.left && x < rect.right;
 }
 
 function getSize(el) {
@@ -90,8 +88,9 @@ function getSize(el) {
     break;
 
     case 'text':
-    h = el.offsetHeight;
-    w = el.offsetWidth;
+    let rect = el.getBoundingClientRect();
+    h = rect.height;
+    w = rect.width;
     x = parseInt(el.getAttribute('x'), 10);
     y = parseInt(el.getAttribute('y'), 10) - h;
     break;
@@ -204,17 +203,18 @@ function getScroll(el) {
 }
 
 function getOffset(el) {
-  let offsetTop = 0;
-  let offsetLeft = 0;
   let parentNode = el;
 
   while ((parentNode = parentNode.parentNode) &&
           parentNode !== document) {
-    offsetTop += parentNode.offsetTop;
-    offsetLeft += parentNode.offsetLeft;
+    if (parentNode.nodeName.toUpperCase() === 'SVG') {
+      break;
+    }
   }
 
-  return { offsetLeft, offsetTop };
+  let rect = parentNode.getBoundingClientRect();
+
+  return { offsetLeft: rect.left, offsetTop: rect.top };
 }
   
 function preventDefault(e) {
@@ -368,14 +368,15 @@ function getMetadata(svg) {
   }
 
   function handleDocumentMousemove(e) {
-    let id = overlay.getAttribute('data-target-id');
-    let parent = document.querySelector(`[data-pdf-annotate-id="${id}"]`).parentNode;
+    let annotationId = overlay.getAttribute('data-target-id');
+    let parentNode = document.querySelector(`[data-pdf-annotate-id="${annotationId}"]`).parentNode;
+    let rect = parentNode.getBoundingClientRect();
     let y = (dragStartY + (e.clientY - dragOffsetY));
     let x = (dragStartX + (e.clientX - dragOffsetX));
-    let minY = parent.offsetTop;
-    let maxY = parent.offsetTop + parent.offsetHeight;
-    let minX = parent.offsetLeft;
-    let maxX = parent.offsetLeft + parent.offsetWidth;
+    let minY = rect.top;
+    let maxY = rect.bottom;
+    let minX = rect.left;
+    let maxX = rect.right;
 
     if (y > minY && y + overlay.offsetHeight < maxY) {
       overlay.style.top = `${y}px`;
