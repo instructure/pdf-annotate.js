@@ -46,22 +46,18 @@ function findSVGAtPoint(x, y) {
 function findAnnotationAtPoint(x, y) {
   let elements = document.querySelectorAll('svg[data-pdf-annotate-container="true"] [data-pdf-annotate-type]');
 
-  // Account for scroll
-  // TODO This needs to account for parent scroll container not window
-  // x += window.scrollX;
-  // y += window.scrollY;  
-  
   // Find a target element within SVG
   for (let i=0, l=elements.length; i<l; i++) {
     let el = elements[i];
-    let { offsetLeft, offsetTop } = getOffset(el);
     let size = getSize(el);
+    let { offsetLeft, offsetTop } = getOffset(el);
+    let { scrollLeft, scrollTop } = getScroll(el);
 
     // Check if coords lie outside bounds of element
-    if (y < (size.y + offsetTop) ||
-        x < (size.x + offsetLeft) ||
-        y > (size.y + offsetTop + size.h) ||
-        x > (size.x + offsetLeft + size.w)) {
+    if ((y + scrollTop) < (size.y + offsetTop) ||
+        (x + scrollLeft) < (size.x + offsetLeft) ||
+        (y + scrollTop) > (size.y + offsetTop + size.h) ||
+        (x + scrollLeft) > (size.x + offsetLeft + size.w)) {
       continue;
     }
 
@@ -193,21 +189,32 @@ function scaleDown(svg, rect) {
   return result;
 }
 
-function getOffset(el) {
-  let offsetLeft = 0;
-  let offsetTop = 0;
+function getScroll(el) {
+  let scrollTop = 0;
+  let scrollLeft = 0;
   let parentNode = el;
 
   while ((parentNode = parentNode.parentNode) &&
           parentNode !== document) {
-    offsetLeft += parentNode.offsetLeft;
-    offsetTop += parentNode.offsetTop;
+    scrollTop += parentNode.scrollTop;
+    scrollLeft += parentNode.scrollLeft;
   }
 
-  return {
-    offsetLeft,
-    offsetTop
-  };
+  return { scrollTop, scrollLeft };
+}
+
+function getOffset(el) {
+  let offsetTop = 0;
+  let offsetLeft = 0;
+  let parentNode = el;
+
+  while ((parentNode = parentNode.parentNode) &&
+          parentNode !== document) {
+    offsetTop += parentNode.offsetTop;
+    offsetLeft += parentNode.offsetLeft;
+  }
+
+  return { offsetLeft, offsetTop };
 }
   
 function preventDefault(e) {
@@ -280,13 +287,14 @@ function getMetadata(svg) {
     let type = target.getAttribute('data-pdf-annotate-type');
     let size = type === 'drawing' ? getDrawingSize(target) : getRectangleSize(target);
     let { offsetLeft, offsetTop } = getOffset(target);
+    let { scrollLeft, scrollTop } = getScroll(target);
     
     overlay.setAttribute('id', 'pdf-annotate-edit-overlay');
     overlay.setAttribute('data-target-id', id);
     overlay.style.boxSizing = 'content-box';
     overlay.style.position = 'absolute';
-    overlay.style.top = `${((size.y + offsetTop) - OVERLAY_BORDER_SIZE)}px`;
-    overlay.style.left = `${((size.x + offsetLeft) - OVERLAY_BORDER_SIZE)}px`;
+    overlay.style.top = `${((size.y + offsetTop) - scrollTop - OVERLAY_BORDER_SIZE)}px`;
+    overlay.style.left = `${((size.x + offsetLeft) - scrollLeft - OVERLAY_BORDER_SIZE)}px`;
     overlay.style.width = `${size.w}px`;
     overlay.style.height = `${size.h}px`;
     overlay.style.border = `${OVERLAY_BORDER_SIZE}px solid ${BORDER_COLOR}`;
@@ -383,6 +391,7 @@ function getMetadata(svg) {
     let target = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
     let type = target[0].getAttribute('data-pdf-annotate-type');
     let { offsetTop, offsetLeft } = getOffset(target[0]);
+    let { scrollTop, scrollLeft } = getScroll(target[0]);
     let svg = findSVGAtPoint(e.clientX, e.clientY);
     let { documentId } = getMetadata(svg);
 
@@ -392,8 +401,8 @@ function getMetadata(svg) {
 
     function calcDelta(x, y) {
       return {
-        deltaY: OVERLAY_BORDER_SIZE + (overlay.offsetTop - offsetTop) - y,
-        deltaX: OVERLAY_BORDER_SIZE + (overlay.offsetLeft - offsetLeft) - x
+        deltaY: OVERLAY_BORDER_SIZE + scrollTop + (overlay.offsetTop - offsetTop) - y,
+        deltaX: OVERLAY_BORDER_SIZE + scrollLeft + (overlay.offsetLeft - offsetLeft) - x
       }
     }
 
