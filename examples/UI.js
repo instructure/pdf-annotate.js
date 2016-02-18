@@ -639,8 +639,16 @@ function getMetadata(svg) {
   }
 
   function handleMouseMove(e) {
-    overlay.style.width = `${e.clientX - originX}px`;
-    overlay.style.height = `${e.clientY - originY}px`;
+    let svg = findSVGAtPoint(originX, originY);
+    let rect = svg.getBoundingClientRect();
+
+    if (originX + (e.clientX - originX) < rect.right) {
+      overlay.style.width = `${e.clientX - originX}px`;
+    }
+
+    if (originY + (e.clientY - originY) < rect.bottom) {
+      overlay.style.height = `${e.clientY - originY}px`;
+    }
   }
 
   function handleMouseUp(e) {
