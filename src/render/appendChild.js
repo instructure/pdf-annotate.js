@@ -7,6 +7,7 @@ import renderRect from './renderRect';
 import renderText from './renderText';
 
 const forEach = Array.prototype.forEach;
+const isFirefox = /firefox/i.test(navigator.userAgent);
 
 function getTranslation(viewport) {
   let x;
@@ -52,9 +53,9 @@ function transform(node, viewport) {
 
   // Let SVG natively transform the element
   node.setAttribute('transform', `scale(${viewport.scale}) rotate(${viewport.rotation}) translate(${trans.x}, ${trans.y})`);
-
+  
   // Manually adjust x/y for nested SVG nodes
-  if (node.nodeName.toLowerCase() === 'svg') {
+  if (!isFirefox && node.nodeName.toLowerCase() === 'svg') {
     node.setAttribute('x', parseInt(node.getAttribute('x'), 10) * viewport.scale);
     node.setAttribute('y', parseInt(node.getAttribute('y'), 10) * viewport.scale);
 
