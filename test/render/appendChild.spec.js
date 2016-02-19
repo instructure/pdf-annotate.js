@@ -2,6 +2,8 @@ import appendChild from '../../src/render/appendChild';
 import mockViewport from './mockViewport';
 import { equal } from 'assert';
 
+const isFirefox = /Firefox/i.test(navigator.userAgent);
+
 function testScale(scale = 0.5, passViewportArg = true) {
   viewport = mockViewport(undefined, undefined, scale);
   svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(viewport));
@@ -14,9 +16,15 @@ function testScale(scale = 0.5, passViewportArg = true) {
   
   let nested = appendChild(svg, annotation, passViewportArg ? viewport : undefined)[0];
   
-  equal(nested.getAttribute('x'), annotation.x * scale);
-  equal(nested.getAttribute('y'), annotation.y * scale);
-  equal(nested.querySelector('path').getAttribute('transform'), `scale(1) rotate(0) translate(0, 0)`);
+  if (isFirefox) {
+    equal(nested.getAttribute('x'), annotation.x);
+    equal(nested.getAttribute('y'), annotation.y);
+    equal(nested.querySelector('path').getAttribute('transform'), null);
+  } else {
+    equal(nested.getAttribute('x'), annotation.x * scale);
+    equal(nested.getAttribute('y'), annotation.y * scale);
+    equal(nested.querySelector('path').getAttribute('transform'), `scale(1) rotate(0) translate(0, 0)`);
+  }
 }
 
 function testRotation(rotation, transX, transY) {
@@ -47,10 +55,15 @@ function testRotation(rotation, transX, transY) {
       break;
   }
 
-
-  equal(node.getAttribute('transform'), `scale(1) rotate(${rotation}) translate(${transX}, ${transY})`);
-  equal(parseInt(node.getAttribute('x'), 10), expectX);
-  equal(parseInt(node.getAttribute('y'), 10), expectY);
+  if (isFirefox) {
+    equal(node.getAttribute('transform'), `scale(1) rotate(${rotation}) translate(${transX}, ${transY})`);
+    equal(parseInt(node.getAttribute('x'), 10), annotation.x);
+    equal(parseInt(node.getAttribute('y'), 10), annotation.y);
+  } else {
+    equal(node.getAttribute('transform'), `scale(1) rotate(${rotation}) translate(${transX}, ${transY})`);
+    equal(parseInt(node.getAttribute('x'), 10), expectX);
+    equal(parseInt(node.getAttribute('y'), 10), expectY);
+  }
 }
 
 let svg;
