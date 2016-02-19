@@ -1,10 +1,19 @@
 import PDFJSAnnotate from '../src/PDFJSAnnotate';
 import appendChild from '../src/render/appendChild';
+import createStyleSheet from '../src/utils/createStyleSheet';
 import EventEmitter from 'events';
 
 const UI = {};
 const BORDER_COLOR = '#00BFFF';
 const emitter = new EventEmitter;
+const userSelectStyleSheet = createStyleSheet({
+  body: {
+    '-webkit-user-select': 'none',
+       '-moz-user-select': 'none',
+        '-ms-user-select': 'none',
+            'user-select': 'none'
+  }
+});
 
 export default UI;
 
@@ -216,10 +225,17 @@ function getOffset(el) {
 
   return { offsetLeft: rect.left, offsetTop: rect.top };
 }
-  
-function preventDefault(e) {
-  e.preventDefault();
-  return false;
+
+function disableUserSelect() {
+  if (!userSelectStyleSheet.parentNode) {
+    document.head.appendChild(userSelectStyleSheet);
+  }
+}
+
+function enableUserSelect() {
+  if (userSelectStyleSheet.parentNode) {
+    userSelectStyleSheet.parentNode.removeChild(userSelectStyleSheet);
+  }
 }
 
 function getMetadata(svg) {
@@ -364,7 +380,7 @@ function getMetadata(svg) {
 
     document.addEventListener('mousemove', handleDocumentMousemove);
     document.addEventListener('mouseup', handleDocumentMouseup);
-    document.addEventListener('selectstart', preventDefault);
+    disableUserSelect();
   }
 
   function handleDocumentMousemove(e) {
@@ -483,7 +499,7 @@ function getMetadata(svg) {
 
     document.removeEventListener('mousemove', handleDocumentMousemove);
     document.removeEventListener('mouseup', handleDocumentMouseup);
-    document.removeEventListener('selectstart', preventDefault);
+    enableUserSelect();
   }
 
   function handleAnnotationClick(target) {
@@ -589,7 +605,7 @@ function getMetadata(svg) {
 
     _enabled = true;
     document.addEventListener('mousedown', handleMouseDown);
-    document.addEventListener('selectstart', preventDefault);
+    disableUserSelect();
   };
 
   UI.disablePen = () => {
@@ -597,7 +613,7 @@ function getMetadata(svg) {
 
     _enabled = false;
     document.removeEventListener('mousedown', handleMouseDown);
-    document.removeEventListener('selectstart', preventDefault);
+    enableUserSelect();
   };
 })(window, document, undefined);
 
@@ -644,7 +660,7 @@ function getMetadata(svg) {
     document.body.appendChild(overlay);
     
     document.addEventListener('mousemove', handleMouseMove);
-    document.addEventListener('selectstart', preventDefault);
+    disableUserSelect();
   }
 
   function handleMouseMove(e) {
@@ -689,7 +705,7 @@ function getMetadata(svg) {
       overlay = null;
 
       document.removeEventListener('mousemove', handleMouseMove);
-      document.removeEventListener('selectstart', preventDefault);
+      enableUserSelect();
     }
   }
 
