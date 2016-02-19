@@ -13,7 +13,7 @@ export default function renderPath(a) {
   }
   
   setAttributes(path, {
-    d: `${d.join(',')}Z`,
+    d: `${d.join(' ')}Z`,
     stroke: `#${a.color || '000'}`,
     strokeWidth: a.width || 1,
     fill: 'none'

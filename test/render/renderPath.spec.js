@@ -8,7 +8,7 @@ describe('render::renderPath', function () {
     });
 
     equal(path.nodeName, 'path');
-    equal(path.getAttribute('d'), 'M0 5 10 15,M10 15 20 35Z');
+    equal(path.getAttribute('d'), 'M0 5 10 15 M10 15 20 35Z');
     equal(path.getAttribute('stroke'), '#000');
     equal(path.getAttribute('stroke-width'), 1);
     equal(path.getAttribute('fill'), 'none');
