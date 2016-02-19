@@ -50,8 +50,8 @@ function render() {
   svg.setAttribute('width', viewport.width);
   svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
 
-  overlay.style.zoom = SCALE;
-  overlay.style.transform = `rotate(${ROTATE}deg)`;
+  overlay.style.transform = `scale(${SCALE}) rotate(${ROTATE}deg)`;
+  overlay.style.transformOrigin = 'top center';
   overlay.style.top = (parseInt(getComputedStyle(canvas).top + window.scrollY) / SCALE) + 'px';
   overlay.style.height = (overlayHeight / SCALE) + 'px';
   overlay.style.width = (overlayWidth / SCALE) + 'px';
