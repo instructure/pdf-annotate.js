@@ -151,7 +151,7 @@ function getRectangleSize(el) {
 }
 
 function getDrawingSize(el) {
-  let parts = el.getAttribute('d').replace(/(M|Z)/g, '').split(',');
+  let parts = el.getAttribute('d').replace(/Z/, '').split('M').splice(1);
   let rect = el.getBoundingClientRect();
   let svg = findSVGAtPoint(rect.left, rect.top);
   let minX, maxX, minY, maxY;
