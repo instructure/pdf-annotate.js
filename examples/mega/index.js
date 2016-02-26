@@ -7,6 +7,7 @@ import UI from '../UI';
 const canvas = document.getElementById('canvas');
 const svg = document.getElementById('svg');
 const overlay = document.getElementById('overlay');
+const contentLayout = document.getElementById('content-layout');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 const PAGE_NUMBER = 1;
 let SCALE = parseFloat(localStorage.getItem(`${DOCUMENT_ID}/scale`), 10) || 1;
@@ -45,18 +46,27 @@ function render() {
   canvas.height = viewport.height;
   canvas.width = viewport.width;
   canvas.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
+  canvas.style.marginTop = ((viewport.height /2) * -1) + 'px';
   
   svg.setAttribute('height', viewport.height);
   svg.setAttribute('width', viewport.width);
   svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
+  svg.style.marginTop = ((viewport.height /2) * -1) + 'px';
 
   overlay.style.transform = `scale(${SCALE}) rotate(${ROTATE}deg)`;
   overlay.style.transformOrigin = 'center center';
-  overlay.style.top = (parseInt(getComputedStyle(canvas).top + window.scrollY) / SCALE) + 'px';
   overlay.style.height = (overlayHeight / SCALE) + 'px';
   overlay.style.width = (overlayWidth / SCALE) + 'px';
   overlay.style.marginLeft = (((overlayWidth / SCALE) / 2) * -1) + 'px';
-  overlay.style.marginTop = ((((overlayHeight - viewport.height) / SCALE) / 2) * -1) + 'px';
+  overlay.style.marginTop = (((overlayHeight / SCALE) / 2) * -1) + 'px';
+
+  contentLayout.style.width = '';
+  contentLayout.style.height = '';
+
+  let rect = contentLayout.getBoundingClientRect();
+
+  contentLayout.style.width = Math.max((viewport.width + 20), rect.width) + 'px';
+  contentLayout.style.height = Math.max((viewport.height + 20), rect.height) + 'px';
 
   data.page.render({canvasContext, viewport});
   PDFJSAnnotate.render(svg, viewport, data.annotations);
