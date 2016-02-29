@@ -453,7 +453,7 @@ function getMetadata(svg) {
           }
         });
       } else if (type === 'strikeout') {
-        let { deltaY, deltaX } = getDelta('x1', 'y1');
+        let { deltaX, deltaY } = getDelta('x1', 'y1');
         Array.prototype.forEach.call(target, (t, i) => {
           if (deltaY !== 0) {
             t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
@@ -467,9 +467,9 @@ function getMetadata(svg) {
           }
         });
       } else if (type === 'drawing') {
-        let size = getDrawingSize(target[0]);
+        let size = scaleDown(svg, getDrawingSize(target[0]));
         let [originX, originY] = annotation.lines[0];
-        let { deltaY, deltaX } = calcDelta(originX, originY);
+        let { deltaX, deltaY } = calcDelta(originX, originY);
 
         // origin isn't necessarily at 0/0 in relation to overlay x/y
         // adjust the difference between overlay and drawing coords
