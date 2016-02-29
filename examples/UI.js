@@ -407,9 +407,9 @@ function getMetadata(svg) {
     let annotationId = overlay.getAttribute('data-target-id');
     let target = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
     let type = target[0].getAttribute('data-pdf-annotate-type');
+    let svg = findSVGContainer(target[0]);
     let { offsetTop, offsetLeft } = getOffset(target[0]);
     let { scrollTop, scrollLeft } = getScroll(target[0]);
-    let svg = findSVGAtPoint(e.clientX, e.clientY);
     let { documentId } = getMetadata(svg);
 
     function getDelta(propX, propY) {
@@ -418,15 +418,14 @@ function getMetadata(svg) {
 
     function calcDelta(x, y) {
       return {
-        deltaY: OVERLAY_BORDER_SIZE + scrollTop + (overlay.offsetTop - offsetTop) - y,
-        deltaX: OVERLAY_BORDER_SIZE + scrollLeft + (overlay.offsetLeft - offsetLeft) - x
-      }
+        deltaX: OVERLAY_BORDER_SIZE + scrollLeft + scaleDown(svg, {x: overlay.offsetLeft - offsetLeft}).x - x,
+        deltaY: OVERLAY_BORDER_SIZE + scrollTop + scaleDown(svg, {y: overlay.offsetTop - offsetTop}).y - y
+      };
     }
 
-    // TODO Scale is off when dragging annotation position
     PDFJSAnnotate.getAnnotation(documentId, annotationId).then((annotation) => {
       if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
-        let { deltaY, deltaX } = getDelta('x', 'y');
+        let { deltaX, deltaY } = getDelta('x', 'y');
         Array.prototype.forEach.call(target, (t, i) => {
           if (deltaY !== 0) {
             let y = parseInt(t.getAttribute('y'), 10) + deltaY;
