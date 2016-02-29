@@ -54,12 +54,11 @@ function findAnnotationAtPoint(x, y) {
     let el = elements[i];
     let size = getSize(el);
     let { offsetLeft, offsetTop } = getOffset(el);
-    let { scrollLeft, scrollTop } = getScroll(el);
     let rect = {
-      top: size.y + offsetTop - scrollTop,
-      left: size.x + offsetLeft - scrollLeft,
-      right: size.x + size.w + offsetLeft - scrollLeft,
-      bottom: size.y + size.h + offsetTop - scrollTop
+      top: size.y + offsetTop,
+      left: size.x + offsetLeft,
+      right: size.x + size.w + offsetLeft,
+      bottom: size.y + size.h + offsetTop
     };
 
     if (collidesWithPoint(rect, x, y)) {   
@@ -303,14 +302,15 @@ function getMetadata(svg) {
     let type = target.getAttribute('data-pdf-annotate-type');
     let size = type === 'drawing' ? getDrawingSize(target) : getRectangleSize(target);
     let { offsetLeft, offsetTop } = getOffset(target);
-    let { scrollLeft, scrollTop } = getScroll(target);
+    let styleLeft = size.x + offsetLeft - OVERLAY_BORDER_SIZE;
+    let styleTop = size.y + offsetTop - OVERLAY_BORDER_SIZE;
     
     overlay.setAttribute('id', 'pdf-annotate-edit-overlay');
     overlay.setAttribute('data-target-id', id);
     overlay.style.boxSizing = 'content-box';
     overlay.style.position = 'absolute';
-    overlay.style.top = `${((size.y + offsetTop) - scrollTop - OVERLAY_BORDER_SIZE)}px`;
-    overlay.style.left = `${((size.x + offsetLeft) - scrollLeft - OVERLAY_BORDER_SIZE)}px`;
+    overlay.style.top = `${styleTop}px`;
+    overlay.style.left = `${styleLeft}px`;
     overlay.style.width = `${size.w}px`;
     overlay.style.height = `${size.h}px`;
     overlay.style.border = `${OVERLAY_BORDER_SIZE}px solid ${BORDER_COLOR}`;
