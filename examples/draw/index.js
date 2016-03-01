@@ -1,13 +1,12 @@
 import PDFJSAnnotate from '../../';
-import renderPath from '../../src/render/renderPath';
 import localStoreAdapter from '../localStoreAdapter';
 import mockViewport from '../mockViewport';
 
 const { UI } = PDFJSAnnotate;
-let annotations;
-let svg = document.getElementById('svg');
+const svg = document.getElementById('svg');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 const PAGE_NUMBER = 1;
+let annotations;
 
 PDFJSAnnotate.StoreAdapter = localStoreAdapter;
 

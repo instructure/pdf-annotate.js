@@ -1,13 +1,10 @@
 import PDFJSAnnotate from '../../';
-import arrayFrom from '../../src/utils/arrayFrom';
-import renderRect from '../../src/render/renderRect';
-import renderLine from '../../src/render/renderLine';
 import localStoreAdapter from '../localStoreAdapter';
 import mockViewport from '../mockViewport';
 
 const { UI } = PDFJSAnnotate;
-let page1 = document.getElementById('page1');
-let page2 = document.getElementById('page2');
+const page1 = document.getElementById('page1');
+const page2 = document.getElementById('page2');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 
 PDFJSAnnotate.StoreAdapter = localStoreAdapter;

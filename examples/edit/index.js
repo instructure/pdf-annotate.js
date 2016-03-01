@@ -1,6 +1,7 @@
 import PDFJSAnnotate from '../../';
 import annotations from './annotations';
 import mockViewport from '../mockViewport';
+
 const { UI } = PDFJSAnnotate;
 const svg = document.querySelector('svg');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
