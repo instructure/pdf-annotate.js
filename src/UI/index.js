@@ -10,5 +10,6 @@ export default {
   disableEdit, enableEdit,
   disablePen, enablePen, setPen,
   disablePoint, enablePoint,
+  disableRect, enableRect,
   disableText, enableText, setText
 };
