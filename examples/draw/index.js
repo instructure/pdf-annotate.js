@@ -2,8 +2,8 @@ import PDFJSAnnotate from '../../';
 import renderPath from '../../src/render/renderPath';
 import localStoreAdapter from '../localStoreAdapter';
 import mockViewport from '../mockViewport';
-import UI from '../UI';
 
+const { UI } = PDFJSAnnotate;
 let annotations;
 let svg = document.getElementById('svg');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');

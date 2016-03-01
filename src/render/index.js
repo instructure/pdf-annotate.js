@@ -1,6 +1,6 @@
 import appendChild from './appendChild';
 
-export default function renderView(svg, viewport, data) {
+export default function render(svg, viewport, data) {
   // Reset the content of the SVG
   svg.innerHTML = ''; 
   svg.setAttribute('data-pdf-annotate-container', true);

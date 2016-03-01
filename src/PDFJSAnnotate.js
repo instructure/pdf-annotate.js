@@ -1,9 +1,13 @@
 import StoreAdapter from './StoreAdapter';
-import renderView from './render/renderView';
+import render from './render';
+import UI from './UI';
 
-// Public API
-let PDFJSAnnotate = {
+export default {
   StoreAdapter,
+
+  UI,
+
+  render,
 
   getAnnotations(documentId, pageNumber) {
     return this.StoreAdapter.getAnnotations(...arguments).then((annotations) => {
@@ -13,39 +17,5 @@ let PDFJSAnnotate = {
         annotations
       };
     });
-  },
-
-  getAnnotation(documentId, annotationId) {
-    return this.StoreAdapter.getAnnotation(...arguments);
-  },
-
-  addAnnotation(documentId, pageNumber, annotation) {
-    return this.StoreAdapter.addAnnotation(...arguments);
-  },
-
-  editAnnotation(documentId, pageNumber, annotation) {
-    return this.StoreAdapter.editAnnotation(...arguments);
-  },
-
-  deleteAnnotation(documentId, annotationId) {
-    return this.StoreAdapter.deleteAnnotation(...arguments);
-  },
-
-  getComments(documentId, annotationId) {
-    return this.StoreAdapter.getComments(...arguments);
-  },
-
-  addComment(documentId, annotationId, content) {
-    return this.StoreAdapter.addComment(...arguments);
-  },
-
-  deleteComment(documentId, commentId) {
-    return this.StoreAdapter.deleteComment(...arguments);
-  },
-
-  render(svg, viewport, annotations) {
-    return renderView(...arguments);
   }
-};
-
-export default PDFJSAnnotate;
+}

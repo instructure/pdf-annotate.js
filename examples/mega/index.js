@@ -2,8 +2,8 @@ import __pdfjs from 'pdfjs-dist/build/pdf.js';
 import twitter from 'twitter-text';
 import PDFJSAnnotate from '../../';
 import localStoreAdapter from '../localStoreAdapter';
-import UI from '../UI';
 
+const { UI } = PDFJSAnnotate;
 const canvas = document.getElementById('canvas');
 const svg = document.getElementById('svg');
 const overlay = document.getElementById('overlay');
@@ -375,13 +375,13 @@ function render() {
       let documentId = target.parentNode.getAttribute('data-pdf-annotate-document');
       let annotationId = target.getAttribute('data-pdf-annotate-id');
 
-      PDFJSAnnotate.getComments(documentId, annotationId).then((comments) => {
+      PDFJSAnnotate.StoreAdapter.getComments(documentId, annotationId).then((comments) => {
         commentList.innerHTML = '';
         commentForm.style.display = '';
         commentText.focus();
 
         commentForm.onsubmit = function () {
-          PDFJSAnnotate.addComment(documentId, annotationId, commentText.value.trim())
+          PDFJSAnnotate.StoreAdapter.addComment(documentId, annotationId, commentText.value.trim())
             .then(insertComment)
             .then(() => {
               commentText.value = '';

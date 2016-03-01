@@ -28,7 +28,7 @@ $ npm test
 - Provide a low level annotation layer for [pdf.js](https://github.com/mozilla/pdf.js).
 - Optional high level UI for managing annotations.
 - Agnostic of backend, just supply your own `StoreAdapter` to load/store data.
-- Prescribe annotation format (example forth coming).
+- Prescribe annotation format.
 
 ## Example
 
@@ -71,107 +71,192 @@ See more [examples](https://github.com/mzabriskie/pdf-annotate.js/tree/master/ex
 
 ## API
 
-There are two main objects that you will work with `PDFJSAnnotate` and `StoreAdapter`.
+There are three main objects that you will work with `PDFJSAnnotate`, `StoreAdapter`, and `UI`.
 
 ### PDFJSAnnotate
 
 `PDFJSAnnotate` is the top level object that you will be working with.
 
-#### `getAnnotations(documentId, pageNumber): Promise`
+##### `UI`
+Provides a high level UI helper for managing annotations
+
+##### `StoreAdapter`
+Abstract object that needs to be implemented in order to perform CRUD operations on annotations
+
+##### `getAnnotations(documentId, pageNumber): Promise`
 Get all the annotations for a specific page within a document
 
-##### `documentId`
-The ID of the document
+| parameter | description |
+|---|---|
+| `documentId` | The ID of the document |
+| `pageNumber` | The page number within the document |
 
-##### `pageNumber`
-The page number within the document
-
-#### `getAnnotation(documentId, annotationId): Promise`
-Get a specific annotation
-
-##### `documentId`
-The ID of the document
-
-##### `annotationId`
-The ID of the annotation
-
-#### `addAnnotation(documentId, pageNumber, annotation): Promise`
-Add an annotation to a document
-
-##### `documentId`
-The ID of the document
-
-##### `pageNumber`
-The page number within the document
-
-##### `annotation`
-The JSON definition for the annotation
-
-#### `editAnnotation(documentId, pageNumber, annotation): Promise`
-Edit an annotation
-
-##### `documentId`
-The ID of the document
-
-##### `pageNumber`
-The page number within the document
-
-##### `annotation`
-The JSON definition for the annotation
-
-#### `deleteAnnotation(documentId, annotationId): Promise`
-Delete an annotation
-
-##### `documentId`
-The ID of the document
-
-##### `annotationId`
-The ID of the annotation
-
-#### `addComment(documentId, annotationId, content): Promise`
-Add a comment to an annotation
-
-##### `documentId`
-The ID of the document
-
-##### `annotationId`
-The ID of the annotation
-
-##### `content`
-The content of the comment
-
-#### `deleteComment(documentId, commentId): Promise`
-Delete a comment
-
-##### `documentId`
-The ID of the document
-
-##### `commentId`
-The ID of the comment
-
-#### `render(svg, viewport, annotations): Promise`
+##### `render(svg, viewport, annotations): Promise`
 Render the annotations
 
-##### `svg`
-The SVG node that the annotations should be rendered to
+| parameter | description |
+|---|---|
+| `svg` | The SVG node that the annotations should be rendered to |
+| `viewport` | The viewport data that is returned from `PDFJS.getDocument(documentId).getPage(pageNumber).getViewPort(scale, rotation)` |
+| `annotations` | The annotation data that is returned from `PDFJSAnnotation.getAnnotations(documentId, pageNumber)` |
 
-##### `viewport`
-The viewport data that is returned from `PDFJS.getDocument(_documentId_).getPage(_pageNumber_).getViewPort(_scale_, _rotation_)`
+### UI
 
-##### `annotations`
-The annotation data that is returned from `PDFJSAnnotation.getAnnotations(_documentId_, _pageNumber_)`
+`UI` is the object that enables user management of annotations in the browser
+
+##### `addEventListener(type, handler)`
+Adds an event handler to handle a specific type of event
+
+| parameter | description |
+|---|---|
+| `type` | The type of event that will be subscribed to |
+| `handler` | The function that will handle the event |
+
+Types of events:
+
+- annotation:blur
+- annotation:click
+
+
+##### `removeEventListener(type, handler)`
+Removes an event handler from handling a specific type of event
+
+| parameter | description |
+|---|---|
+| `type` | The type of event that will be unsubscribed from  |
+| `handler` | The function that handled the event |
+
+
+##### `disableEdit()`
+Disables the ability to edit annotations from the UI
+
+
+##### `enableEdit()`
+Enables the ability to edit annoations from the UI
+
+
+##### `disablePen()`
+Disables the ability to draw with the pen in the UI
+
+
+##### `enablePen()`
+Enables the ability to draw with the pen in the UI
+
+
+##### `setPen(size = 1, color = '000000')`
+Sets the size and color of the pen
+
+| parameter | description |
+|---|---|
+| `size` | The size of the pen |
+| `color` | The color of the pen |
+
+
+##### `disablePoint()`
+Disables the ability to create a point annotation from the UI
+
+
+##### `enablePoint()`
+Enables the ability to create a point annotation from the UI
+
+
+##### `disableRect()`
+Disables the ability to create a rectangular annotation from the UI
+
+
+##### `enableRect(type)`
+Enables the ability to create a rectangular annotation from the UI
+
+| parameter | description |
+|---|---|
+| `type` | The type of rectangle (one of area, highlight, or strikeout) |
+
+
+##### `disableText()`
+Disables the ability to enter free form text from the UI
+
+
+##### `enableText()`
+Enables the ability to enter free form text from the UI
+
+
+##### `setText(size = 12, color = '000000')`
+Sets the size and color of the text
+
+| parameter | description |
+|:-:|:-:|
+| `size` | The size of the text |
+| `color` | The color of the text |
+
 
 ### StoreAdapter
 
 `StoreAdapter` is an abstract object that will need to be implemented for fetching annotation data.
 
-#### `getAnnotations(documentId, pageNumber): Promise`
-#### `getAnnotation(documentId, annotationId): Promise`
-#### `addAnnotation(documentId, pageNumber, annotation): Promise`
-#### `editAnnotation(documentId, pageNumber, annotation): Promise`
-#### `deleteAnnotation(documentId, annotationId): Promise`
-#### `addComment(documentId, annotationId, content): Promise`
-#### `deleteComment(documentId, commentId): Promise`
+##### `getAnnotations(documentId, pageNumber): Promise`
+Get all the annotations for a specific page within a document
+
+| parameter | description |
+|---|---|
+| `documentId` | The ID of the document |
+| `pageNumber` | The page number within the document |
+
+
+##### `getAnnotation(documentId, annotationId): Promise`
+Get a specific annotation
+
+| parameter | description |
+|---|---|
+| `documentId` | The ID of the document |
+| `annotationId` | The ID of the annotation |
+
+
+##### `addAnnotation(documentId, pageNumber, annotation): Promise`
+Add an annotation to a document
+
+| parameter | description |
+|---|---|
+| `documentId` | The ID of the document |
+| `pageNumber` | The page number within the document |
+| `annotation` | The JSON definition for the annotation |
+
+
+##### `editAnnotation(documentId, pageNumber, annotation): Promise`
+Edit an annotation
+
+| parameter | description |
+|---|---|
+| `documentId` | The ID of the document |
+| `pageNumber` | The page number within the document |
+| `annotation` | The JSON definition for the annotation |
+
+
+##### `deleteAnnotation(documentId, annotationId): Promise`
+Delete an annotation
+
+| parameter | description |
+|---|---|
+| `documentId` | The ID of the document |
+| `annotationId` | The ID of the annotation |
+
+
+##### `addComment(documentId, annotationId, content): Promise`
+Add a comment to an annotation
+
+| parameter | description |
+|---|---|
+| `documentId` | The ID of the document |
+| `annotationId` | The ID of the annotation |
+| `content` | The content of the comment |
+
+
+##### `deleteComment(documentId, commentId): Promise`
+Delete a comment
+
+| parameter | description |
+|---|---|
+| `documentId` | The ID of the document |
+| `commentId` | The ID of the comment |
 
 ## Annotation Schema
 

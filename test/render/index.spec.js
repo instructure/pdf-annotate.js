@@ -1,16 +1,16 @@
-import renderView from '../../src/render/renderView';
+import render from '../../src/render';
 import mockViewport from './mockViewport';
 import { equal } from 'assert';
 
-function render(annotations) {
+function _render(annotations) {
   let data = Array.isArray(annotations) ? { annotations } : annotations;
-  renderView(svg, viewport, data);
+  render(svg, viewport, data);
 }
 
 let svg;
 let viewport;
 
-describe('render::renderView', function () {
+describe('render::index', function () {
   beforeEach(function () {
     svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     viewport = mockViewport();
@@ -19,7 +19,7 @@ describe('render::renderView', function () {
   it('should reset SVG on each render', function () {
     let viewport = mockViewport(undefined, undefined, .5);
 
-    render([
+    _render([
       {
         type: 'point',
         x: 0,
@@ -29,7 +29,7 @@ describe('render::renderView', function () {
 
     equal(svg.children.length, 1);
 
-    render([
+    _render([
       {
         type: 'point',
         x: 0,
@@ -46,38 +46,38 @@ describe('render::renderView', function () {
   });
 
   it('should add data-attributes', function () {
-    render({
-      documentId: '/renderView',
+    _render({
+      documentId: '/render',
       pageNumber: 1
     });
 
     equal(svg.getAttribute('data-pdf-annotate-container'), 'true');
     equal(svg.getAttribute('data-pdf-annotate-viewport'), JSON.stringify(viewport));
-    equal(svg.getAttribute('data-pdf-annotate-document'), '/renderView');
+    equal(svg.getAttribute('data-pdf-annotate-document'), '/render');
     equal(svg.getAttribute('data-pdf-annotate-page'), '1');
   });
 
   it('should add document and page if annotations are empty', function () {
-    render({
-      documentId: '/renderView',
+    _render({
+      documentId: '/render',
       pageNumber: 1,
       annotations: []
     });
 
     equal(svg.getAttribute('data-pdf-annotate-container'), 'true');
     equal(svg.getAttribute('data-pdf-annotate-viewport'), JSON.stringify(viewport));
-    equal(svg.getAttribute('data-pdf-annotate-document'), '/renderView');
+    equal(svg.getAttribute('data-pdf-annotate-document'), '/render');
     equal(svg.getAttribute('data-pdf-annotate-page'), '1');
   });
 
   it('should reset document and page if no data', function () {
-    render({
-      documentId: '/renderView',
+    _render({
+      documentId: '/render',
       pageNumber: 1,
       annotations: []
     });
 
-    render();
+    _render();
 
     equal(svg.getAttribute('data-pdf-annotate-container'), 'true');
     equal(svg.getAttribute('data-pdf-annotate-viewport'), JSON.stringify(viewport));
@@ -88,7 +88,7 @@ describe('render::renderView', function () {
   it('should fail gracefully if no annotations are provided', function () {
     let error = false;
     try {
-      render(null);
+      _render(null);
     } catch (e) {
       error = true;
     }

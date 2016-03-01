@@ -1,7 +1,7 @@
 import PDFJSAnnotate from '../../';
 import annotations from './annotations';
 import mockViewport from '../mockViewport';
-import UI from '../UI';
+const { UI } = PDFJSAnnotate;
 const svg = document.querySelector('svg');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 const PAGE_NUMBER = 1;
