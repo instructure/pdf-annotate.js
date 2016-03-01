@@ -1,7 +1,7 @@
 # pdf-annotate.js
 
 [![build status](https://img.shields.io/travis/mzabriskie/pdf-annotate.js.svg?style=flat-square)](https://travis-ci.org/mzabriskie/pdf-annotate.js)
-[![code coverage](https://img.shields.io/coveralls/mzabriskie/pdf-annotate.svg?style=flat-square)](https://coveralls.io/r/mzabriskie/pdf-annotate.js)
+[![code coverage](https://img.shields.io/coveralls/mzabriskie/pdf-annotate.js.svg?style=flat-square)](https://coveralls.io/r/mzabriskie/pdf-annotate.js)
 
 Annotation layer for [pdf.js](https://github.com/mozilla/pdf.js)
 
