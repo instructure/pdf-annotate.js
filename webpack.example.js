@@ -41,14 +41,6 @@ module.exports = {
     ]
   },
   
-  resolve: {
-    alias: {
-      'pdfjs/shared/global': 'pdf.js/src/shared/global',
-      'pdfjs/shared/util': 'pdf.js/src/shared/util',
-      'pdfjs/display/dom_utils': 'pdf.js/src/display/dom_utils'
-    }
-  },
-
   plugins: [
     new webpack.optimize.CommonsChunkPlugin('shared.js')
   ]

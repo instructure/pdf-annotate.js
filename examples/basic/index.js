@@ -1,4 +1,3 @@
-import __pdfjs from 'pdfjs-dist/build/pdf.js';
 import PDFJSAnnotate from '../../';
 import annotations from './annotations';
 

@@ -1,5 +1,3 @@
-import __pdfjs from 'pdfjs-dist/build/pdf.js';
-import __textLayer from 'pdf.js/src/display/text_layer';
 import twitter from 'twitter-text';
 import PDFJSAnnotate from '../../';
 import localStoreAdapter from '../localStoreAdapter';
