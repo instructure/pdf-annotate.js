@@ -1,4 +1,5 @@
 import __pdfjs from 'pdfjs-dist/build/pdf.js';
+import __textLayer from 'pdf.js/src/display/text_layer';
 import twitter from 'twitter-text';
 import PDFJSAnnotate from '../../';
 import localStoreAdapter from '../localStoreAdapter';
@@ -6,7 +7,7 @@ import localStoreAdapter from '../localStoreAdapter';
 const { UI } = PDFJSAnnotate;
 const canvas = document.getElementById('canvas');
 const svg = document.getElementById('svg');
-const overlay = document.getElementById('overlay');
+const container = document.getElementById('container');
 const contentLayout = document.getElementById('content-layout');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 const PAGE_NUMBER = 1;
@@ -36,11 +37,11 @@ PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
 function render() {
   let viewport = data.page.getViewport(SCALE, ROTATE);
   let canvasContext = canvas.getContext('2d');
-  let overlayWidth = viewport.width;
-  let overlayHeight = viewport.height;
+  let containerWidth = viewport.width;
+  let containerHeight = viewport.height;
   if (ROTATE % 360 === 90 || ROTATE % 360 === 270) {
-    overlayWidth = viewport.height;
-    overlayHeight = viewport.width;
+    containerWidth = viewport.height;
+    containerHeight = viewport.width;
   }
   
   canvas.height = viewport.height;
@@ -53,12 +54,12 @@ function render() {
   svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
   svg.style.marginTop = ((viewport.height /2) * -1) + 'px';
 
-  overlay.style.transform = `scale(${SCALE}) rotate(${ROTATE}deg)`;
-  overlay.style.transformOrigin = 'center center';
-  overlay.style.height = (overlayHeight / SCALE) + 'px';
-  overlay.style.width = (overlayWidth / SCALE) + 'px';
-  overlay.style.marginLeft = (((overlayWidth / SCALE) / 2) * -1) + 'px';
-  overlay.style.marginTop = (((overlayHeight / SCALE) / 2) * -1) + 'px';
+  container.style.transform = `scale(${SCALE}) rotate(${ROTATE}deg)`;
+  container.style.transformOrigin = 'center center';
+  container.style.height = (containerHeight / SCALE) + 'px';
+  container.style.width = (containerWidth / SCALE) + 'px';
+  container.style.marginLeft = (((containerWidth / SCALE) / 2) * -1) + 'px';
+  container.style.marginTop = (((containerHeight / SCALE) / 2) * -1) + 'px';
 
   contentLayout.style.width = '';
   contentLayout.style.height = '';
@@ -70,6 +71,15 @@ function render() {
 
   data.page.render({canvasContext, viewport});
   PDFJSAnnotate.render(svg, viewport, data.annotations);
+
+  data.page.getTextContent().then((textContent) => {
+    PDFJS.renderTextLayer({
+      textContent,
+      container,
+      viewport,
+      textDivs: []
+    });
+  });
 }
 
 // Text stuff
