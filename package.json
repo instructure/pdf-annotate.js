@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "karma start --single-run",
-    "start": "cp ./node_modules/pdfjs-dist/build/pdf.js ./examples/ && cp ./node_modules/pdfjs-dist/build/pdf.worker.js ./examples/ && ./node_modules/.bin/webpack-dev-server --inline --config ./webpack.example.js --content-base examples/",
+    "start": "cp ./node_modules/pdfjs-dist/build/pdf.js ./examples/ && cp ./node_modules/pdfjs-dist/build/pdf.worker.js ./examples/ && cp ./node_modules/pdfjs-dist/web/pdf_viewer.js ./examples/ && ./node_modules/.bin/webpack-dev-server --inline --config ./webpack.example.js --content-base examples/",
     "coveralls": "cat coverage/lcov.info | ./node_modules/coveralls/bin/coveralls.js"
   },
   "repository": {

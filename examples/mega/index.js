@@ -5,7 +5,7 @@ import localStoreAdapter from '../localStoreAdapter';
 const { UI } = PDFJSAnnotate;
 const canvas = document.getElementById('canvas');
 const svg = document.getElementById('svg');
-const container = document.getElementById('container');
+const container = document.querySelector('.textLayer');
 const contentLayout = document.getElementById('content-layout');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 const PAGE_NUMBER = 1;
@@ -70,14 +70,24 @@ function render() {
   data.page.render({canvasContext, viewport});
   PDFJSAnnotate.render(svg, viewport, data.annotations);
 
+  // This method requires pdfjs-dist/web/pdf_viewer.js
+  // The benefit is that it makes selecting text much smoother.
   data.page.getTextContent().then((textContent) => {
-    PDFJS.renderTextLayer({
-      textContent,
-      container,
-      viewport,
-      textDivs: []
-    });
+    let textLayerFactory = new PDFJS.DefaultTextLayerFactory();
+    let textLayerBuilder = textLayerFactory.createTextLayerBuilder(container, PAGE_NUMBER - 1, viewport);
+    textLayerBuilder.setTextContent(textContent);
+    textLayerBuilder.render();
   });
+
+  // This method is straight forward, but text selection is janky
+  // data.page.getTextContent().then((textContent) => {
+  //   PDFJS.renderTextLayer({
+  //     textContent,
+  //     container,
+  //     viewport,
+  //     textDivs: []
+  //   });
+  // });
 }
 
 // Text stuff
