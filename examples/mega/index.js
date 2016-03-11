@@ -35,12 +35,6 @@ PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
 function render() {
   let viewport = data.page.getViewport(SCALE, ROTATE);
   let canvasContext = canvas.getContext('2d');
-  let containerWidth = viewport.width;
-  let containerHeight = viewport.height;
-  if (ROTATE % 360 === 90 || ROTATE % 360 === 270) {
-    containerWidth = viewport.height;
-    containerHeight = viewport.width;
-  }
   
   canvas.height = viewport.height;
   canvas.width = viewport.width;
@@ -52,12 +46,11 @@ function render() {
   svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
   svg.style.marginTop = ((viewport.height /2) * -1) + 'px';
 
-  container.style.transform = `scale(${SCALE}) rotate(${ROTATE}deg)`;
-  container.style.transformOrigin = 'center center';
-  container.style.height = (containerHeight / SCALE) + 'px';
-  container.style.width = (containerWidth / SCALE) + 'px';
-  container.style.marginLeft = (((containerWidth / SCALE) / 2) * -1) + 'px';
-  container.style.marginTop = (((containerHeight / SCALE) / 2) * -1) + 'px';
+  container.innerHTML = '';
+  container.style.height = viewport.height + 'px';
+  container.style.width = viewport.width + 'px';
+  container.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
+  container.style.marginTop = ((viewport.height / 2) * -1) + 'px';
 
   contentLayout.style.width = '';
   contentLayout.style.height = '';
