@@ -1,37 +1,27 @@
-let keyCase = (key) => key.replace(/[A-Z]/g, (match) => '-' + String.fromCharCode(match.charCodeAt() + 32));
+let hyphenate = (prop) => prop.replace(/[A-Z]/g, (match) => '-' + match.toLowerCase());
 
 export default function createStyleSheet(blocks) {
-  let content = [];
   let style = document.createElement('style');
+  let text = Object.keys(blocks).map((selector) => processRuleSet(selector, blocks[selector])).join('\n');
+  
   style.setAttribute('type', 'text/css');
-
-  for (let selector in blocks) {
-    content.push(createRuleSet(selector, blocks[selector]));
-  }
-
-  style.appendChild(document.createTextNode(content.join('\n')));
+  style.appendChild(document.createTextNode(text));
 
   return style;
 }
 
-export function createRuleSet(selector, block) {
-  return `${selector} {\n${createDeclarationBlock(block)}\n}`;
+function processRuleSet(selector, block) {
+  return `${selector} {\n${processDeclarationBlock(block)}\n}`;
 }
 
-export function createDeclarationBlock(block) {
-  let content = [];
-
-  for (let key in block) {
-    content.push(createDeclaration(key, block[key]));
-  }
-
-  return content.join('\n');
+function processDeclarationBlock(block) {
+  return Object.keys(block).map((prop) => processDeclaration(prop, block[prop])).join('\n');
 }
 
-export function createDeclaration(key, value) {
+function processDeclaration(prop, value) {
   if (!isNaN(value) && value != 0) {
     value = `${value}px`;
   }
 
-  return `${keyCase(key)}: ${value};`;
+  return `${hyphenate(prop)}: ${value};`;
 }
