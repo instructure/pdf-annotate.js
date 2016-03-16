@@ -1,4 +1,4 @@
-import createStyleSheet from '../utils/createStyleSheet';
+import createStyleSheet from 'create-stylesheet';
 
 export const BORDER_COLOR = '#00BFFF';
 
