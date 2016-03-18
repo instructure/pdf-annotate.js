@@ -3,7 +3,8 @@ import appendChild from '../render/appendChild';
 import {
   BORDER_COLOR,
   findSVGAtPoint,
-  getMetadata
+  getMetadata,
+  scaleDown
 } from './utils';
 
 let _enabled = false;
@@ -19,6 +20,7 @@ function handleMouseUp(e) {
   }
 
   input = document.createElement('input');
+  input.setAttribute('placeholder', 'Enter comment');
   input.style.border = `3px solid ${BORDER_COLOR}`;
   input.style.borderRadius = '3px';
   input.style.position = 'absolute';
