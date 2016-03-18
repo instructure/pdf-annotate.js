@@ -72,17 +72,12 @@ function handleMouseUp(e) {
   if (_type !== 'area' && (rects = getSelectionRects())) {
     let svg = findSVGAtPoint(rects[0].left, rects[0].top);
     saveRect(_type, Array.prototype.map.call(rects, (r) => {
-      // It seems counter-intuitive to scale up here only
-      // to scale down within saveRect, but the browser
-      // is handling the scaling natively using CSS zoom.
-      // It is necessary to adjust the scale up to account
-      // for the native browser scaling.
-      return scaleUp(svg, {
+      return {
         top: r.top,
         left: r.left,
         width: r.width,
         height: r.height
-      });
+      };
     }));
   } else if (_type === 'area' && overlay) {
     saveRect(_type, [{
