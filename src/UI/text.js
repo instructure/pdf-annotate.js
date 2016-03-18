@@ -22,6 +22,7 @@ function handleMouseUp(e) {
   }
 
   input = document.createElement('input');
+  input.setAttribute('placeholder', 'Enter text');
   input.style.border = `3px solid ${BORDER_COLOR}`;
   input.style.borderRadius = '3px';
   input.style.position = 'absolute';
