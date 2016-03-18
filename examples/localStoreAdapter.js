@@ -1,10 +1,17 @@
 import uuid from '../src/utils/uuid';
 let localStoreAdapter = {};
+let annotations;
 
 export default localStoreAdapter;
 
 function getAnnotations(documentId) {
-    return JSON.parse(localStorage.getItem(`${documentId}/annotations`)) || [];
+  if (!annotations) {
+    annotations = {};
+  }
+  if (!annotations[documentId]) {
+    annotations[documentId] = JSON.parse(localStorage.getItem(`${documentId}/annotations`)) || [];
+  }
+  return annotations[documentId];
 }
 
 function updateAnnotations(documentId) {
