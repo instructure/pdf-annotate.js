@@ -346,6 +346,7 @@ function render() {
     if (confirm('Are you sure you want to clear annotations?')) {
       svg.innerHTML = '';
       localStorage.removeItem(`${DOCUMENT_ID}/annotations`);
+      localStoreAdapter.clearCache();
       PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
         data.annotations = annotations;
       });

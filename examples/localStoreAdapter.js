@@ -30,6 +30,9 @@ function findAnnotation(documentId, annotationId) {
   return index;
 }
 
+// This is non-standard, but a helper for the examples.
+localStoreAdapter.clearCache = () => annotations = null;
+
 localStoreAdapter.getAnnotations = (documentId, pageNumber) => {
   return new Promise((resolve, reject) => {
     resolve(getAnnotations(documentId).filter((i) => {
