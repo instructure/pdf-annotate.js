@@ -4,88 +4,22 @@
   <meta charset="utf-8"/>
   <title>PDFJSAnnotate</title>
   <link rel="stylesheet" type="text/css" href="../toolbar.css"/>
+  <link rel="stylesheet" type="text/css" href="../pdf_viewer.css"/>
   <style type="text/css">
     body {
       background-color: #eee;
       font-family: sans-serif;
       margin: 0;
     }
-    #canvas, #svg, .textLayer {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      margin-bottom: 10px;
+
+    .pdfViewer .canvasWrapper {
       box-shadow: 0 0 3px #bbb;
     }
-    #canvas {
-      visibility: hidden;
-    }
-    #svg {
-      background: #fff;
-    }
-    .textLayer {
-      padding: 65px 72px;
-      font-size: 10px;
-      overflow: hidden;
-      line-height: 1.0;
+    .pdfViewer .page {
+      margin-bottom: 10px;
     }
 
-    .textLayer > div {
-      position: absolute;
-      white-space: pre;
-      cursor: text;
-      -webkit-transform-origin: 0% 0%;
-      -moz-transform-origin: 0% 0%;
-      -ms-transform-origin: 0% 0%;
-      -o-transform-origin: 0% 0%;
-      transform-origin: 0% 0%;
-    }
-
-    .textLayer .highlight {
-      margin: -1px;
-      padding: 1px;
-      background-color: rgb(180, 0, 170);
-      border-radius: 4px;
-    }
-
-    .textLayer .highlight.begin {
-      border-radius: 4px 0 0 4px;
-    }
-
-    .textLayer .highlight.end {
-      border-radius: 0 4px 4px 0;
-    }
-
-    .textLayer .highlight.middle {
-      border-radius: 0;
-    }
-
-    .textLayer .highlight.selected {
-      background-color: rgb(0, 100, 0);
-    }
-
-    /* .textLayer ::selection { background: Highlight; } */
-    /* .textLayer ::-moz-selection { background: Highlight; } */
-
-    .textLayer .endOfContent {
-      display: block;
-      position: absolute;
-      left: 0;
-      top: 100%;
-      right: 0;
-      bottom: 0;
-      z-index: -1;
-      cursor: default;
-      -webkit-user-select: none;
-      -ms-user-select: none;
-      -moz-user-select: none;
-    }
-
-    .textLayer .endOfContent.active {
-      top: 0;
-    }
-
-    #content-layout {
+    .annotationLayer {
       position: absolute;
       top: 0;
       left: 0;
@@ -198,11 +132,7 @@
     <a href="javascript://" class="clear" title="Clear">×</a>
   </div>
   <div id="content-wrapper">
-    <div id="content-layout">
-      <canvas id="canvas"></canvas>
-      <svg id="svg" xmlns="http://www.w3.org/2000/svg"></svg>
-      <div class="textLayer"></div>
-    </div>
+    <div id="viewer" class="pdfViewer"></div>
   </div>
   <div id="comment-wrapper">
     <h4>Comments</h4>

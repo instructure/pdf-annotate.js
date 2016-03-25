@@ -3,75 +3,111 @@ import PDFJSAnnotate from '../../';
 import localStoreAdapter from '../localStoreAdapter';
 
 const { UI } = PDFJSAnnotate;
-const canvas = document.getElementById('canvas');
-const svg = document.getElementById('svg');
-const container = document.querySelector('.textLayer');
-const contentLayout = document.getElementById('content-layout');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
-const PAGE_NUMBER = 1;
+let pdfDocument;
+let PAGE_HEIGHT;
 let SCALE = parseFloat(localStorage.getItem(`${DOCUMENT_ID}/scale`), 10) || 1;
 let ROTATE = parseInt(localStorage.getItem(`${DOCUMENT_ID}/rotate`), 10) || 0;
-const data = {
-  page: null,
-  annotations: null
-};
 
 PDFJSAnnotate.StoreAdapter = localStoreAdapter;
 PDFJS.workerSrc = '../pdf.worker.js';
 
 PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
-  Promise.all([
-    pdf.getPage(PAGE_NUMBER),
-    PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER)
-  ])
-  .then(([page, annotations]) => {
-    data.page = page;
-    data.annotations = annotations;
-    render();
+  pdfDocument = pdf;
+
+  let viewer = document.getElementById('viewer');
+  for (let i=0; i<pdf.pdfInfo.numPages; i++) {
+    let page = createEmptyPage(i+1);
+    viewer.appendChild(page);
+  }
+
+  loadPage(1).then(([pdfPage, annotations]) => {
+    let viewport = pdfPage.getViewport(SCALE);
+    PAGE_HEIGHT = viewport.height;
   });
 });
 
-// Render the stuff to the thing
-function render() {
-  let viewport = data.page.getViewport(SCALE, ROTATE);
-  let canvasContext = canvas.getContext('2d');
-  
-  canvas.height = viewport.height;
-  canvas.width = viewport.width;
-  canvas.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
-  canvas.style.marginTop = ((viewport.height /2) * -1) + 'px';
-  
-  svg.setAttribute('height', viewport.height);
-  svg.setAttribute('width', viewport.width);
-  svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
-  svg.style.marginTop = ((viewport.height /2) * -1) + 'px';
-
-  container.innerHTML = '';
-  container.style.height = viewport.height + 'px';
-  container.style.width = viewport.width + 'px';
-  container.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
-  container.style.marginTop = ((viewport.height / 2) * -1) + 'px';
-
-  contentLayout.style.width = '';
-  contentLayout.style.height = '';
-
-  let rect = contentLayout.getBoundingClientRect();
-
-  contentLayout.style.width = Math.max((viewport.width + 20), rect.width) + 'px';
-  contentLayout.style.height = Math.max((viewport.height + 20), rect.height) + 'px';
-
-  data.page.render({canvasContext, viewport});
-  PDFJSAnnotate.render(svg, viewport, data.annotations);
-
-  // This method requires pdfjs-dist/web/pdf_viewer.js
-  // The benefit is that it makes selecting text much smoother.
-  data.page.getTextContent().then((textContent) => {
-    PDFJSAnnotate.renderTextLayer({
-      container,
-      viewport,
-      textContent,
-      pageNumber: PAGE_NUMBER
+document.getElementById('content-wrapper').addEventListener('scroll', function (e) {
+  let visiblePageNum = Math.round(e.target.scrollTop / PAGE_HEIGHT) + 1;
+  let visiblePage = document.querySelector(`.page[data-page-number="${visiblePageNum}"][data-loaded="false"]`);
+  if (visiblePage) {
+    setTimeout(function () {
+      loadPage(visiblePageNum);
     });
+  }
+});
+
+function createEmptyPage(num) {
+  let page = document.createElement('div');
+  let canvas = document.createElement('canvas');
+  let wrapper = document.createElement('div');
+  let annoLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+  let textLayer = document.createElement('div');
+
+  page.className = 'page';
+  wrapper.className = 'canvasWrapper';
+  annoLayer.setAttribute('class', 'annotationLayer');
+  textLayer.className = 'textLayer';
+
+  page.setAttribute('id', `pageContainer${num}`);
+  page.setAttribute('data-loaded', 'false');
+  page.setAttribute('data-page-number', num);
+
+  canvas.setAttribute('id', `page${num}`);
+
+  page.appendChild(wrapper);
+  page.appendChild(annoLayer);
+  page.appendChild(textLayer);
+  wrapper.appendChild(canvas);
+
+  return page;
+}
+
+function loadPage(pageNum) {
+  return Promise.all([
+    pdfDocument.getPage(pageNum),
+    PDFJSAnnotate.getAnnotations(DOCUMENT_ID, pageNum)
+  ]).then(([pdfPage, annotations]) => {
+    let page = document.getElementById(`pageContainer${pageNum}`);
+    let canvas = page.querySelector('canvas');
+    let svg = page.querySelector('svg');
+    let wrapper = page.querySelector('.canvasWrapper');
+    let container = page.querySelector('.textLayer');
+    let canvasContext = canvas.getContext('2d');
+    let viewport = pdfPage.getViewport(SCALE);
+
+    canvas.width = viewport.width * 2;
+    canvas.height = viewport.height * 2;
+    svg.setAttribute('width', viewport.width);
+    svg.setAttribute('height', viewport.height);
+    svg.style.width = `${viewport.width}px`;
+    svg.style.height = `${viewport.height}px`;
+    page.style.width = `${viewport.width}px`;
+    page.style.height = `${viewport.height}px`;
+    wrapper.style.width = `${viewport.width}px`;
+    wrapper.style.height = `${viewport.height}px`;
+    container.style.width = `${viewport.width}px`;
+    container.style.height = `${viewport.height}px`;
+
+    pdfPage.render({
+      canvasContext,
+      viewport
+    });
+
+    PDFJSAnnotate.render(svg, viewport, annotations);
+
+    pdfPage.getTextContent().then(textContent => {
+      PDFJSAnnotate.renderTextLayer({
+        textContent,
+        container,
+        viewport,
+        textDivs: []
+      });
+    });
+
+    page.setAttribute('data-loaded', 'true');
+
+    return [pdfPage, annotations];
   });
 }
 
@@ -347,9 +383,6 @@ function render() {
       svg.innerHTML = '';
       localStorage.removeItem(`${DOCUMENT_ID}/annotations`);
       localStoreAdapter.clearCache();
-      PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
-        data.annotations = annotations;
-      });
     }
   }
   document.querySelector('a.clear').addEventListener('click', handleClearClick);
