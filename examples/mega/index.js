@@ -41,8 +41,6 @@ function render() {
       let viewport = pdfPage.getViewport(RENDER_OPTIONS.scale, RENDER_OPTIONS.rotate);
       PAGE_HEIGHT = viewport.height;
     });
-  }, (error) => {
-    console.log(error);
   });
 }
 render();
