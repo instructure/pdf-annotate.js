@@ -3,136 +3,49 @@ import PDFJSAnnotate from '../../';
 import localStoreAdapter from '../localStoreAdapter';
 
 const { UI } = PDFJSAnnotate;
-const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
-let pdfDocument;
-let PAGE_WIDTH;
+const documentId = window.location.pathname.replace(/\/$/, '');
 let PAGE_HEIGHT;
-let SCALE = parseFloat(localStorage.getItem(`${DOCUMENT_ID}/scale`), 10) || 1;
-let ROTATE = parseInt(localStorage.getItem(`${DOCUMENT_ID}/rotate`), 10) || 0;
-let HAS_SCROLL_EVENT = false;
+let RENDER_OPTIONS = {
+  documentId,
+  pdfDocument: null,
+  scale: parseFloat(localStorage.getItem(`${documentId}/scale`), 10) || 1,
+  rotate: parseInt(localStorage.getItem(`${documentId}/rotate`), 10) || 0
+};
 
 PDFJSAnnotate.StoreAdapter = localStoreAdapter;
 PDFJS.workerSrc = '../pdf.worker.js';
 
 // Render stuff
-let render = (function () {
-  if (!HAS_SCROLL_EVENT) {
-    document.getElementById('content-wrapper').addEventListener('scroll', function (e) {
-      let visiblePageNum = Math.round(e.target.scrollTop / PAGE_HEIGHT) + 1;
-      let visiblePage = document.querySelector(`.page[data-page-number="${visiblePageNum}"][data-loaded="false"]`);
-      if (visiblePage) {
-        setTimeout(function () {
-          loadPage(visiblePageNum);
-        });
-      }
-    });
-    HAS_SCROLL_EVENT = true;
-  }
-
-  function render() {
-    PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
-      pdfDocument = pdf;
-
-      let viewer = document.getElementById('viewer');
-      viewer.innerHTML = '';
-      for (let i=0; i<pdf.pdfInfo.numPages; i++) {
-        let page = createEmptyPage(i+1);
-        viewer.appendChild(page);
-      }
-
-      loadPage(1).then(([pdfPage, annotations]) => {
-        let viewport = pdfPage.getViewport(SCALE, ROTATE);
-        PAGE_WIDTH = viewport.width;
-        PAGE_HEIGHT = viewport.height;
-
-        // let pages = viewer.querySelectorAll('div.page');
-        // Array.prototype.forEach.call(pages, (page) => {
-        //   page.style.width = `${PAGE_WIDTH}px`;
-        //   page.style.height = `${PAGE_WIDTH}px`;
-        // });
-      });
+document.getElementById('content-wrapper').addEventListener('scroll', function (e) {
+  let visiblePageNum = Math.round(e.target.scrollTop / PAGE_HEIGHT) + 1;
+  let visiblePage = document.querySelector(`.page[data-page-number="${visiblePageNum}"][data-loaded="false"]`);
+  if (visiblePage) {
+    setTimeout(function () {
+      UI.renderPage(visiblePageNum, RENDER_OPTIONS);
     });
   }
+});
 
-  function createEmptyPage(num) {
-    let page = document.createElement('div');
-    let canvas = document.createElement('canvas');
-    let wrapper = document.createElement('div');
-    let annoLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    let textLayer = document.createElement('div');
+function render() {
+  PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
+    RENDER_OPTIONS.pdfDocument = pdf;
 
-    page.style.visibility = 'hidden';
-    page.className = 'page';
-    wrapper.className = 'canvasWrapper';
-    annoLayer.setAttribute('class', 'annotationLayer');
-    textLayer.className = 'textLayer';
+    let viewer = document.getElementById('viewer');
+    viewer.innerHTML = '';
+    for (let i=0; i<pdf.pdfInfo.numPages; i++) {
+      let page = UI.createPage(i+1);
+      viewer.appendChild(page);
+    }
 
-    page.setAttribute('id', `pageContainer${num}`);
-    page.setAttribute('data-loaded', 'false');
-    page.setAttribute('data-page-number', num);
-
-    canvas.setAttribute('id', `page${num}`);
-
-    page.appendChild(wrapper);
-    page.appendChild(annoLayer);
-    page.appendChild(textLayer);
-    wrapper.appendChild(canvas);
-
-    return page;
-  }
-
-  function loadPage(pageNum) {
-    return Promise.all([
-      pdfDocument.getPage(pageNum),
-      PDFJSAnnotate.getAnnotations(DOCUMENT_ID, pageNum)
-    ]).then(([pdfPage, annotations]) => {
-      let page = document.getElementById(`pageContainer${pageNum}`);
-      let canvas = page.querySelector('canvas');
-      let svg = page.querySelector('svg');
-      let wrapper = page.querySelector('.canvasWrapper');
-      let container = page.querySelector('.textLayer');
-      let canvasContext = canvas.getContext('2d');
-      let viewport = pdfPage.getViewport(SCALE, ROTATE);
-
-      page.style.visibility = '';
-      canvas.width = viewport.width * 2;
-      canvas.height = viewport.height * 2;
-      svg.setAttribute('width', viewport.width);
-      svg.setAttribute('height', viewport.height);
-      svg.style.width = `${viewport.width}px`;
-      svg.style.height = `${viewport.height}px`;
-      page.style.width = `${viewport.width}px`;
-      page.style.height = `${viewport.height}px`;
-      wrapper.style.width = `${viewport.width}px`;
-      wrapper.style.height = `${viewport.height}px`;
-      container.style.width = `${viewport.width}px`;
-      container.style.height = `${viewport.height}px`;
-
-      pdfPage.render({
-        canvasContext,
-        viewport
-      });
-
-      PDFJSAnnotate.render(svg, viewport, annotations);
-
-      pdfPage.getTextContent().then(textContent => {
-        PDFJSAnnotate.renderTextLayer({
-          textContent,
-          container,
-          viewport,
-          textDivs: []
-        });
-      });
-
-      page.setAttribute('data-loaded', 'true');
-
-      return [pdfPage, annotations];
+    UI.renderPage(1, RENDER_OPTIONS).then(([pdfPage, annotations]) => {
+      let viewport = pdfPage.getViewport(RENDER_OPTIONS.scale, RENDER_OPTIONS.rotate);
+      PAGE_HEIGHT = viewport.height;
     });
-  }
-
-  render();
-  return render;
-})();
+  }, (error) => {
+    console.log(error);
+  });
+}
+render();
 
 // Text stuff
 (function () {
@@ -146,8 +59,8 @@ let render = (function () {
     });
 
     setText(
-      localStorage.getItem(`${DOCUMENT_ID}/text/size`) || 10,
-      localStorage.getItem(`${DOCUMENT_ID}/text/color`) || '000000'
+      localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/size`) || 10,
+      localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/color`) || '000000'
     );
   }
 
@@ -157,14 +70,14 @@ let render = (function () {
     if (textSize !== size) {
       modified = true;
       textSize = size;
-      localStorage.setItem(`${DOCUMENT_ID}/text/size`, textSize);
+      localStorage.setItem(`${RENDER_OPTIONS.documentId}/text/size`, textSize);
       document.querySelector('.toolbar .text-size').value = textSize;
     }
 
     if (textColor !== color) {
       modified = true;
       textColor = color;
-      localStorage.setItem(`${DOCUMENT_ID}/text/color`, textColor);
+      localStorage.setItem(`${RENDER_OPTIONS.documentId}/text/color`, textColor);
       
       let selected = document.querySelector('.toolbar .text-color.color-selected');
       if (selected) {
@@ -226,8 +139,8 @@ let render = (function () {
     }
 
     setPen(
-      localStorage.getItem(`${DOCUMENT_ID}/pen/size`) || 1,
-      localStorage.getItem(`${DOCUMENT_ID}/pen/color`) || '000000'
+      localStorage.getItem(`${RENDER_OPTIONS.documentId}/pen/size`) || 1,
+      localStorage.getItem(`${RENDER_OPTIONS.documentId}/pen/color`) || '000000'
     );
   }
 
@@ -237,14 +150,14 @@ let render = (function () {
     if (penSize !== size) {
       modified = true;
       penSize = size;
-      localStorage.setItem(`${DOCUMENT_ID}/pen/size`, penSize);
+      localStorage.setItem(`${RENDER_OPTIONS.documentId}/pen/size`, penSize);
       document.querySelector('.toolbar .pen-size').value = penSize;
     }
 
     if (penColor !== color) {
       modified = true;
       penColor = color;
-      localStorage.setItem(`${DOCUMENT_ID}/pen/color`, penColor);
+      localStorage.setItem(`${RENDER_OPTIONS.documentId}/pen/color`, penColor);
       
       let selected = document.querySelector('.toolbar .pen-color.color-selected');
       if (selected) {
@@ -295,7 +208,7 @@ let render = (function () {
 
 // Toolbar buttons
 (function () {
-  let tooltype = localStorage.getItem(`${DOCUMENT_ID}/tooltype`) || 'cursor';
+  let tooltype = localStorage.getItem(`${RENDER_OPTIONS.documentId}/tooltype`) || 'cursor';
   if (tooltype) {
     setActiveToolbarItem(tooltype, document.querySelector(`.toolbar button[data-tooltype=${tooltype}]`));
   }
@@ -330,7 +243,7 @@ let render = (function () {
       button.classList.add('active');
     }
     if (tooltype !== type) {
-      localStorage.setItem(`${DOCUMENT_ID}/tooltype`, type);
+      localStorage.setItem(`${RENDER_OPTIONS.documentId}/tooltype`, type);
     }
     tooltype = type;
 
@@ -370,30 +283,30 @@ let render = (function () {
     scale = parseFloat(scale, 10);
     rotate = parseInt(rotate, 10);
 
-    if (SCALE !== scale || ROTATE !== rotate) {
-      SCALE = scale;
-      ROTATE = rotate;
+    if (RENDER_OPTIONS.scale !== scale || RENDER_OPTIONS.rotate !== rotate) {
+      RENDER_OPTIONS.scale = scale;
+      RENDER_OPTIONS.rotate = rotate;
 
-      localStorage.setItem(`${DOCUMENT_ID}/scale`, SCALE);
-      localStorage.setItem(`${DOCUMENT_ID}/rotate`, ROTATE % 360);
+      localStorage.setItem(`${RENDER_OPTIONS.documentId}/scale`, RENDER_OPTIONS.scale);
+      localStorage.setItem(`${RENDER_OPTIONS.documentId}/rotate`, RENDER_OPTIONS.rotate % 360);
 
       render();
     }
   }
 
   function handleScaleChange(e) {
-    setScaleRotate(e.target.value, ROTATE);
+    setScaleRotate(e.target.value, RENDER_OPTIONS.rotate);
   }
 
   function handleRotateCWClick() {
-    setScaleRotate(SCALE, ROTATE + 90);
+    setScaleRotate(RENDER_OPTIONS.scale, RENDER_OPTIONS.rotate + 90);
   }
 
   function handleRotateCCWClick() {
-    setScaleRotate(SCALE, ROTATE - 90);
+    setScaleRotate(RENDER_OPTIONS.scale, RENDER_OPTIONS.rotate - 90);
   }
 
-  document.querySelector('.toolbar select.scale').value = SCALE;
+  document.querySelector('.toolbar select.scale').value = RENDER_OPTIONS.scale;
   document.querySelector('.toolbar select.scale').addEventListener('change', handleScaleChange);
   document.querySelector('.toolbar .rotate-ccw').addEventListener('click', handleRotateCCWClick);
   document.querySelector('.toolbar .rotate-cw').addEventListener('click', handleRotateCWClick);
@@ -404,7 +317,7 @@ let render = (function () {
   function handleClearClick(e) {
     if (confirm('Are you sure you want to clear annotations?')) {
       svg.innerHTML = '';
-      localStorage.removeItem(`${DOCUMENT_ID}/annotations`);
+      localStorage.removeItem(`${RENDER_OPTIONS.documentId}/annotations`);
       localStoreAdapter.clearCache();
     }
   }
