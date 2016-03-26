@@ -3,13 +3,17 @@ import { equal } from 'assert';
 
 PDFJSAnnotate.StoreAdapter = {
   getAnnotations: (documentId, pageNumber) => {
-    return Promise.resolve([
-      {
-        type: 'point',
-        x: 0,
-        y: 0
-      }
-    ]);
+    return Promise.resolve({
+      documentId,
+      pageNumber,
+      annotations: [
+        {
+          type: 'point',
+          x: 0,
+          y: 0
+        }
+      ]
+    });
   }
 };
 
