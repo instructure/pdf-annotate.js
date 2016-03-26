@@ -22,12 +22,6 @@ export default {
   },
 
   getAnnotations(documentId, pageNumber) {
-    return this.StoreAdapter.getAnnotations(...arguments).then((annotations) => {
-      return {
-        documentId,
-        pageNumber,
-        annotations
-      };
-    });
+    return this.StoreAdapter.getAnnotations(...arguments);
   }
 }

@@ -35,9 +35,15 @@ localStoreAdapter.clearCache = () => annotations = null;
 
 localStoreAdapter.getAnnotations = (documentId, pageNumber) => {
   return new Promise((resolve, reject) => {
-    resolve(getAnnotations(documentId).filter((i) => {
+    let annotations = getAnnotations(documentId).filter((i) => {
       return i.page === pageNumber && i.class === 'Annotation';
-    }));
+    });
+
+    resolve({
+      documentId,
+      pageNumber,
+      annotations
+    });
   });
 };
 
