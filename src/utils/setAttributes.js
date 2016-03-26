@@ -7,7 +7,7 @@ const BLACKLIST = [
 
 let keyCase = (key) => {
   if (BLACKLIST.indexOf(key) === -1) {
-    key = key.replace(UPPER_REGEX, (match) => '-' + String.fromCharCode(match.charCodeAt() + 32));
+    key = key.replace(UPPER_REGEX, match => '-' + match.toLowerCase());
   }
   return key;
 }
