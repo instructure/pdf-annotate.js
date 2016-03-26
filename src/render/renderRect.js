@@ -16,7 +16,10 @@ export default function renderRect(a) {
     });
     
     if (a.color) {
-      rect.setAttribute('fill', `#${a.color}`);
+      setAttributes(rect, {
+        fill: `#${a.color}`,
+        fillOpacity: 0.2
+      });
     } else {
       setAttributes(rect, {
         stroke: '#f00',
