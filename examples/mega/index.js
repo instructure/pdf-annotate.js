@@ -5,6 +5,7 @@ import localStoreAdapter from '../localStoreAdapter';
 const { UI } = PDFJSAnnotate;
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 let pdfDocument;
+let PAGE_WIDTH;
 let PAGE_HEIGHT;
 let SCALE = parseFloat(localStorage.getItem(`${DOCUMENT_ID}/scale`), 10) || 1;
 let ROTATE = parseInt(localStorage.getItem(`${DOCUMENT_ID}/rotate`), 10) || 0;
@@ -41,7 +42,14 @@ let render = (function () {
 
       loadPage(1).then(([pdfPage, annotations]) => {
         let viewport = pdfPage.getViewport(SCALE, ROTATE);
+        PAGE_WIDTH = viewport.width;
         PAGE_HEIGHT = viewport.height;
+
+        // let pages = viewer.querySelectorAll('div.page');
+        // Array.prototype.forEach.call(pages, (page) => {
+        //   page.style.width = `${PAGE_WIDTH}px`;
+        //   page.style.height = `${PAGE_WIDTH}px`;
+        // });
       });
     });
   }
@@ -53,6 +61,7 @@ let render = (function () {
     let annoLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
     let textLayer = document.createElement('div');
 
+    page.style.visibility = 'hidden';
     page.className = 'page';
     wrapper.className = 'canvasWrapper';
     annoLayer.setAttribute('class', 'annotationLayer');
@@ -85,6 +94,7 @@ let render = (function () {
       let canvasContext = canvas.getContext('2d');
       let viewport = pdfPage.getViewport(SCALE, ROTATE);
 
+      page.style.visibility = '';
       canvas.width = viewport.width * 2;
       canvas.height = viewport.height * 2;
       svg.setAttribute('width', viewport.width);
