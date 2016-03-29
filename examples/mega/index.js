@@ -27,7 +27,7 @@ document.getElementById('content-wrapper').addEventListener('scroll', function (
 });
 
 function render() {
-  PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
+  PDFJS.getDocument('example.pdf').then((pdf) => {
     RENDER_OPTIONS.pdfDocument = pdf;
 
     let viewer = document.getElementById('viewer');
