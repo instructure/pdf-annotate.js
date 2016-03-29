@@ -1,5 +1,5 @@
 import render from '../../src/render';
-import mockViewport from './mockViewport';
+import mockViewport from '../mockViewport';
 import { equal } from 'assert';
 
 function _render(annotations) {

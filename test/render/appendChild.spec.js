@@ -1,5 +1,5 @@
 import appendChild from '../../src/render/appendChild';
-import mockViewport from './mockViewport';
+import mockViewport from '../mockViewport';
 import { equal } from 'assert';
 
 const isFirefox = /Firefox/i.test(navigator.userAgent);
