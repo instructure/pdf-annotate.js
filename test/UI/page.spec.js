@@ -3,6 +3,7 @@ import { createPage, renderPage } from '../../src/UI/page';
 import mockPDFDocument from '../mockPDFDocument';
 import { equal } from 'assert';
 
+let page;
 let getAnnotations = PDFJSAnnotate.getAnnotations;
 
 describe('UI::page', function () {
@@ -22,8 +23,17 @@ describe('UI::page', function () {
     PDFJSAnnotate.getAnnotations = getAnnotations;
   });
 
+  beforeEach(function () {
+    page = createPage(1);
+  });
+
+  afterEach(function () {
+    if (page.parentNode) {
+      page.parentNode.removeChild(page);
+    }
+  });
+
   it('should create a page', function () {
-    let page = createPage(1);
     let canvas = page.querySelector('canvas');
     let svg = page.querySelector('svg');
     let wrapper = page.querySelector('.canvasWrapper');
@@ -45,7 +55,6 @@ describe('UI::page', function () {
   });
 
   it('should render a page', function (done) {
-    let page = createPage(1);
     let pdfPage, annotations;
     document.body.appendChild(page);
 

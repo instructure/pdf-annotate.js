@@ -10,6 +10,7 @@ const userSelectStyleSheet = createStyleSheet({
             'user-select': 'none'
   }
 });
+userSelectStyleSheet.setAttribute('data-pdf-annotate-user-select', 'true');
 
 export function findSVGContainer(node) {
   let parentNode = node;
