@@ -3,6 +3,7 @@ import renderPath from '../../src/render/renderPath';
 import renderRect from '../../src/render/renderRect';
 import renderText from '../../src/render/renderText';
 import mockViewport from '../mockViewport';
+import createSVGContainer from '../createSVGContainer';
 import { equal, deepEqual } from 'assert';
 import {
   BORDER_COLOR,
@@ -48,11 +49,7 @@ describe('UI::utils', function () {
   beforeEach(function () {
     div = document.createElement('div');
     text = renderText({x: 10, y: 10, size: 12, color: '000', content: 'foo'});
-    svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-    svg.setAttribute('data-pdf-annotate-container', 'true');
-    svg.setAttribute('data-pdf-annotate-document', 'test-document-id');
-    svg.setAttribute('data-pdf-annotate-page', '1');
-    svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(mockViewport()));
+    svg = createSVGContainer();
   });
 
   afterEach(function () {
