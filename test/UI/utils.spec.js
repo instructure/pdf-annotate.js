@@ -156,13 +156,18 @@ describe('UI::utils', function () {
       }).map((line) => {
         svg.appendChild(line);
         return line;
-      });
+      })[0];
 
-      deepEqual(getSize(line[0]), {
-        w: 115,
-        h: 16,
-        x: 10,
-        y: 27
+      let x1 = parseInt(line.getAttribute('x1'), 10);
+      let x2 = parseInt(line.getAttribute('x2'), 10);
+      let y1 = parseInt(line.getAttribute('y1'), 10);
+      let y2 = parseInt(line.getAttribute('y2'), 10);
+
+      deepEqual(getSize(line), {
+        w: x2 - x1,
+        h: (y2 - y1) + 16,
+        x: x1,
+        y: y1 - (16 / 2)
       });
     });
 
@@ -170,17 +175,19 @@ describe('UI::utils', function () {
       svg.appendChild(text);
       document.body.appendChild(svg);
 
+      let rect = text.getBoundingClientRect();
+
       deepEqual(getSize(text), {
-        w: 18,
-        h: 13,
-        x: 10,
-        y: 9
+        w: rect.width,
+        h: rect.height,
+        x: parseInt(text.getAttribute('x'), 10),
+        y: parseInt(text.getAttribute('y'), 10) - rect.height
       });
     });
 
     it('should get the size of a rectangle', function () {
       document.body.appendChild(svg);
-      let rects = renderRect({
+      let rect = renderRect({
         color: '0ff',
         rectangles: [
           {
@@ -193,13 +200,13 @@ describe('UI::utils', function () {
       }).map((rect) => {
         svg.appendChild(rect);
         return rect;
-      });
+      })[0];
       
-      deepEqual(getSize(rects[0]), {
-        w: 100,
-        h: 25,
-        x: 10,
-        y: 10
+      deepEqual(getSize(rect), {
+        w: parseInt(rect.getAttribute('width'), 10),
+        h: parseInt(rect.getAttribute('height'), 10),
+        x: parseInt(rect.getAttribute('x'), 10),
+        y: parseInt(rect.getAttribute('y'), 10)
       });
     });
   });
