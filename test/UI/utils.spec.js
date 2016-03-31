@@ -3,7 +3,7 @@ import renderPath from '../../src/render/renderPath';
 import renderRect from '../../src/render/renderRect';
 import renderText from '../../src/render/renderText';
 import mockViewport from '../mockViewport';
-import createSVGContainer from '../createSVGContainer';
+import mockSVGContainer from '../mockSVGContainer';
 import { equal, deepEqual } from 'assert';
 import {
   BORDER_COLOR,
@@ -49,7 +49,7 @@ describe('UI::utils', function () {
   beforeEach(function () {
     div = document.createElement('div');
     text = renderText({x: 10, y: 10, size: 12, color: '000', content: 'foo'});
-    svg = createSVGContainer();
+    svg = mockSVGContainer();
   });
 
   afterEach(function () {

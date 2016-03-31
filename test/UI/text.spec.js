@@ -2,7 +2,7 @@ import { equal } from 'assert';
 import simulant from 'simulant';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { setText, enableText, disableText } from '../../src/UI/text';
-import createSVGContainer from '../createSVGContainer';
+import mockSVGContainer from '../mockSVGContainer';
 
 let svg;
 let addAnnotationSpy;
@@ -34,7 +34,7 @@ function createTextAnnotation(textContent, textSize, textColor) {
 
 describe('UI::text', function () {
   beforeEach(function () {
-    svg = createSVGContainer();
+    svg = mockSVGContainer();
     addAnnotationSpy = sinon.spy();
     PDFJSAnnotate.StoreAdapter.addAnnotation = function (documentId, pageNumber, annotation) {
       addAnnotationSpy(documentId, pageNumber, annotation);
