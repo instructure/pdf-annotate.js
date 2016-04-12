@@ -20,6 +20,7 @@ function handleMouseUp(e) {
   }
 
   input = document.createElement('input');
+  input.setAttribute('id', 'pdf-annotate-point-input');
   input.setAttribute('placeholder', 'Enter comment');
   input.style.border = `3px solid ${BORDER_COLOR}`;
   input.style.borderRadius = '3px';

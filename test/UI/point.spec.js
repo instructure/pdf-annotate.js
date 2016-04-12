@@ -1,20 +1,21 @@
 import { equal } from 'assert';
 import simulant from 'simulant';
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
-import { setText, enableText, disableText } from '../../src/UI/text';
+import { enablePoint, disablePoint } from '../../src/UI/point';
 import mockAddAnnotation from '../mockAddAnnotation';
+import mockAddComment from '../mockAddComment';
 import mockSVGContainer from '../mockSVGContainer';
 
 let svg;
 let addAnnotationSpy;
+let addCommentSpy;
 let addAnnotation = PDFJSAnnotate.StoreAdapter.addAnnotation;
+let addComment = PDFJSAnnotate.StoreAdapter.addComment;
 
-function simulateCreateTextAnnotation(textContent, textSize, textColor) {
+function simulateCreatePointAnnotation(textContent) {
   document.body.appendChild(svg);
   svg.style.width = '100px';
   svg.style.height = '100px';
-
-  setText(textSize, textColor);
 
   let rect = svg.getBoundingClientRect();
   simulant.fire(svg, 'mouseup', {
@@ -24,7 +25,7 @@ function simulateCreateTextAnnotation(textContent, textSize, textColor) {
   });
 
   setTimeout(function () {
-    let input = document.getElementById('pdf-annotate-text-input');
+    let input = document.getElementById('pdf-annotate-point-input');
     if (input) {
       input.focus();
       input.value = textContent;
@@ -33,15 +34,17 @@ function simulateCreateTextAnnotation(textContent, textSize, textColor) {
   }, 0);
 }
 
-describe('UI::text', function () {
+describe('UI::point', function () {
   beforeEach(function () {
     svg = mockSVGContainer();
     addAnnotationSpy = sinon.spy();
+    addCommentSpy = sinon.spy();
     PDFJSAnnotate.StoreAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
+    PDFJSAnnotate.StoreAdapter.addComment = mockAddComment(addCommentSpy);
   });
 
   afterEach(function () {
-    let input = document.getElementById('pdf-annotate-text-input');
+    let input = document.getElementById('pdf-annotate-point-input');
     if (input && input.parentNode) {
       input.parentNode.removeChild(input);
     }
@@ -56,28 +59,36 @@ describe('UI::text', function () {
   });
 
   it('should do nothing when disabled', function (done) {
-    enableText();
-    disableText();
-    simulateCreateTextAnnotation('foo bar baz');
+    enablePoint();
+    disablePoint();
+    simulateCreatePointAnnotation('foo bar baz');
     setTimeout(function () {
       equal(addAnnotationSpy.called, false);
+      equal(addCommentSpy.called, false);
       done();
     }, 0);
   });
 
   it('should create an annotation when enabled', function (done) {
-    disableText();
-    enableText();
-    simulateCreateTextAnnotation('foo bar baz');
+    disablePoint();
+    enablePoint();
+    simulateCreatePointAnnotation('foo bar baz');
     setTimeout(function () {
-      let args = addAnnotationSpy.getCall(0).args;
+      let addAnnotationArgs = addAnnotationSpy.getCall(0).args;
+      let addCommentArgs = addCommentSpy.getCall(0).args;
+
       equal(addAnnotationSpy.called, true);
-      equal(args[0], 'test-document-id');
-      equal(args[1], '1');
-      equal(args[2].size, '12');
-      equal(args[2].color, '000');
-      equal(args[2].content, 'foo bar baz');
+      equal(addCommentSpy.called, true);
+
+      equal(addAnnotationArgs[0], 'test-document-id');
+      equal(addAnnotationArgs[1], '1');
+
+      equal(addCommentArgs[0], 'test-document-id');
+      equal(addCommentArgs[1], addAnnotationArgs[2].uuid);
+      equal(addCommentArgs[2], 'foo bar baz');
+      
       done();
     }, 0);
   });
+
 });
