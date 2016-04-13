@@ -33,7 +33,7 @@ export function findSVGAtPoint(x, y) {
     let el = elements[i];
     let rect = el.getBoundingClientRect();
 
-    if (collidesWithPoint(rect, x, y)) {  
+    if (collidesWithPoint(rect, x, y)) {
       return el;
     }
   }

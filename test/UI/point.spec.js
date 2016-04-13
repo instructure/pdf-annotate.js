@@ -9,14 +9,10 @@ import mockSVGContainer from '../mockSVGContainer';
 let svg;
 let addAnnotationSpy;
 let addCommentSpy;
-let addAnnotation = PDFJSAnnotate.StoreAdapter.addAnnotation;
-let addComment = PDFJSAnnotate.StoreAdapter.addComment;
+let __addAnnotation = PDFJSAnnotate.StoreAdapter.addAnnotation;
+let __addComment = PDFJSAnnotate.StoreAdapter.addComment;
 
 function simulateCreatePointAnnotation(textContent) {
-  document.body.appendChild(svg);
-  svg.style.width = '100px';
-  svg.style.height = '100px';
-
   let rect = svg.getBoundingClientRect();
   simulant.fire(svg, 'mouseup', {
     target: svg,
@@ -37,6 +33,10 @@ function simulateCreatePointAnnotation(textContent) {
 describe('UI::point', function () {
   beforeEach(function () {
     svg = mockSVGContainer();
+    svg.style.width = '100px';
+    svg.style.height = '100px';
+    document.body.appendChild(svg);
+
     addAnnotationSpy = sinon.spy();
     addCommentSpy = sinon.spy();
     PDFJSAnnotate.StoreAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
@@ -52,10 +52,13 @@ describe('UI::point', function () {
     if (svg.parentNode) {
       svg.parentNode.removeChild(svg);
     }
+
+    disablePoint();
   });
 
   after(function () {
-    PDFJSAnnotate.StoreAdapter.addAnnotation = addAnnotation;
+    PDFJSAnnotate.StoreAdapter.addAnnotation = __addAnnotation;
+    PDFJSAnnotate.StoreAdapter.addComment = __addComment;
   });
 
   it('should do nothing when disabled', function (done) {
@@ -82,6 +85,7 @@ describe('UI::point', function () {
 
       equal(addAnnotationArgs[0], 'test-document-id');
       equal(addAnnotationArgs[1], '1');
+      equal(addAnnotationArgs[2].type, 'point');
 
       equal(addCommentArgs[0], 'test-document-id');
       equal(addCommentArgs[1], addAnnotationArgs[2].uuid);
