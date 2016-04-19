@@ -1,9 +1,9 @@
 import renderLine from '../../src/render/renderLine';
 import renderPath from '../../src/render/renderPath';
 import renderRect from '../../src/render/renderRect';
-import renderText from '../../src/render/renderText';
 import mockViewport from '../mockViewport';
 import mockSVGContainer from '../mockSVGContainer';
+import mockTextAnnotation from '../mockTextAnnotation';
 import { equal, deepEqual } from 'assert';
 import {
   BORDER_COLOR,
@@ -48,8 +48,8 @@ let text;
 describe('UI::utils', function () {
   beforeEach(function () {
     div = document.createElement('div');
-    text = renderText({x: 10, y: 10, size: 12, color: '000', content: 'foo'});
     svg = mockSVGContainer();
+    text = mockTextAnnotation();
   });
 
   afterEach(function () {

@@ -51,14 +51,17 @@ function createEditOverlay(target) {
 }
 
 function destroyEditOverlay() {
-  if (!overlay) { return; }
-
-  overlay.parentNode.removeChild(overlay);
-  overlay = null;
+  if (overlay) {
+    overlay.parentNode.removeChild(overlay);
+    overlay = null;
+  }
 
   document.removeEventListener('click', handleDocumentClick);
   document.removeEventListener('keyup', handleDocumentKeyup);
   document.removeEventListener('mousedown', handleDocumentMousedown);
+  document.removeEventListener('mousemove', handleDocumentMousemove);
+  document.removeEventListener('mouseup', handleDocumentMouseup);
+  enableUserSelect();
 }
 
 function handleDocumentClick(e) {
@@ -241,6 +244,8 @@ export function enableEdit () {
 };
 
 export function disableEdit () {
+  destroyEditOverlay();
+
   if (!_enabled) { return; }
 
   _enabled = false;

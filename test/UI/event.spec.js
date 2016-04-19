@@ -1,8 +1,8 @@
 import { equal } from 'assert';
 import simulant from 'simulant';
 import { addEventListener, removeEventListener } from '../../src/UI/event';
-import renderText from '../../src/render/renderText';
 import mockSVGContainer from '../mockSVGContainer';
+import mockTextAnnotation from '../mockTextAnnotation';
 
 let svg;
 let text;
@@ -13,8 +13,7 @@ let annotationBlurSpy;
 describe('UI::event', function () {
   beforeEach(function () {
     svg = mockSVGContainer();
-    text = renderText({x: 10, y: 10, size: 12, color: '000', content: 'foo'});
-    text.setAttribute('data-pdf-annotate-type', 'textbox');
+    text = mockTextAnnotation();
     
     document.body.appendChild(svg);
     svg.appendChild(text);
