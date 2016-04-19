@@ -34,8 +34,7 @@ function simulateMoveOverlay(callback) {
       setTimeout(function () {
         simulant.fire(overlay, 'mouseup', { clientX: 50, clientY: 50 });
         setTimeout(function () {
-          let args = editAnnotationSpy.getCall(0).args;
-          callback(args);
+          callback(editAnnotationSpy.getCall(0).args);
         });
       });
     });
@@ -165,16 +164,15 @@ describe('UI::edit', function () {
     });
   });
 
-  // TODO this test blows the entire world up for some reason
-  // it('should edit path annotation when overlay moved', function (done) {
-  //   enableEdit();
-  //   svg.appendChild(path);
-  //   simulateMoveOverlay(function (args) {
-  //     equal(editAnnotationSpy.called, true);
-  //     equal(args[0], 'test-document-id');
-  //     equal(args[1], path.getAttribute('data-pdf-annotate-id'));
-  //     equal(args[2], DEFAULT_PATH_ANNOTATION);
-  //     done();
-  //   });
-  // });
+  it('should edit path annotation when overlay moved', function (done) {
+    enableEdit();
+    svg.appendChild(path);
+    simulateMoveOverlay(function (args) {
+      equal(editAnnotationSpy.called, true);
+      equal(args[0], 'test-document-id');
+      equal(args[1], path.getAttribute('data-pdf-annotate-id'));
+      equal(args[2], DEFAULT_PATH_ANNOTATION);
+      done();
+    });
+  });
 });
