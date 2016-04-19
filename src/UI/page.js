@@ -1,3 +1,4 @@
+import PDFJSText from 'pdf-text.js';
 import PDFJSAnnotate from '../PDFJSAnnotate';
 
 export function createPage(pageNumber) {
@@ -69,7 +70,7 @@ export function renderPage(pageNumber, renderOptions) {
     PDFJSAnnotate.render(svg, viewport, annotations);
 
     pdfPage.getTextContent().then(textContent => {
-      PDFJSAnnotate.renderTextLayer({
+      PDFJSText.render({
         textContent,
         container,
         viewport,

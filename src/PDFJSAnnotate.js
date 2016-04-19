@@ -1,7 +1,6 @@
 import StoreAdapter from './StoreAdapter';
 import render from './render';
 import UI from './UI';
-import mergeAdjacentText from './utils/mergeAdjacentText';
 
 export default {
   /**
@@ -25,28 +24,6 @@ export default {
    * @return {Promise}
    */
   render,
-
-  /**
-   * Render the text layer for a page in the PDF Document
-   *
-   * @param {Object} options The options for rendering
-   *    options:
-   *      - container   The DIV element to render text to
-   *      - pageNumber  The page number in the PDF Document
-   *      - viewport    The PDFPage.getViewport data
-   *      - textContent The PDFPage.getTextContent data
-   * @return void
-   */
-  renderTextLayer(options) {
-    let textLayerFactory = new PDFJS.DefaultTextLayerFactory();
-    let textLayerBuilder = textLayerFactory.createTextLayerBuilder(options.container, options.pageNumber - 1, options.viewport);
-    textLayerBuilder.setTextContent(options.textContent);
-    textLayerBuilder.render();
-
-    setTimeout(function () {
-      mergeAdjacentText(options.container);
-    });
-  },
 
   /**
    * Convenience method for getting annotation data
