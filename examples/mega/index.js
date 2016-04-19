@@ -16,6 +16,7 @@ PDFJSAnnotate.StoreAdapter = localStoreAdapter;
 PDFJS.workerSrc = '../pdf.worker.js';
 
 // Render stuff
+let NUM_PAGES = 0;
 document.getElementById('content-wrapper').addEventListener('scroll', function (e) {
   let visiblePageNum = Math.round(e.target.scrollTop / PAGE_HEIGHT) + 1;
   let visiblePage = document.querySelector(`.page[data-page-number="${visiblePageNum}"][data-loaded="false"]`);
@@ -32,7 +33,8 @@ function render() {
 
     let viewer = document.getElementById('viewer');
     viewer.innerHTML = '';
-    for (let i=0; i<pdf.pdfInfo.numPages; i++) {
+    NUM_PAGES = pdf.pdfInfo.numPages;
+    for (let i=0; i<NUM_PAGES; i++) {
       let page = UI.createPage(i+1);
       viewer.appendChild(page);
     }
@@ -314,7 +316,10 @@ render();
 (function () {
   function handleClearClick(e) {
     if (confirm('Are you sure you want to clear annotations?')) {
-      svg.innerHTML = '';
+      for (let i=0; i<NUM_PAGES; i++) {
+        document.querySelector(`div#pageContainer${i+1} svg.annotationLayer`).innerHTML = '';
+      }
+
       localStorage.removeItem(`${RENDER_OPTIONS.documentId}/annotations`);
       localStoreAdapter.clearCache();
     }
