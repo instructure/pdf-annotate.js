@@ -37,33 +37,22 @@ import __pdfjs from 'pdfjs-dist/build/pdf';
 import PDFJSAnnotate from 'pdfjs-annotate';
 import MyStoreAdapter from './myStoreAdapter';
 
-const DOCUMENT_ID = 'MyPDF.pdf';
-const PAGE_NUMBER = 1;
-const SCALE = 1;
-const ROTATE = 0;
+const { UI } = PDFJSAnnotate;
+const VIEWER = document.getElementById('viewer');
+const RENDER_OPTIONS = {
+  documentId: 'MyPDF.pdf',
+  pdfDocument: null,
+  scale: 1,
+  rotate: 0
+};
 
 PDFJS.workerSrc = 'pdf.worker.js';
 PDFJSAnnotate.StoreAdapter = MyStoreAdapter;
 
-PDFJS.getDocument(DOCUMENT_ID).then((pdf) => {
-  Promise.all([
-    pdf.getPage(PAGE_NUMBER),
-    PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER)
-  ])
-  .then(([page, annotations]) => {
-    let canvas = document.getElementById('canvas');
-    let svg = document.getElementById('svg');
-    let viewport = page.getViewport(SCALE, ROTATE);
-    let context = canvas.getContext('2d');
-
-    canvas.height = viewport.height;
-    canvas.width = viewport.width;
-    svg.setAttribute('height', viewport.height);
-    svg.setAttribute('width', viewport.width);
-
-    page.render({context, viewport});
-    PDFJSAnnotate.render(svg, viewport, annotations);
-  });
+PDFJS.getDocument(RENDER_OPTIONS.documentId).then((pdf) => {
+  RENDER_OPTIONS.pdfDocument = pdf;
+  VIEWER.appendChild(UI.createPage(1));
+  UI.renderPage(1, RENDER_OPTIONS);
 });
 ```
 
