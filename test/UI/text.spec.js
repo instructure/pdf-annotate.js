@@ -78,7 +78,7 @@ describe('UI::text', function () {
       equal(args[1], '1');
       equal(args[2].type, 'textbox');
       equal(args[2].size, '12');
-      equal(args[2].color, '000');
+      equal(args[2].color, '000000');
       equal(args[2].content, 'foo bar baz');
       done();
     }, 0);
