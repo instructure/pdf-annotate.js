@@ -1,5 +1,12 @@
 import setAttributes from '../utils/setAttributes';
 
+/**
+ * Create SVGRectElements from an annotation definition.
+ * This is used for anntations of type `area` and `highlight`.
+ *
+ * @param {Object} a The annotation definition
+ * @return {Array} An Array of all rects to be rendered
+ */
 export default function renderRect(a) {
   if (!a.rectangles) {
     a = {rectangles: [a]};

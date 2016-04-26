@@ -12,6 +12,12 @@ const userSelectStyleSheet = createStyleSheet({
 });
 userSelectStyleSheet.setAttribute('data-pdf-annotate-user-select', 'true');
 
+/**
+ * Find the SVGElement that contains all the annotations for a page
+ *
+ * @param {Element} node An annotation within that container
+ * @return {SVGElement} The container SVG or null if it can't be found
+ */
 export function findSVGContainer(node) {
   let parentNode = node;
 
@@ -26,6 +32,13 @@ export function findSVGContainer(node) {
   return null;
 }
 
+/**
+ * Find an SVGElement container at a given point
+ *
+ * @param {Number} x The x coordinate of the point
+ * @param {Number} y The y coordinate of the point
+ * @return {SVGElement} The container SVG or null if one can't be found
+ */
 export function findSVGAtPoint(x, y) {
   let elements = document.querySelectorAll('svg[data-pdf-annotate-container="true"]');
 
@@ -41,6 +54,13 @@ export function findSVGAtPoint(x, y) {
   return null;
 }
 
+/**
+ * Find an Element that represents an annotation at a given point
+ *
+ * @param {Number} x The x coordinate of the point
+ * @param {Number} y The y coordinate of the point
+ * @return {Element} The annotation element or null if one can't be found
+ */
 export function findAnnotationAtPoint(x, y) {
   let elements = document.querySelectorAll('svg[data-pdf-annotate-container="true"] [data-pdf-annotate-type]');
 
@@ -64,10 +84,24 @@ export function findAnnotationAtPoint(x, y) {
   return null;
 }
 
+/**
+ * Determine if a point collides with a rect
+ *
+ * @param {Object} rect The points of a rect (likely from getBoundingClientRect)
+ * @param {Number} x The x coordinate of the point
+ * @param {Number} y The y coordinate of the point
+ * @return {Boolean} True if a collision occurs, otherwise false
+ */
 export function collidesWithPoint(rect, x, y) {
   return y > rect.top && y < rect.bottom && x > rect.left && x < rect.right;
 }
 
+/**
+ * Get the size of an annotation element.
+ *
+ * @param {Element} el The element to get the size of
+ * @return {Object} The dimensions of the element
+ */
 export function getSize(el) {
   let h = 0, w = 0, x = 0, y = 0;
 
@@ -118,7 +152,14 @@ export function getSize(el) {
 
   return scaleUp(svg, { h, w, x, y });
 }
-  
+
+/**
+ * Get the size of a rectangle annotation. If there are multiple elements comprising
+ * the annotation, the outer bounds of all elements will be used.
+ *
+ * @param {Element} el The element to get the size of
+ * @return {Object} The dimensions of the annotation
+ */
 export function getRectangleSize(el) {
   let id = el.getAttribute('data-pdf-annotate-id');
   let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
@@ -144,6 +185,12 @@ export function getRectangleSize(el) {
   return size;
 }
 
+/**
+ * Get the size of a drawing annotation.
+ *
+ * @param {Element} el The path element to get the size of
+ * @return {Object} The dimensions of the annotation
+ */
 export function getDrawingSize(el) {
   let parts = el.getAttribute('d').replace(/Z/, '').split('M').splice(1);
   let rect = el.getBoundingClientRect();
@@ -167,7 +214,13 @@ export function getDrawingSize(el) {
   });
 }
 
-// Adjust scale from normalized scale (100%) to rendered scale
+/**
+ * Adjust scale from normalized scale (100%) to rendered scale.
+ *
+ * @param {SVGElement} svg The SVG to gather metadata from
+ * @param {Object} rect A map of numeric values to scale
+ * @return {Object} A copy of `rect` with values scaled up
+ */
 export function scaleUp(svg, rect) {
   let result = {};
   let { viewport } = getMetadata(svg);
@@ -179,7 +232,13 @@ export function scaleUp(svg, rect) {
   return result;
 }
 
-// Adjust scale from rendered scale to a normalized scale (100%)
+/**
+ * Adjust scale from rendered scale to a normalized scale (100%).
+ *
+ * @param {SVGElement} svg The SVG to gather metadata from
+ * @param {Object} rect A map of numeric values to scale
+ * @return {Object} A copy of `rect` with values scaled down
+ */
 export function scaleDown(svg, rect) {
   let result = {};
   let { viewport } = getMetadata(svg);
@@ -191,6 +250,12 @@ export function scaleDown(svg, rect) {
   return result;
 }
 
+/**
+ * Get the scroll position of an element, accounting for parent elements
+ *
+ * @param {Element} el The element to get the scroll position for
+ * @return {Object} The scrollTop and scrollLeft position
+ */
 export function getScroll(el) {
   let scrollTop = 0;
   let scrollLeft = 0;
@@ -205,6 +270,12 @@ export function getScroll(el) {
   return { scrollTop, scrollLeft };
 }
 
+/**
+ * Get the offset position of an element, accounting for parent elements
+ *
+ * @param {Element} el The element to get the offset position for
+ * @return {Object} The offsetTop and offsetLeft position
+ */
 export function getOffset(el) {
   let parentNode = el;
 
@@ -220,18 +291,30 @@ export function getOffset(el) {
   return { offsetLeft: rect.left, offsetTop: rect.top };
 }
 
+/**
+ * Disable user ability to select text on page
+ */
 export function disableUserSelect() {
   if (!userSelectStyleSheet.parentNode) {
     document.head.appendChild(userSelectStyleSheet);
   }
 }
 
+
+/**
+ * Enable user ability to select text on page
+ */
 export function enableUserSelect() {
   if (userSelectStyleSheet.parentNode) {
     userSelectStyleSheet.parentNode.removeChild(userSelectStyleSheet);
   }
 }
 
+/**
+ * Get the metadata for a SVG container
+ *
+ * @param {SVGElement} svg The SVG container to get metadata for
+ */
 export function getMetadata(svg) {
   return {
     documentId: svg.getAttribute('data-pdf-annotate-document'),

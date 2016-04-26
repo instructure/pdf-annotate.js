@@ -7,6 +7,12 @@ import {
 const emitter = new EventEmitter;
 
 let clickNode;
+
+/**
+ * Handle document.click event
+ *
+ * @param {Event} e The DOM event to be handled
+ */
 document.addEventListener('click', function handleDocumentClick(e) {
   if (!findSVGAtPoint(e.clientX, e.clientY)) { return; }
 

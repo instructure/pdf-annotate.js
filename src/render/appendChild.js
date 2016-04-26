@@ -9,6 +9,13 @@ import renderText from './renderText';
 const forEach = Array.prototype.forEach;
 const isFirefox = /firefox/i.test(navigator.userAgent);
 
+/**
+ * Get the x/y translation to be used for transforming the annotations
+ * based on the rotation of the viewport.
+ *
+ * @param {Object} viewport The viewport data from the page
+ * @return {Object}
+ */
 function getTranslation(viewport) {
   let x;
   let y;
@@ -36,6 +43,13 @@ function getTranslation(viewport) {
   return { x, y };
 }
 
+/**
+ * Transform the rotation and scale of a node using SVG's native transform attribute.
+ *
+ * @param {Node} node The node to be transformed
+ * @param {Object} viewport The page's viewport data
+ * @return {Node}
+ */
 function transform(node, viewport) {
   let trans = getTranslation(viewport);
   let isNestedPath = node.nodeName.toLowerCase() === 'path' &&
@@ -99,6 +113,14 @@ function transform(node, viewport) {
   return node;
 }
 
+/**
+ * Append an annotation as a child of an SVG.
+ *
+ * @param {SVGElement} svg The SVG element to append the annotation to
+ * @param {Object} annotation The annotation definition to render and append
+ * @param {Object} viewport The page's viewport data
+ * @return {Array} An Array of nodes that were created and appended by this function
+ */
 export default function appendChild(svg, annotation, viewport) {
   if (!viewport) {
     viewport = JSON.parse(svg.getAttribute('data-pdf-annotate-viewport'));

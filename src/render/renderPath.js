@@ -1,5 +1,12 @@
 import setAttributes from '../utils/setAttributes';
 
+/**
+ * Create SVGPathElement from an annotation definition.
+ * This is used for anntations of type `drawing`.
+ *
+ * @param {Object} a The annotation definition
+ * @return {SVGPathElement} The path to be rendered
+ */
 export default function renderPath(a) {
   let d = [];
   let path = document.createElementNS('http://www.w3.org/2000/svg', 'path');

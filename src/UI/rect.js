@@ -16,6 +16,11 @@ let overlay;
 let originY;
 let originX;
 
+/**
+ * Get the current window selection as rects
+ *
+ * @return {Array} An Array of rects
+ */
 function getSelectionRects() {
   try {
     let selection = window.getSelection();
@@ -32,10 +37,13 @@ function getSelectionRects() {
   return null;
 }
 
-function handleMouseDown(e) {
-  let svg = findSVGAtPoint(e.clientX, e.clientY);
-
-  if (!svg || _type !== 'area') {
+/**
+ * Handle document.mousedown event
+ *
+ * @param {Event} e The DOM event to handle
+ */
+function handleDocumentMousedown(e) {
+  if (_type !== 'area' || !findSVGAtPoint(e.clientX, e.clientY)) {
     return;
   }
 
@@ -50,11 +58,16 @@ function handleMouseDown(e) {
   overlay.style.borderRadius = '3px';
   document.body.appendChild(overlay);
   
-  document.addEventListener('mousemove', handleMouseMove);
+  document.addEventListener('mousemove', handleDocumentMousemove);
   disableUserSelect();
 }
 
-function handleMouseMove(e) {
+/**
+ * Handle document.mousemove event
+ *
+ * @param {Event} e The DOM event to handle
+ */
+function handleDocumentMousemove(e) {
   let svg = findSVGAtPoint(originX, originY);
   let rect = svg.getBoundingClientRect();
 
@@ -67,7 +80,12 @@ function handleMouseMove(e) {
   }
 }
 
-function handleMouseUp(e) {
+/**
+ * Handle document.mouseup event
+ *
+ * @param {Event} e The DOM event to handle
+ */
+function handleDocumentMouseup(e) {
   let rects;
   if (_type !== 'area' && (rects = getSelectionRects())) {
     let svg = findSVGAtPoint(rects[0].left, rects[0].top);
@@ -90,11 +108,18 @@ function handleMouseUp(e) {
     document.body.removeChild(overlay);
     overlay = null;
 
-    document.removeEventListener('mousemove', handleMouseMove);
+    document.removeEventListener('mousemove', handleDocumentMousemove);
     enableUserSelect();
   }
 }
 
+/**
+ * Save a rect annotation
+ *
+ * @param {String} type The type of rect (area, highlight, strikeout)
+ * @param {Array} rects The rects to use for annotation
+ * @param {String} color The color of the rects
+ */
 function saveRect(type, rects, color) {
   let svg = findSVGAtPoint(rects[0].left, rects[0].top);
   let node;
@@ -148,21 +173,27 @@ function saveRect(type, rects, color) {
     });
 }
 
+/**
+ * Enable rect behavior
+ */
 export function enableRect(type) {
   _type = type;
   
   if (_enabled) { return; }
 
   _enabled = true;
-  document.addEventListener('mouseup', handleMouseUp);
-  document.addEventListener('mousedown', handleMouseDown);
+  document.addEventListener('mouseup', handleDocumentMouseup);
+  document.addEventListener('mousedown', handleDocumentMousedown);
 }
 
+/**
+ * Disable rect behavior
+ */
 export function disableRect() {
   if (!_enabled) { return; }
 
   _enabled = false;
-  document.removeEventListener('mouseup', handleMouseUp);
-  document.removeEventListener('mousedown', handleMouseDown);
+  document.removeEventListener('mouseup', handleDocumentMouseup);
+  document.removeEventListener('mousedown', handleDocumentMousedown);
 }
 

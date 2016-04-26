@@ -10,15 +10,16 @@ import {
 let _enabled = false;
 let input;
 
-function handleMouseUp(e) {
-  if (input) {
-    return;
+/**
+ * Handle document.mouseup event
+ *
+ * @param {Event} The DOM event to be handled
+ */
+function handleDocumentMouseup(e) {
+  if (input || !findSVGAtPoint(e.clientX, e.clientY)) {
+    return
   }
-
-  if (!findSVGAtPoint(e.clientX, e.clientY)) {
-    return;
-  }
-
+  
   input = document.createElement('input');
   input.setAttribute('id', 'pdf-annotate-point-input');
   input.setAttribute('placeholder', 'Enter comment');
@@ -28,18 +29,26 @@ function handleMouseUp(e) {
   input.style.top = `${e.clientY}px`;
   input.style.left = `${e.clientX}px`;
 
-  input.addEventListener('blur', handleBlur);
-  input.addEventListener('keyup', handleKeyUp);
+  input.addEventListener('blur', handleInputBlur);
+  input.addEventListener('keyup', handleInputKeyup);
 
   document.body.appendChild(input);
   input.focus();
 }
 
-function handleBlur(e) {
+/**
+ * Handle input.blur event
+ */
+function handleInputBlur() {
   savePoint();
 }
 
-function handleKeyUp(e) {
+/**
+ * Handle input.keyup event
+ *
+ * @param {Event} e The DOM event to handle
+ */
+function handleInputKeyup(e) {
   if (e.keyCode === 27) {
     closeInput();
   } else if (e.keyCode === 13) {
@@ -47,6 +56,9 @@ function handleKeyUp(e) {
   }
 }
 
+/**
+ * Save a new point annotation from input
+ */
 function savePoint() {
   if (input.value.trim().length > 0) {
     let clientX = parseInt(input.style.left, 10);
@@ -82,24 +94,33 @@ function savePoint() {
   closeInput();
 }
 
+/**
+ * Close the input element
+ */
 function closeInput() {
-  input.removeEventListener('blur', handleBlur);
-  input.removeEventListener('keyup', handleKeyUp);
+  input.removeEventListener('blur', handleInputBlur);
+  input.removeEventListener('keyup', handleInputKeyup);
   document.body.removeChild(input);
   input = null;
 }
 
+/**
+ * Enable point annotation behavior
+ */
 export function enablePoint() {
   if (_enabled) { return; }
 
   _enabled = true;
-  document.addEventListener('mouseup', handleMouseUp);
+  document.addEventListener('mouseup', handleDocumentMouseup);
 }
 
+/**
+ * Disable point annotation behavior
+ */
 export function disablePoint() {
   if (!_enabled) { return; }
 
   _enabled = false;
-  document.removeEventListener('mouseup', handleMouseUp);
+  document.removeEventListener('mouseup', handleDocumentMouseup);
 }
 

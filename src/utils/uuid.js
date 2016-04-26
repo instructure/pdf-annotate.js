@@ -7,6 +7,11 @@ function replacement(c) {
   return v.toString(16);
 }
 
+/**
+ * Generate a univierally unique identifier
+ *
+ * @return {String}
+ */
 export default function uuid() {
   return PATTERN.replace(REGEXP, replacement);
 }

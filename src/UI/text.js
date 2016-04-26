@@ -12,12 +12,13 @@ let input;
 let _textSize;
 let _textColor;
 
-function handleMouseUp(e) {
-  if (input) {
-    return;
-  }
-
-  if (!findSVGAtPoint(e.clientX, e.clientY)) {
+/**
+ * Handle document.mouseup event
+ *
+ * @param {Event} e The DOM event to handle
+ */
+function handleDocumentMouseup(e) {
+  if (input || !findSVGAtPoint(e.clientX, e.clientY)) {
     return;
   }
 
@@ -31,18 +32,26 @@ function handleMouseUp(e) {
   input.style.left = `${e.clientX}px`;
   input.style.fontSize = `${_textSize}px`;
 
-  input.addEventListener('blur', handleBlur);
-  input.addEventListener('keyup', handleKeyUp);
+  input.addEventListener('blur', handleInputBlur);
+  input.addEventListener('keyup', handleInputKeyup);
 
   document.body.appendChild(input);
   input.focus();
 }
 
-function handleBlur(e) {
+/**
+ * Handle input.blur event
+ */
+function handleInputBlur() {
   saveText();
 }
 
-function handleKeyUp(e) {
+/**
+ * Handle input.keyup event
+ *
+ * @param {Event} e The DOM event to handle
+ */
+function handleInputKeyup(e) {
   if (e.keyCode === 27) {
     closeInput();
   } else if (e.keyCode === 13) {
@@ -50,6 +59,9 @@ function handleKeyUp(e) {
   }
 }
 
+/**
+ * Save a text annotation from input
+ */
 function saveText() {
   if (input.value.trim().length > 0) {
     let clientX = parseInt(input.style.left, 10);
@@ -83,31 +95,48 @@ function saveText() {
   closeInput();
 }
 
+/**
+ * Close the input
+ */
 function closeInput() {
   if (input) {
-    input.removeEventListener('blur', handleBlur);
-    input.removeEventListener('keyup', handleKeyUp);
+    input.removeEventListener('blur', handleInputBlur);
+    input.removeEventListener('keyup', handleInputKeyup);
     document.body.removeChild(input);
     input = null;
   }
 }
 
-export function setText(textSize = 12, textColor = '000') {
+/**
+ * Set the text attributes
+ *
+ * @param {Number} textSize The size of the text
+ * @param {String} textColor The color of the text
+ */
+export function setText(textSize = 12, textColor = '000000') {
   _textSize = parseInt(textSize, 10);
   _textColor = textColor;
 }
 
+
+/**
+ * Enable text behavior
+ */
 export function enableText() {
   if (_enabled) { return; }
 
   _enabled = true;
-  document.addEventListener('mouseup', handleMouseUp);
+  document.addEventListener('mouseup', handleDocumentMouseup);
 }
 
+
+/**
+ * Disable text behavior
+ */
 export function disableText() {
   if (!_enabled) { return; }
 
   _enabled = false;
-  document.removeEventListener('mouseup', handleMouseUp);
+  document.removeEventListener('mouseup', handleDocumentMouseup);
 }
 

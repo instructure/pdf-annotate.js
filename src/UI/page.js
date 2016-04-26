@@ -1,6 +1,12 @@
 import PDFJSText from 'pdf-text.js';
 import PDFJSAnnotate from '../PDFJSAnnotate';
 
+/**
+ * Create a new page to be appended to the DOM.
+ *
+ * @param {Number} pageNumber The page number that is being created
+ * @return {HTMLElement}
+ */
 export function createPage(pageNumber) {
   let page = document.createElement('div');
   let canvas = document.createElement('canvas');
@@ -28,6 +34,13 @@ export function createPage(pageNumber) {
   return page;
 }
 
+/**
+ * Render a page.
+ *
+ * @param {String} pageNumber The page number to be rendered
+ * @param {Object} renderOptions The options for rendering
+ * @return {Promise}
+ */
 export function renderPage(pageNumber, renderOptions) {
   let {
     documentId,

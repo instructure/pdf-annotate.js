@@ -22,6 +22,11 @@ let isDragging = false, overlay;
 let dragOffsetX, dragOffsetY, dragStartX, dragStartY;
 const OVERLAY_BORDER_SIZE = 3;
 
+/**
+ * Create an overlay for editing an annotation.
+ *
+ * @param {Element} target The annotation element to apply overlay for
+ */
 function createEditOverlay(target) {
   destroyEditOverlay();
 
@@ -50,6 +55,9 @@ function createEditOverlay(target) {
   document.addEventListener('mousedown', handleDocumentMousedown);
 }
 
+/**
+ * Destroy the edit overlay if it exists.
+ */
 function destroyEditOverlay() {
   if (overlay) {
     overlay.parentNode.removeChild(overlay);
@@ -64,6 +72,11 @@ function destroyEditOverlay() {
   enableUserSelect();
 }
 
+/**
+ * Handle document.click event
+ *
+ * @param {Event} e The DOM event that needs to be handled
+ */
 function handleDocumentClick(e) {
   if (!findSVGAtPoint(e.clientX, e.clientY)) { return; }
 
@@ -78,6 +91,11 @@ function handleDocumentClick(e) {
   }
 }
 
+/**
+ * Handle document.keyup event
+ *
+ * @param {Event} e The DOM event that needs to be handled
+ */
 function handleDocumentKeyup(e) {
   if (overlay && e.keyCode === 46 &&
       e.target.nodeName.toLowerCase() !== 'textarea' &&
@@ -97,6 +115,11 @@ function handleDocumentKeyup(e) {
   }
 }
 
+/**
+ * Handle document.mousedown event
+ *
+ * @param {Event} e The DOM event that needs to be handled
+ */
 function handleDocumentMousedown(e) {
   if (e.target !== overlay) { return; }
 
@@ -114,6 +137,11 @@ function handleDocumentMousedown(e) {
   disableUserSelect();
 }
 
+/**
+ * Handle document.mousemove event
+ *
+ * @param {Event} e The DOM event that needs to be handled
+ */
 function handleDocumentMousemove(e) {
   let annotationId = overlay.getAttribute('data-target-id');
   let parentNode = document.querySelector(`[data-pdf-annotate-id="${annotationId}"]`).parentNode;
@@ -134,6 +162,11 @@ function handleDocumentMousemove(e) {
   }
 }
 
+/**
+ * Handle document.mouseup event
+ *
+ * @param {Event} e The DOM event that needs to be handled
+ */
 function handleDocumentMouseup(e) {
   let annotationId = overlay.getAttribute('data-target-id');
   let target = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
@@ -232,10 +265,18 @@ function handleDocumentMouseup(e) {
   enableUserSelect();
 }
 
+/**
+ * Handle annotation.click event
+ *
+ * @param {Element} e The annotation element that was clicked
+ */
 function handleAnnotationClick(target) {
   createEditOverlay(target);
 }
 
+/**
+ * Enable edit mode behavior.
+ */
 export function enableEdit () {
   if (_enabled) { return; }
 
@@ -243,6 +284,9 @@ export function enableEdit () {
   addEventListener('annotation:click', handleAnnotationClick);
 };
 
+/**
+ * Disable edit mode behavior.
+ */
 export function disableEdit () {
   destroyEditOverlay();
 

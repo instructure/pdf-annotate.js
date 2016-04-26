@@ -1,5 +1,13 @@
 import appendChild from './appendChild';
 
+/**
+ * Render the response from PDFJSAnnotate.StoreAdapter.getAnnotations to SVG
+ *
+ * @param {SVGElement} svg The SVG element to render the annotations to
+ * @param {Object} viewport The page viewport data
+ * @param {Object} data The response from PDFJSAnnotate.StoreAdapter.getAnnotations
+ * @return {SVGElement} The SVG element that was rendered to
+ */
 export default function render(svg, viewport, data) {
   // Reset the content of the SVG
   svg.innerHTML = ''; 

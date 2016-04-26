@@ -12,6 +12,12 @@ let keyCase = (key) => {
   return key;
 }
 
+/**
+ * Set attributes for a node from a map
+ *
+ * @param {Node} node The node to set attributes on
+ * @param {Object} attributes The map of key/value pairs to use for attributes
+ */
 export default function setAttributes(node, attributes) {
   Object.keys(attributes).forEach((key) => {
     node.setAttribute(keyCase(key), attributes[key]);

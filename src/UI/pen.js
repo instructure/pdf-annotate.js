@@ -14,15 +14,23 @@ let _penColor;
 let path;
 let lines;
 
-function handleMouseDown() {
+/**
+ * Handle document.mousedown event
+ */
+function handleDocumentMousedown() {
   path = null;
   lines = [];
 
-  document.addEventListener('mousemove', handleMouseMove);
-  document.addEventListener('mouseup', handleMouseUp);
+  document.addEventListener('mousemove', handleDocumentMousemove);
+  document.addEventListener('mouseup', handleDocumentMouseup);
 }
 
-function handleMouseUp(e) {
+/**
+ * Handle document.mouseup event
+ *
+ * @param {Event} The DOM event to be handled
+ */
+function handleDocumentMouseup(e) {
   let svg;
   if (lines.length > 1 && (svg = findSVGAtPoint(e.clientX, e.clientY))) {
     let { documentId, pageNumber } = getMetadata(svg);
@@ -42,14 +50,25 @@ function handleMouseUp(e) {
     });
   }
 
-  document.removeEventListener('mousemove', handleMouseMove);
-  document.removeEventListener('mouseup', handleMouseUp);
+  document.removeEventListener('mousemove', handleDocumentMousemove);
+  document.removeEventListener('mouseup', handleDocumentMouseup);
 }
 
-function handleMouseMove(e) {
+/**
+ * Handle document.mousemove event
+ *
+ * @param {Event} The DOM event to be handled
+ */
+function handleDocumentMousemove(e) {
   savePoint(e.clientX, e.clientY);
 }
 
+/**
+ * Save a point to the line being drawn.
+ *
+ * @param {Number} x The x coordinate of the point
+ * @param {Number} y The y coordinate of the point
+ */
 function savePoint(x, y) {
   let svg = findSVGAtPoint(x, y);
   if (!svg) {
@@ -80,24 +99,36 @@ function savePoint(x, y) {
   })[0];
 }
 
+/**
+ * Set the attributes of the pen.
+ *
+ * @param {Number} penSize The size of the lines drawn by the pen
+ * @param {String} penColor The color of the lines drawn by the pen
+ */
 export function setPen(penSize = 1, penColor = '000000') {
   _penSize = parseInt(penSize, 10);
   _penColor = penColor;
 }
 
+/**
+ * Enable the pen behavior
+ */
 export function enablePen() {
   if (_enabled) { return; }
 
   _enabled = true;
-  document.addEventListener('mousedown', handleMouseDown);
+  document.addEventListener('mousedown', handleDocumentMousedown);
   disableUserSelect();
 }
 
+/**
+ * Disable the pen behavior
+ */
 export function disablePen() {
   if (!_enabled) { return; }
 
   _enabled = false;
-  document.removeEventListener('mousedown', handleMouseDown);
+  document.removeEventListener('mousedown', handleDocumentMousedown);
   enableUserSelect();
 }
 
