@@ -60,8 +60,12 @@ render();
 
     setText(
       localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/size`) || 10,
-      localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/color`) || '000000'
+      localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/color`) || '#000000'
     );
+  
+    initColorPicker(document.querySelector('.text-color'), textColor, function (value) {
+      setText(textSize, value);
+    });
   }
 
   function setText(size, color) {
@@ -98,30 +102,10 @@ render();
     }
   }
   
-  function setTextColorFromElement(el) {
-    if (el.nodeName === 'A' &&
-        el.classList.contains('text-color') &&
-        el.getAttribute('data-color')) {
-      setText(textSize, el.getAttribute('data-color'));
-    }
-  }
-
-  function handleMenuClick(e) {
-    setTextColorFromElement(e.target);
-  }
-
-  function handleMenuKeyUp(e) {
-    if (e.keyCode === 32) {
-      setTextColorFromElement(e.target);
-    }
-  }
-
   function handleTextSizeChange(e) {
     setText(e.target.value, textColor);
   }
 
-  document.querySelector('.toolbar').addEventListener('click', handleMenuClick);
-  document.querySelector('.toolbar').addEventListener('keyup', handleMenuKeyUp);
   document.querySelector('.toolbar .text-size').addEventListener('change', handleTextSizeChange);
 
   initText();
@@ -140,8 +124,12 @@ render();
 
     setPen(
       localStorage.getItem(`${RENDER_OPTIONS.documentId}/pen/size`) || 1,
-      localStorage.getItem(`${RENDER_OPTIONS.documentId}/pen/color`) || '000000'
+      localStorage.getItem(`${RENDER_OPTIONS.documentId}/pen/color`) || '#000000'
     );
+
+    initColorPicker(document.querySelector('.pen-color'), penColor, function (value) {
+      setPen(penSize, value);
+    });
   }
 
   function setPen(size, color) {
@@ -177,30 +165,10 @@ render();
     }
   }
 
-  function setPenColorFromElement(el) {
-    if (el.nodeName === 'A' &&
-        el.classList.contains('pen-color') &&
-        el.getAttribute('data-color')) {
-      setPen(penSize, el.getAttribute('data-color'));
-    }
-  }
-
-  function handleMenuClick(e) {
-    setPenColorFromElement(e.target);
-  }
-
-  function handleMenuKeyUp(e) {
-    if (e.keyCode === 32) {
-      setPenColorFromElement(e.target);
-    }
-  }
-
   function handlePenSizeChange(e) {
     setPen(e.target.value, penColor);
   }
 
-  document.querySelector('.toolbar').addEventListener('click', handleMenuClick);
-  document.querySelector('.toolbar').addEventListener('keyup', handleMenuKeyUp);
   document.querySelector('.toolbar .pen-size').addEventListener('change', handlePenSizeChange);
 
   initPen();
@@ -386,3 +354,88 @@ render();
   UI.addEventListener('annotation:blur', handleAnnotationBlur);
 })(window, document);
 
+// Color picker component
+function initColorPicker(el, value, onChange) {
+  function setColor(value, fireOnChange = true) {
+    currentValue = value;
+    a.setAttribute('data-color', value);
+    a.style.background = value;
+    if (fireOnChange && typeof onChange === 'function') {
+      onChange(value);
+    }
+    closePicker();
+  }
+
+  function togglePicker() {
+    if (isPickerOpen) {
+      closePicker();
+    } else {
+      openPicker();
+    }
+  }
+
+  function closePicker() {
+    if (picker && picker.parentNode) {
+      picker.parentNode.removeChild(picker);
+    }
+    isPickerOpen = false;
+  }
+
+  function openPicker() {
+    if (!picker) {
+      picker = document.createElement('div');
+      picker.style.background = '#fff';
+      picker.style.border = '1px solid #ccc';
+      picker.style.padding = '2px';
+      picker.style.position = 'absolute';
+      picker.style.width = '122px';
+      el.style.position = 'relative';
+
+      COLORS.map(createColorOption).forEach((c) => {
+        c.style.margin = '2px';
+        c.onclick = function () { setColor(c.getAttribute('data-color')); };
+        picker.appendChild(c);
+      });
+    }
+
+    el.appendChild(picker);
+    isPickerOpen = true;
+  }
+
+  function createColorOption(color) {
+    let e = document.createElement('a');
+    e.className = 'color';
+    e.setAttribute('href', 'javascript://');
+    e.setAttribute('title', color.name);
+    e.setAttribute('data-color', color.hex);
+    e.style.background = color.hex;
+    return e;
+  }
+
+  const COLORS = [
+    {hex: '#000000', name: 'Black'},
+    {hex: '#EF4437', name: 'Red'},
+    {hex: '#E71F63', name: 'Pink'},
+    {hex: '#8F3E97', name: 'Purple'},
+    {hex: '#65499D', name: 'Deep Purple'},
+    {hex: '#4554A4', name: 'Indigo'},
+    {hex: '#2083C5', name: 'Blue'},
+    {hex: '#35A4DC', name: 'Light Blue'},
+    {hex: '#09BCD3', name: 'Cyan'},
+    {hex: '#009688', name: 'Teal'},
+    {hex: '#43A047', name: 'Green'},
+    {hex: '#8BC34A', name: 'Light Green'},
+    {hex: '#FDC010', name: 'Yellow'},
+    {hex: '#F8971C', name: 'Orange'},
+    {hex: '#F0592B', name: 'Deep Orange'},
+    {hex: '#F06291', name: 'Light Pink'}
+  ];
+
+  let picker;
+  let isPickerOpen = false;
+  let currentValue;
+  let a = createColorOption({hex: value});
+  a.onclick = togglePicker;
+  el.appendChild(a);
+  setColor(value, false);
+}

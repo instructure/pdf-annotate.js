@@ -119,15 +119,6 @@ body {
   margin-left: -2px;
   margin-right: -2px;
 }
-.color-black {
-  background-color: #000;
-}
-.color-white {
-  background-color: #fff;
-}
-.color-magenta {
-  background-color: #fb67fa;
-}
-.color-cyan {
-  background-color: #69fcfc;
+.text-color, .pen-color {
+  display: inline-block;
 }
