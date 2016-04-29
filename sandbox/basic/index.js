@@ -1,7 +1,9 @@
 import PDFJSAnnotate from '../../';
 import annotations from './annotations';
 
-PDFJS.workerSrc = '../pdf.worker.js';
+const DOCUMENT_ID = 'PDFJSAnnotate.pdf';
+
+PDFJS.workerSrc = '../shared/pdf.worker.js';
 
 PDFJSAnnotate.StoreAdapter.getAnnotations = (documentId, pageNumber) => {
   return new Promise((resolve, reject) => {
@@ -9,7 +11,7 @@ PDFJSAnnotate.StoreAdapter.getAnnotations = (documentId, pageNumber) => {
   });
 };
 
-PDFJS.getDocument('PDFJSAnnotate.pdf').then((pdf) => {
+PDFJS.getDocument(DOCUMENT_ID).then((pdf) => {
   Promise.all([
     pdf.getPage(1),
     PDFJSAnnotate.getAnnotations(1)
@@ -48,5 +50,9 @@ function render() {
   svg.style.marginLeft = ((viewport.width / 2) * -1) + 'px';
 
   data.page.render({canvasContext, viewport});
-  PDFJSAnnotate.render(svg, viewport, data.annotations);
+  PDFJSAnnotate.render(svg, viewport, {
+    documentId: DOCUMENT_ID,
+    pageNumber: 1,
+    annotations: data.annotations
+  });
 }

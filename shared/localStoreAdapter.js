@@ -1,4 +1,6 @@
-import uuid from '../src/utils/uuid';
+// import will actually be done from a level lower once `shared/` is copied
+// so path here may appear wrong, but it will work once deployed.
+import uuid from '../../src/utils/uuid';
 let localStoreAdapter = {};
 let annotations;
 

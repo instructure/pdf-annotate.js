@@ -51,7 +51,11 @@ PDFJSAnnotate.StoreAdapter.deleteAnnotation = (documentId, annotationId) => {
 
 // Get the annotations
 PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
-  PDFJSAnnotate.render(svg, mockViewport(svg), annotations);
+  PDFJSAnnotate.render(svg, mockViewport(svg), {
+    documentId: DOCUMENT_ID,
+    pageNumber: 1,
+    annotations
+  });
 });
 
 UI.enableEdit();

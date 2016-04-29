@@ -1,10 +1,10 @@
 import PDFJSAnnotate from '../../';
-import localStoreAdapter from '../localStoreAdapter';
+import localStoreAdapter from '../shared/localStoreAdapter';
 import mockViewport from '../mockViewport';
 
 const { UI } = PDFJSAnnotate;
-const page1 = document.getElementById('page1');
-const page2 = document.getElementById('page2');
+const page1 = document.querySelector('#pageContainer1 .annotationLayer');
+const page2 = document.querySelector('#pageContainer2 .annotationLayer');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 
 PDFJSAnnotate.StoreAdapter = localStoreAdapter;
@@ -20,7 +20,7 @@ Promise.all([
 
 // Rect stuff
 (function () {
-  let tooltype = localStorage.getItem(`${DOCUMENT_ID}/tooltype`) || 'cursor';
+  let tooltype = localStorage.getItem(`${DOCUMENT_ID}/tooltype`) || 'area';
   if (tooltype) {
     setActiveToolbarItem(tooltype, document.querySelector(`.toolbar button[data-tooltype=${tooltype}]`));
   }

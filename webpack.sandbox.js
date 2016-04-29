@@ -1,19 +1,19 @@
 var fs = require('fs');
 var path = require('path');
 var webpack = require('webpack');
-var EXAMPLES_DIR = path.resolve(process.cwd(), 'examples');
+var SANDBOX_DIR = path.resolve(process.cwd(), 'sandbox');
 
 function buildEntries() {
-  return fs.readdirSync(EXAMPLES_DIR).reduce(function (entries, dir) {
-    if (dir === 'build') {
+  return fs.readdirSync(SANDBOX_DIR).reduce(function (entries, dir) {
+    if (dir === 'build' || dir === 'shared') {
       return entries;
     }
 
     var isDraft = dir.charAt(0) === '_';
-    var isDirectory = fs.lstatSync(path.join(EXAMPLES_DIR, dir)).isDirectory();
+    var isDirectory = fs.lstatSync(path.join(SANDBOX_DIR, dir)).isDirectory();
 
     if (!isDraft && isDirectory) {
-      entries[dir] = path.join(EXAMPLES_DIR, dir, 'index.js');
+      entries[dir] = path.join(SANDBOX_DIR, dir, 'index.js');
     }
 
     return entries;
@@ -27,7 +27,7 @@ module.exports = {
   output: {
     filename: '[name].js',
     chunkFilename: '[id].chunk.js',
-    path: 'examples/__build__',
+    path: 'sandbox/__build__',
     publicPath: '/__build__/'
   },
 

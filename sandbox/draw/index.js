@@ -1,5 +1,6 @@
 import PDFJSAnnotate from '../../';
-import localStoreAdapter from '../localStoreAdapter';
+import localStoreAdapter from '../shared/localStoreAdapter';
+import initColorPicker from '../shared/initColorPicker';
 import mockViewport from '../mockViewport';
 
 const { UI } = PDFJSAnnotate;
@@ -32,6 +33,9 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     );
 
     UI.enablePen();
+    initColorPicker(document.querySelector('.toolbar .pen-color'), penColor, function (value) {
+      setPen(penSize, value);
+    });
   }
 
   function setPen(size, color) {
@@ -67,24 +71,6 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     }
   }
 
-  function setPenColorFromElement(el) {
-    if (el.nodeName === 'A' &&
-        el.classList.contains('pen-color') &&
-        el.getAttribute('data-color')) {
-      setPen(penSize, el.getAttribute('data-color'));
-    }
-  }
-
-  function handleMenuClick(e) {
-    setPenColorFromElement(e.target);
-  }
-
-  function handleMenuKeyUp(e) {
-    if (e.keyCode === 32) {
-      setPenColorFromElement(e.target);
-    }
-  }
-
   function handlePenSizeChange(e) {
     setPen(e.target.value, penColor);
   }
@@ -96,8 +82,6 @@ PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {
     }
   }
 
-  document.querySelector('.toolbar').addEventListener('click', handleMenuClick);
-  document.querySelector('.toolbar').addEventListener('keyup', handleMenuKeyUp);
   document.querySelector('.pen-size').addEventListener('change', handlePenSizeChange);
   document.querySelector('.toolbar .clear').addEventListener('click', handleClearClick);
 

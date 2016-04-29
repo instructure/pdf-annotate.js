@@ -1,11 +1,7 @@
 #!/bin/bash
 
+./scripts/shared
+cp -rf shared/ web/shared/
+
 server=./node_modules/.bin/webpack-dev-server
-
-cp ./node_modules/pdfjs-dist/build/pdf.js ./web/
-cp ./node_modules/pdfjs-dist/build/pdf.worker.js ./web/
-cp ./node_modules/pdfjs-dist/web/pdf_viewer.js ./web/
-cp ./node_modules/pdfjs-dist/web/pdf_viewer.css ./web/
-
 $server --inline --config ./webpack.web.js --content-base web/
-
