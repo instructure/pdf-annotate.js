@@ -1,4 +1,5 @@
 import setAttributes from '../utils/setAttributes';
+import normalizeColor from '../utils/normalizeColor';
 
 /**
  * Create SVGTextElement from an annotation definition.
@@ -13,7 +14,7 @@ export default function renderText(a) {
   setAttributes(text, {
     x: a.x,
     y: a.y + parseInt(a.size, 10),
-    fill: `#${a.color}`,
+    fill: normalizeColor(a.color || '#000'),
     fontSize: a.size
   });
   text.innerHTML = a.content;

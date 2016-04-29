@@ -1,4 +1,5 @@
 import setAttributes from '../utils/setAttributes';
+import normalizeColor from '../utils/normalizeColor';
 
 /**
  * Create SVGLineElements from an annotation definition.
@@ -16,7 +17,7 @@ export default function renderLine(a) {
       y1: r.y,
       x2: r.x + r.width,
       y2: r.y,
-      stroke: '#f00',
+      stroke: normalizeColor(a.color || '#f00'),
       strokeWidth: 1
     });
 

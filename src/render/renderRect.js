@@ -1,4 +1,5 @@
 import setAttributes from '../utils/setAttributes';
+import normalizeColor from '../utils/normalizeColor';
 
 /**
  * Create SVGRectElements from an annotation definition.
@@ -24,7 +25,7 @@ export default function renderRect(a) {
     
     if (a.color) {
       setAttributes(rect, {
-        fill: `#${a.color}`,
+        fill: normalizeColor(a.color || '#ff0'),
         fillOpacity: 0.2
       });
     } else {

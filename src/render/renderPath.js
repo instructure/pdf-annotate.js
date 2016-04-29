@@ -1,4 +1,5 @@
 import setAttributes from '../utils/setAttributes';
+import normalizeColor from '../utils/normalizeColor';
 
 /**
  * Create SVGPathElement from an annotation definition.
@@ -21,7 +22,7 @@ export default function renderPath(a) {
   
   setAttributes(path, {
     d: `${d.join(' ')}Z`,
-    stroke: `#${a.color || '000'}`,
+    stroke: normalizeColor(a.color || '#000'),
     strokeWidth: a.width || 1,
     fill: 'none'
   });
