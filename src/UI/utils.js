@@ -47,6 +47,7 @@ export function findSVGAtPoint(x, y) {
     let rect = el.getBoundingClientRect();
 
     if (collidesWithPoint(rect, x, y)) {
+
       return el;
     }
   }
@@ -93,7 +94,7 @@ export function findAnnotationAtPoint(x, y) {
  * @return {Boolean} True if a collision occurs, otherwise false
  */
 export function collidesWithPoint(rect, x, y) {
-  return y > rect.top && y < rect.bottom && x > rect.left && x < rect.right;
+  return y >= rect.top && y <= rect.bottom && x >= rect.left && x <= rect.right;
 }
 
 /**

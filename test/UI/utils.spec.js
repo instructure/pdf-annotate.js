@@ -80,10 +80,10 @@ describe('UI::utils', function () {
     document.body.appendChild(svg);
     let rect = svg.getBoundingClientRect();
 
-    equal(findSVGAtPoint(rect.left + 1, rect.top + 1), svg);
-    equal(findSVGAtPoint(rect.left + rect.width - 1, rect.top + rect.height - 1), svg);
-    equal(findSVGAtPoint(rect.left, rect.top), null);
-    equal(findSVGAtPoint(rect.left + rect.width, rect.top + rect.height), null);
+    equal(findSVGAtPoint(rect.left, rect.top), svg);
+    equal(findSVGAtPoint(rect.left + rect.width, rect.top + rect.height), svg);
+    equal(findSVGAtPoint(rect.left - 1, rect.top - 1), null);
+    equal(findSVGAtPoint(rect.left + rect.width + 1, rect.top + rect.height + 1), null);
   });
 
   it('should find annotation at point', function () {
@@ -98,10 +98,10 @@ describe('UI::utils', function () {
     let textX = parseInt(text.getAttribute('x'), 10);
     let textY = parseInt(text.getAttribute('y'), 10) - textH; // NOTE this needs to be done to account for how text is rendered
 
-    equal(findAnnotationAtPoint(rect.left + textX + 1, rect.top + textY + 1), text);
-    equal(findAnnotationAtPoint(rect.left + textX + textW - 1, rect.top + textY + textH - 1), text);
-    equal(findAnnotationAtPoint(rect.left + textX, rect.top + textY), null);
-    equal(findAnnotationAtPoint(rect.left + textX + textW, rect.top + textY + textH), null);
+    equal(findAnnotationAtPoint(rect.left + textX, rect.top + textY), text);
+    equal(findAnnotationAtPoint(rect.left + textX + textW, rect.top + textY + textH), text);
+    equal(findAnnotationAtPoint(rect.left + textX - 1, rect.top + textY - 1), null);
+    equal(findAnnotationAtPoint(rect.left + textX + textW + 1, rect.top + textY + textH + 1), null);
   });
 
   it('should detect if a rect collides with points', function () {
@@ -128,6 +128,10 @@ describe('UI::utils', function () {
     equal(collidesWithPoint(rect, 11, 19), true);
     // bottom right
     equal(collidesWithPoint(rect, 19, 19), true);
+    // shared top left
+    equal(collidesWithPoint(rect, 10, 10), true);
+    // shared bottom right
+    equal(collidesWithPoint(rect, 20, 20), true);
   });
 
   describe('getSize', function () {
