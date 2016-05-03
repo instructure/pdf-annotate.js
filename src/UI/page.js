@@ -1,5 +1,8 @@
 import PDFJSText from 'pdf-text.js';
 import PDFJSAnnotate from '../PDFJSAnnotate';
+import getOutputScale from '../utils/getOutputScale';
+import roundToDivide from '../utils/roundToDivide';
+import approximateFraction from '../utils/approximateFraction';
 
 /**
  * Create a new page to be appended to the DOM.
@@ -24,6 +27,7 @@ export function createPage(pageNumber) {
   page.setAttribute('data-loaded', 'false');
   page.setAttribute('data-page-number', pageNumber);
 
+  canvas.mozeOpaque = true;
   canvas.setAttribute('id', `page${pageNumber}`);
 
   page.appendChild(wrapper);
@@ -58,12 +62,18 @@ export function renderPage(pageNumber, renderOptions) {
     let svg = page.querySelector('svg');
     let wrapper = page.querySelector('.canvasWrapper');
     let container = page.querySelector('.textLayer');
-    let canvasContext = canvas.getContext('2d');
+    let canvasContext = canvas.getContext('2d', {alpha: false});
+    let outputScale = getOutputScale(canvasContext);
     let viewport = pdfPage.getViewport(scale, rotate);
+    let transform = !outputScale.scaled ? null : [outputScale.sx, 0, 0, outputScale.sy, 0, 0];
+    let sfx = approximateFraction(outputScale.sx);
+    let sfy = approximateFraction(outputScale.sy);
 
     page.style.visibility = '';
-    canvas.width = viewport.width * 2;
-    canvas.height = viewport.height * 2;
+    canvas.width = roundToDivide(viewport.width * outputScale.sx, sfx[0]);
+    canvas.height = roundToDivide(viewport.height * outputScale.sy, sfy[0]);
+    canvas.style.width = roundToDivide(viewport.width, sfx[1]) + 'px';
+    canvas.style.height = roundToDivide(viewport.height, sfx[1]) + 'px';
     svg.setAttribute('width', viewport.width);
     svg.setAttribute('height', viewport.height);
     svg.style.width = `${viewport.width}px`;
@@ -77,12 +87,13 @@ export function renderPage(pageNumber, renderOptions) {
 
     pdfPage.render({
       canvasContext,
-      viewport
+      viewport,
+      transform
     });
 
     PDFJSAnnotate.render(svg, viewport, annotations);
 
-    pdfPage.getTextContent().then(textContent => {
+    pdfPage.getTextContent({normalizeWhitespace: true}).then(textContent => {
       PDFJSText.render({
         textContent,
         container,
