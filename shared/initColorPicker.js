@@ -38,10 +38,12 @@ export default function initColorPicker(el, value, onChange) {
   }
 
   function closePicker() {
+    document.removeEventListener('keyup', handleDocumentKeyup);
     if (picker && picker.parentNode) {
       picker.parentNode.removeChild(picker);
     }
     isPickerOpen = false;
+    a.focus();
   }
 
   function openPicker() {
@@ -61,6 +63,7 @@ export default function initColorPicker(el, value, onChange) {
       });
     }
 
+    document.addEventListener('keyup', handleDocumentKeyup);
     el.appendChild(picker);
     isPickerOpen = true;
   }
@@ -73,6 +76,12 @@ export default function initColorPicker(el, value, onChange) {
     e.setAttribute('data-color', color.hex);
     e.style.background = color.hex;
     return e;
+  }
+
+  function handleDocumentKeyup(e) {
+    if (e.keyCode === 27) {
+      closePicker();
+    }
   }
 
   let picker;
