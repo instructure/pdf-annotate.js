@@ -27,7 +27,7 @@ export function createPage(pageNumber) {
   page.setAttribute('data-loaded', 'false');
   page.setAttribute('data-page-number', pageNumber);
 
-  canvas.mozeOpaque = true;
+  canvas.mozOpaque = true;
   canvas.setAttribute('id', `page${pageNumber}`);
 
   page.appendChild(wrapper);

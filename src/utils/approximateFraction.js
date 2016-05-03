@@ -2,7 +2,7 @@
  * Approximates a float number as a fraction using Farey sequence (max order of 8).
  *
  * @param {Number} x Positive float number
- * @return {Array} Estimated fraction: the first arrray item is a numerator,
+ * @return {Array} Estimated fraction: the first array item is a numerator,
  *                 the second one is a denominator.
  */
 export default function approximateFraction(x) {
@@ -21,7 +21,7 @@ export default function approximateFraction(x) {
 
   const x_ = x > 1 ? xinv : x;
   
-  // a/b and c/d are neughbours in Farey sequence.
+  // a/b and c/d are neighbours in Farey sequence.
   let a = 0, b = 1, c = 1, d = 1;
   
   // Limit search to order 8.
