@@ -63,7 +63,9 @@ export function findSVGAtPoint(x, y) {
  * @return {Element} The annotation element or null if one can't be found
  */
 export function findAnnotationAtPoint(x, y) {
-  let elements = document.querySelectorAll('svg[data-pdf-annotate-container="true"] [data-pdf-annotate-type]');
+  let svg = findSVGAtPoint(x, y);
+  if (!svg) { return; }
+  let elements = svg.querySelectorAll('[data-pdf-annotate-type]');
 
   // Find a target element within SVG
   for (let i=0, l=elements.length; i<l; i++) {

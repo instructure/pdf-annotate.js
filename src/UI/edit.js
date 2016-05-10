@@ -1,4 +1,5 @@
 import PDFJSAnnotate from '../PDFJSAnnotate';
+
 import appendChild from '../render/appendChild';
 import {
   addEventListener,
@@ -10,10 +11,9 @@ import {
   enableUserSelect,
   findSVGContainer,
   findSVGAtPoint,
-  getScroll,
   getMetadata,
   getRectangleSize,
-  getDrawingSize,getOffset,
+  getDrawingSize,
   scaleDown
 } from './utils';
 
@@ -32,12 +32,12 @@ function createEditOverlay(target) {
 
   overlay = document.createElement('div');
   let anchor = document.createElement('a');
+  let parentNode = findSVGContainer(target).parentNode;
   let id = target.getAttribute('data-pdf-annotate-id');
   let type = target.getAttribute('data-pdf-annotate-type');
   let size = type === 'drawing' ? getDrawingSize(target) : getRectangleSize(target);
-  let { offsetLeft, offsetTop } = getOffset(target);
-  let styleLeft = size.x + offsetLeft - OVERLAY_BORDER_SIZE;
-  let styleTop = size.y + offsetTop - OVERLAY_BORDER_SIZE;
+  let styleLeft = size.x - OVERLAY_BORDER_SIZE;
+  let styleTop = size.y - OVERLAY_BORDER_SIZE;
   
   overlay.setAttribute('id', 'pdf-annotate-edit-overlay');
   overlay.setAttribute('data-target-id', id);
@@ -67,7 +67,7 @@ function createEditOverlay(target) {
   anchor.style.height = '25px';
   
   overlay.appendChild(anchor);
-  document.body.appendChild(overlay);
+  parentNode.appendChild(overlay);
   document.addEventListener('click', handleDocumentClick);
   document.addEventListener('keyup', handleDocumentKeyup);
   document.addEventListener('mousedown', handleDocumentMousedown);
@@ -83,7 +83,7 @@ function createEditOverlay(target) {
     anchor.style.boxShadow = '';
   });
   overlay.addEventListener('mouseover', () => {
-    anchor.style.display = '';
+    if (!isDragging) { anchor.style.display = ''; }
   });
   overlay.addEventListener('mouseout', () => {
     anchor.style.display = 'none';
@@ -115,7 +115,7 @@ function deleteAnnotation() {
 
   let annotationId = overlay.getAttribute('data-target-id');
   let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
-  let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
+  let svg = overlay.parentNode.querySelector('svg.annotationLayer');
   let { documentId } = getMetadata(svg);
 
   Array.prototype.forEach.call(nodes, (n) => {
@@ -183,6 +183,7 @@ function handleDocumentMousedown(e) {
 
   overlay.style.background = 'rgba(255, 255, 255, 0.7)';
   overlay.style.cursor = 'move';
+  overlay.querySelector('a').style.display = 'none';
 
   document.addEventListener('mousemove', handleDocumentMousemove);
   document.addEventListener('mouseup', handleDocumentMouseup);
@@ -196,14 +197,14 @@ function handleDocumentMousedown(e) {
  */
 function handleDocumentMousemove(e) {
   let annotationId = overlay.getAttribute('data-target-id');
-  let parentNode = document.querySelector(`[data-pdf-annotate-id="${annotationId}"]`).parentNode;
+  let parentNode = overlay.parentNode;
   let rect = parentNode.getBoundingClientRect();
   let y = (dragStartY + (e.clientY - dragOffsetY));
   let x = (dragStartX + (e.clientX - dragOffsetX));
-  let minY = rect.top;
-  let maxY = rect.bottom;
-  let minX = rect.left;
-  let maxX = rect.right;
+  let minY = 0;
+  let maxY = rect.height;
+  let minX = 0;
+  let maxX = rect.width;
 
   if (y > minY && y + overlay.offsetHeight < maxY) {
     overlay.style.top = `${y}px`;
@@ -223,10 +224,10 @@ function handleDocumentMouseup(e) {
   let annotationId = overlay.getAttribute('data-target-id');
   let target = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
   let type = target[0].getAttribute('data-pdf-annotate-type');
-  let svg = findSVGContainer(target[0]);
-  let { offsetTop, offsetLeft } = getOffset(target[0]);
-  let { scrollTop, scrollLeft } = getScroll(target[0]);
+  let svg = overlay.parentNode.querySelector('svg.annotationLayer');
   let { documentId } = getMetadata(svg);
+  
+  overlay.querySelector('a').style.display = '';
 
   function getDelta(propX, propY) {
     return calcDelta(parseInt(target[0].getAttribute(propX), 10), parseInt(target[0].getAttribute(propY), 10));
@@ -234,8 +235,8 @@ function handleDocumentMouseup(e) {
 
   function calcDelta(x, y) {
     return {
-      deltaX: OVERLAY_BORDER_SIZE + scrollLeft + scaleDown(svg, {x: overlay.offsetLeft - offsetLeft}).x - x,
-      deltaY: OVERLAY_BORDER_SIZE + scrollTop + scaleDown(svg, {y: overlay.offsetTop - offsetTop}).y - y
+      deltaX: OVERLAY_BORDER_SIZE + scaleDown(svg, {x: overlay.offsetLeft}).x - x,
+      deltaY: OVERLAY_BORDER_SIZE + scaleDown(svg, {y: overlay.offsetTop}).y - y
     };
   }
 
