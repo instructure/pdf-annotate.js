@@ -158,6 +158,14 @@ function handleDocumentKeyup(e) {
 function handleDocumentMousedown(e) {
   if (e.target !== overlay) { return; }
 
+  // Highlight and strikeout annotations are bound to text within the document.
+  // It doesn't make sense to allow repositioning these types of annotations.
+  let annotationId = overlay.getAttribute('data-target-id');
+  let target = document.querySelector(`[data-pdf-annotate-id="${annotationId}"]`);
+  let type = target.getAttribute('data-pdf-annotate-type');
+
+  if (type === 'highlight' || type === 'strikeout') { return; }
+
   isDragging = true;
   dragOffsetX = e.clientX;
   dragOffsetY = e.clientY;
