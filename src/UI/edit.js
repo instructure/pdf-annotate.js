@@ -54,9 +54,8 @@ function createEditOverlay(target) {
   anchor.setAttribute('href', 'javascript://');
   anchor.style.background = '#fff';
   anchor.style.borderRadius = '20px';
-  anchor.style.border = '1px solid #999';
-  anchor.style.boxShadow = '0 1px 1px #ccc';
-  anchor.style.color = '#999';
+  anchor.style.border = '1px solid #bbb';
+  anchor.style.color = '#bbb';
   anchor.style.fontSize = '16px';
   anchor.style.padding = '2px';
   anchor.style.textAlign = 'center';
@@ -73,6 +72,16 @@ function createEditOverlay(target) {
   document.addEventListener('keyup', handleDocumentKeyup);
   document.addEventListener('mousedown', handleDocumentMousedown);
   anchor.addEventListener('click', deleteAnnotation);
+  anchor.addEventListener('mouseover', () => {
+    anchor.style.color = '#35A4DC';
+    anchor.style.borderColor = '#999';
+    anchor.style.boxShadow = '0 1px 1px #ccc';
+  });
+  anchor.addEventListener('mouseout', () => {
+    anchor.style.color = '#bbb';
+    anchor.style.borderColor = '#bbb';
+    anchor.style.boxShadow = '';
+  });
   overlay.addEventListener('mouseover', () => {
     anchor.style.display = '';
   });
