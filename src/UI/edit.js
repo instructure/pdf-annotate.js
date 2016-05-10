@@ -31,6 +31,7 @@ function createEditOverlay(target) {
   destroyEditOverlay();
 
   overlay = document.createElement('div');
+  let anchor = document.createElement('a');
   let id = target.getAttribute('data-pdf-annotate-id');
   let type = target.getAttribute('data-pdf-annotate-type');
   let size = type === 'drawing' ? getDrawingSize(target) : getRectangleSize(target);
@@ -48,11 +49,33 @@ function createEditOverlay(target) {
   overlay.style.height = `${size.h}px`;
   overlay.style.border = `${OVERLAY_BORDER_SIZE}px solid ${BORDER_COLOR}`;
   overlay.style.borderRadius = `${OVERLAY_BORDER_SIZE}px`;
+
+  anchor.innerHTML = '×';
+  anchor.setAttribute('href', 'javascript://');
+  anchor.style.background = '#fff';
+  anchor.style.borderRadius = '20px';
+  anchor.style.border = '1px solid #888';
+  anchor.style.color = '#888';
+  anchor.style.fontSize = '16px';
+  anchor.style.padding = '2px 7px';
+  anchor.style.textAlign = 'center';
+  anchor.style.textDecoration = 'none';
+  anchor.style.position = 'absolute';
+  anchor.style.top = '-10px';
+  anchor.style.right = '-10px';
   
+  overlay.appendChild(anchor);
   document.body.appendChild(overlay);
   document.addEventListener('click', handleDocumentClick);
   document.addEventListener('keyup', handleDocumentKeyup);
   document.addEventListener('mousedown', handleDocumentMousedown);
+  anchor.addEventListener('click', deleteAnnotation);
+  overlay.addEventListener('mouseover', () => {
+    anchor.style.display = '';
+  });
+  overlay.addEventListener('mouseout', () => {
+    anchor.style.display = 'none';
+  });
 }
 
 /**
@@ -70,6 +93,26 @@ function destroyEditOverlay() {
   document.removeEventListener('mousemove', handleDocumentMousemove);
   document.removeEventListener('mouseup', handleDocumentMouseup);
   enableUserSelect();
+}
+
+/**
+ * Delete currently selected annotation
+ */
+function deleteAnnotation() {
+  if (!overlay) { return; }
+
+  let annotationId = overlay.getAttribute('data-target-id');
+  let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
+  let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
+  let { documentId } = getMetadata(svg);
+
+  Array.prototype.forEach.call(nodes, (n) => {
+    n.parentNode.removeChild(n);
+  });
+  
+  PDFJSAnnotate.StoreAdapter.deleteAnnotation(documentId, annotationId);
+
+  destroyEditOverlay();
 }
 
 /**
@@ -100,18 +143,7 @@ function handleDocumentKeyup(e) {
   if (overlay && e.keyCode === 46 &&
       e.target.nodeName.toLowerCase() !== 'textarea' &&
       e.target.nodeName.toLowerCase() !== 'input') {
-    let annotationId = overlay.getAttribute('data-target-id');
-    let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${annotationId}"]`);
-    let svg = findSVGAtPoint(parseInt(overlay.style.left, 10), parseInt(overlay.style.top, 10));
-    let { documentId } = getMetadata(svg);
-
-    Array.prototype.forEach.call(nodes, (n) => {
-      n.parentNode.removeChild(n);
-    });
-    
-    PDFJSAnnotate.StoreAdapter.deleteAnnotation(documentId, annotationId);
-
-    destroyEditOverlay();
+    deleteAnnotation();
   }
 }
 
