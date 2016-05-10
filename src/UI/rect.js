@@ -161,7 +161,7 @@ function saveRect(type, rects, color) {
         width: r.width,
         height: r.height
       });
-    }).filter((r) => r.width > 0 && r.height > 0)
+    }).filter((r) => r.width > 0 && r.height > 0 && r.x > -1 && r.y > -1)
   };
 
   // Short circuit if no rectangles exist
