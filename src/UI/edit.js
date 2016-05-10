@@ -54,15 +54,18 @@ function createEditOverlay(target) {
   anchor.setAttribute('href', 'javascript://');
   anchor.style.background = '#fff';
   anchor.style.borderRadius = '20px';
-  anchor.style.border = '1px solid #888';
-  anchor.style.color = '#888';
+  anchor.style.border = '1px solid #999';
+  anchor.style.boxShadow = '0 1px 1px #ccc';
+  anchor.style.color = '#999';
   anchor.style.fontSize = '16px';
-  anchor.style.padding = '2px 7px';
+  anchor.style.padding = '2px';
   anchor.style.textAlign = 'center';
   anchor.style.textDecoration = 'none';
   anchor.style.position = 'absolute';
-  anchor.style.top = '-10px';
-  anchor.style.right = '-10px';
+  anchor.style.top = '-13px';
+  anchor.style.right = '-13px';
+  anchor.style.width = '25px';
+  anchor.style.height = '25px';
   
   overlay.appendChild(anchor);
   document.body.appendChild(overlay);
