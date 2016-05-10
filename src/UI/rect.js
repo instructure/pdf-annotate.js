@@ -6,6 +6,7 @@ import {
   enableUserSelect,
   findSVGAtPoint,
   getMetadata,
+  getOffset,
   scaleDown,
   scaleUp
 } from './utils';
@@ -43,20 +44,22 @@ function getSelectionRects() {
  * @param {Event} e The DOM event to handle
  */
 function handleDocumentMousedown(e) {
-  if (_type !== 'area' || !findSVGAtPoint(e.clientX, e.clientY)) {
+  let svg;
+  if (_type !== 'area' || !(svg = findSVGAtPoint(e.clientX, e.clientY))) {
     return;
   }
 
+  let rect = svg.getBoundingClientRect();
   originY = e.clientY;
   originX = e.clientX;
 
   overlay = document.createElement('div');
   overlay.style.position = 'absolute';
-  overlay.style.top = `${originY + window.scrollY}px`;
-  overlay.style.left = `${originX + window.scrollX}px`;
+  overlay.style.top = `${originY - rect.top}px`;
+  overlay.style.left = `${originX - rect.left}px`;
   overlay.style.border = `3px solid ${BORDER_COLOR}`;
   overlay.style.borderRadius = '3px';
-  document.body.appendChild(overlay);
+  svg.parentNode.appendChild(overlay);
   
   document.addEventListener('mousemove', handleDocumentMousemove);
   disableUserSelect();
@@ -68,7 +71,7 @@ function handleDocumentMousedown(e) {
  * @param {Event} e The DOM event to handle
  */
 function handleDocumentMousemove(e) {
-  let svg = findSVGAtPoint(originX, originY);
+  let svg = overlay.parentNode.querySelector('svg.annotationLayer');
   let rect = svg.getBoundingClientRect();
 
   if (originX + (e.clientX - originX) < rect.right) {
@@ -98,14 +101,16 @@ function handleDocumentMouseup(e) {
       };
     }));
   } else if (_type === 'area' && overlay) {
+    let svg = overlay.parentNode.querySelector('svg.annotationLayer');
+    let rect = svg.getBoundingClientRect();
     saveRect(_type, [{
-      top: parseInt(overlay.style.top, 10) - window.scrollY,
-      left: parseInt(overlay.style.left, 10) - window.scrollX,
+      top: parseInt(overlay.style.top, 10) + rect.top,
+      left: parseInt(overlay.style.left, 10) + rect.left,
       width: parseInt(overlay.style.width, 10),
       height: parseInt(overlay.style.height, 10)
     }]);
 
-    document.body.removeChild(overlay);
+    overlay.parentNode.removeChild(overlay);
     overlay = null;
 
     document.removeEventListener('mousemove', handleDocumentMousemove);
