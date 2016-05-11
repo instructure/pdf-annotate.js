@@ -96,7 +96,7 @@ function savePoint(x, y) {
     color: _penColor,
     width: _penSize,
     lines
-  })[0];
+  });
 }
 
 /**

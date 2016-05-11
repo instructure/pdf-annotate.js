@@ -14,7 +14,7 @@ function testScale(scale = 0.5, passViewportArg = true) {
     y: 100
   };
   
-  let nested = appendChild(svg, annotation, passViewportArg ? viewport : undefined)[0];
+  let nested = appendChild(svg, annotation, passViewportArg ? viewport : undefined);
   
   if (isFirefox) {
     equal(nested.getAttribute('x'), annotation.x);
@@ -34,7 +34,7 @@ function testRotation(rotation, transX, transY) {
     x: 200,
     y: 100
   };
-  let node = appendChild(svg, annotation, viewport)[0];
+  let node = appendChild(svg, annotation, viewport);
   let width = parseInt(node.getAttribute('width'), 10);
   let height = parseInt(node.getAttribute('height'), 10);
   let expectX = annotation.x;
@@ -81,7 +81,7 @@ describe('render::appendChild', function () {
       type: 'point',
       x: 0,
       y: 0
-    }, viewport)[0];
+    }, viewport);
     let area = appendChild(svg, {
       uuid: 5678,
       type: 'area',
@@ -89,7 +89,7 @@ describe('render::appendChild', function () {
       y: 0,
       width: 25,
       height: 25
-    }, viewport)[0];
+    }, viewport);
     
     equal(point.getAttribute('data-pdf-annotate-id'), '1234');
     equal(point.getAttribute('data-pdf-annotate-type'), 'point');
@@ -106,8 +106,7 @@ describe('render::appendChild', function () {
       height: 50
     }, viewport);
 
-    equal(area.length, 1);
-    equal(area[0].nodeName.toLowerCase(), 'rect');
+    equal(area.nodeName.toLowerCase(), 'rect');
   });
 
   it('should render highlight', function () {
@@ -124,8 +123,9 @@ describe('render::appendChild', function () {
       ]
     }, viewport);
 
-    equal(highlight.length, 1);
-    equal(highlight[0].nodeName.toLowerCase(), 'rect');
+    equal(highlight.nodeName.toLowerCase(), 'g');
+    equal(highlight.children.length, 1);
+    equal(highlight.children[0].nodeName.toLowerCase(), 'rect');
   });
 
   it('should render strikeout', function () {
@@ -140,8 +140,9 @@ describe('render::appendChild', function () {
       }],
     }, viewport);
 
-    equal(strikeout.length, 1);
-    equal(strikeout[0].nodeName.toLowerCase(), 'line');
+    equal(strikeout.nodeName.toLowerCase(), 'g');
+    equal(strikeout.children.length, 1);
+    equal(strikeout.children[0].nodeName.toLowerCase(), 'line');
   });
 
   it('should render textbox', function () {
@@ -156,8 +157,7 @@ describe('render::appendChild', function () {
       content: 'Lorem Ipsum'
     }, viewport);
 
-    equal(textbox.length, 1);
-    equal(textbox[0].nodeName.toLowerCase(), 'text');
+    equal(textbox.nodeName.toLowerCase(), 'text');
   });
 
   it('should render point', function () {
@@ -167,8 +167,7 @@ describe('render::appendChild', function () {
       y: 5
     }, viewport);
 
-    equal(point.length, 1);
-    equal(point[0].nodeName.toLowerCase(), 'svg');
+    equal(point.nodeName.toLowerCase(), 'svg');
   });
 
   it('should render drawing', function () {
@@ -179,8 +178,7 @@ describe('render::appendChild', function () {
       lines: [[0, 0], [1, 1]]
     }, viewport);
 
-    equal(drawing.length, 1);
-    equal(drawing[0].nodeName.toLowerCase(), 'path');
+    equal(drawing.nodeName.toLowerCase(), 'path');
   });
 
   it('should fail gracefully if no type is provided', function () {

@@ -56,10 +56,10 @@ describe('UI::edit', function () {
     text = mockTextAnnotation();
     rect = mockRectAnnotation();
 
-    annotations[line[0].getAttribute('data-pdf-annotate-id')] = DEFAULT_LINE_ANNOTATION;
+    annotations[line.getAttribute('data-pdf-annotate-id')] = DEFAULT_LINE_ANNOTATION;
     annotations[path.getAttribute('data-pdf-annotate-id')] = DEFAULT_PATH_ANNOTATION;
     annotations[text.getAttribute('data-pdf-annotate-id')] = DEFAULT_TEXT_ANNOTATION;
-    annotations[rect[0].getAttribute('data-pdf-annotate-id')] = DEFAULT_RECT_ANNOTATION;
+    annotations[rect.getAttribute('data-pdf-annotate-id')] = DEFAULT_RECT_ANNOTATION;
 
     editAnnotationSpy = sinon.spy();
     deleteAnnotationSpy = sinon.spy();
@@ -157,13 +157,11 @@ describe('UI::edit', function () {
   
   it('should edit rect annotation when overlay moved', function (done) {
     enableEdit();
-    Array.prototype.forEach.call(rect, function (r) {
-      svg.appendChild(r);
-    });
+    svg.appendChild(rect);
     simulateMoveOverlay(function (args) {
       equal(editAnnotationSpy.called, true);
       equal(args[0], 'test-document-id');
-      equal(args[1], rect[0].getAttribute('data-pdf-annotate-id'));
+      equal(args[1], rect.getAttribute('data-pdf-annotate-id'));
       equal(args[2], DEFAULT_RECT_ANNOTATION);
       done();
     });
@@ -171,9 +169,7 @@ describe('UI::edit', function () {
 
   it('should not edit line annotation when overlay moved', function (done) {
     enableEdit();
-    Array.prototype.forEach.call(line, function (l) {
-      svg.appendChild(l);
-    });
+    svg.appendChild(line);
     simulateMoveOverlay(function (args) {
       equal(editAnnotationSpy.called, false);
       done();

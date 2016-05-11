@@ -154,17 +154,16 @@ describe('UI::utils', function () {
             height: 20
           }
         ]
-      }).map((line) => {
-        svg.appendChild(line);
-        return line;
-      })[0];
+      });
 
-      let x1 = parseInt(line.getAttribute('x1'), 10);
-      let x2 = parseInt(line.getAttribute('x2'), 10);
-      let y1 = parseInt(line.getAttribute('y1'), 10);
-      let y2 = parseInt(line.getAttribute('y2'), 10);
+      svg.appendChild(line);
 
-      deepEqual(getSize(line), {
+      let x1 = parseInt(line.children[0].getAttribute('x1'), 10);
+      let x2 = parseInt(line.children[0].getAttribute('x2'), 10);
+      let y1 = parseInt(line.children[0].getAttribute('y1'), 10);
+      let y2 = parseInt(line.children[0].getAttribute('y2'), 10);
+
+      deepEqual(getSize(line.children[0]), {
         w: x2 - x1,
         h: (y2 - y1) + 16,
         x: x1,
@@ -189,6 +188,7 @@ describe('UI::utils', function () {
     it('should get the size of a rectangle', function () {
       document.body.appendChild(svg);
       let rect = renderRect({
+        type: 'highlight',
         color: '0ff',
         rectangles: [
           {
@@ -198,23 +198,23 @@ describe('UI::utils', function () {
             height: 25
           }
         ]
-      }).map((rect) => {
-        svg.appendChild(rect);
-        return rect;
-      })[0];
-      
-      deepEqual(getSize(rect), {
-        w: parseInt(rect.getAttribute('width'), 10),
-        h: parseInt(rect.getAttribute('height'), 10),
-        x: parseInt(rect.getAttribute('x'), 10),
-        y: parseInt(rect.getAttribute('y'), 10)
+      });
+
+      svg.appendChild(rect);
+
+      deepEqual(getSize(rect.children[0]), {
+        w: parseInt(rect.children[0].getAttribute('width'), 10),
+        h: parseInt(rect.children[0].getAttribute('height'), 10),
+        x: parseInt(rect.children[0].getAttribute('x'), 10),
+        y: parseInt(rect.children[0].getAttribute('y'), 10)
       });
     });
   });
   
   it('should get the size of a rectangle', function () {
     document.body.appendChild(svg);
-    let rects = renderRect({
+    let rect = renderRect({
+      type: 'highlight',
       color: '0ff',
       rectangles: [
         {
@@ -236,13 +236,12 @@ describe('UI::utils', function () {
           height: 9
         }
       ]
-    }).map((rect) => {
-      rect.setAttribute('data-pdf-annotate-id', 'ann-foo');
-      svg.appendChild(rect);
-      return rect;
     });
 
-    let size = getRectangleSize(rects[1]);
+    rect.setAttribute('data-pdf-annotate-id', 'ann-foo');
+    svg.appendChild(rect);
+
+    let size = getRectangleSize(rect);
 
     equal(size.x, 53);
     equal(size.y, 103);

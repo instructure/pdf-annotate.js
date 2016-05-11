@@ -70,7 +70,7 @@ export function findAnnotationAtPoint(x, y) {
   // Find a target element within SVG
   for (let i=0, l=elements.length; i<l; i++) {
     let el = elements[i];
-    let size = getSize(el);
+    let size = getSize(el.nodeName.toLowerCase() === 'g' ? el.firstChild : el);
     let { offsetLeft, offsetTop } = getOffset(el);
     let rect = {
       top: size.y + offsetTop,
@@ -135,11 +135,13 @@ export function getSize(el) {
     y = parseInt(el.getAttribute('y'), 10) - h;
     break;
 
-    default:
+    case 'rect':
+    case 'svg':
     h = parseInt(el.getAttribute('height'), 10);
     w = parseInt(el.getAttribute('width'), 10);
     x = parseInt(el.getAttribute('x'), 10);
     y = parseInt(el.getAttribute('y'), 10);
+    break;
   }
 
   // For the case of nested SVG (point annotations)
@@ -165,7 +167,8 @@ export function getSize(el) {
  */
 export function getRectangleSize(el) {
   let id = el.getAttribute('data-pdf-annotate-id');
-  let nodes = document.querySelectorAll(`[data-pdf-annotate-id="${id}"]`);
+  let node = document.querySelector(`[data-pdf-annotate-id="${id}"]`);
+  let nodes = node.nodeName.toLowerCase() === 'g' ? node.children : [node];
   let size = {};
   let lastSize;
   

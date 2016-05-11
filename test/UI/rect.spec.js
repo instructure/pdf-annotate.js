@@ -90,7 +90,6 @@ describe('UI::rect', function () {
       equal(args[0], 'test-document-id');
       equal(args[1], '1');
       equal(args[2].type, 'area');
-      equal(args[2].rectangles.length, 1);
       done();
     }, 0);
   });

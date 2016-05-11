@@ -1,19 +1,24 @@
 import renderLine from '../../src/render/renderLine';
 import { equal } from 'assert';
 
+function assertG(g, l) {
+  equal(g.nodeName, 'g');
+  equal(g.children.length, l);
+  equal(g.getAttribute('stroke'), '#f00');
+  equal(g.getAttribute('stroke-width'), '1');
+}
+
 function assertLine(line, x, y, w) {
   equal(line.nodeName, 'line');
   equal(line.getAttribute('x1'), x);
   equal(line.getAttribute('y1'), y);
   equal(line.getAttribute('x2'), x + w);
   equal(line.getAttribute('y2'), y);
-  equal(line.getAttribute('stroke'), '#f00');
-  equal(line.getAttribute('stroke-width'), '1');
 }
 
 describe('render::renderLine', function () {
   it('should render a line', function () {
-    let [line] = renderLine({
+    let line = renderLine({
       rectangles: [
         {
           x: 25,
@@ -23,11 +28,12 @@ describe('render::renderLine', function () {
       ]
     });
   
-    assertLine(line, 25, 50, 100);
+    assertG(line, 1);
+    assertLine(line.children[0], 25, 50, 100);
   });
 
   it('should render multiple lines', function () {
-    let lines = renderLine({
+    let line = renderLine({
       rectangles: [
         {
           x: 0,
@@ -42,7 +48,8 @@ describe('render::renderLine', function () {
       ]
     });
 
-    assertLine(lines[0], 0, 100, 250);
-    assertLine(lines[1], 75, 10, 150);
+    assertG(line, 2);
+    assertLine(line.children[0], 0, 100, 250);
+    assertLine(line.children[1], 75, 10, 150);
   });
 });

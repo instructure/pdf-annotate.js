@@ -1,5 +1,4 @@
 import objectAssign from 'object-assign';
-import arrayFrom from './../utils/arrayFrom';
 import renderLine from './renderLine';
 import renderPath from './renderPath';
 import renderPoint from './renderPoint';
@@ -119,7 +118,7 @@ function transform(node, viewport) {
  * @param {SVGElement} svg The SVG element to append the annotation to
  * @param {Object} annotation The annotation definition to render and append
  * @param {Object} viewport The page's viewport data
- * @return {Array} An Array of nodes that were created and appended by this function
+ * @return {SVGElement} A node that was created and appended by this function
  */
 export default function appendChild(svg, annotation, viewport) {
   if (!viewport) {
@@ -146,22 +145,15 @@ export default function appendChild(svg, annotation, viewport) {
       break;
   }
 
-  // Node may be either single node, or array of nodes.
-  // Ensure we are dealing with an array, then
-  // transform, and append each node to the SVG.
-  let children = arrayFrom(child);
+  // If no type was provided for an annotation it will result in node being null.
+  // Skip appending/transforming if node doesn't exist.
+  if (child) {
+    // Set attributes
+    child.setAttribute('data-pdf-annotate-id', annotation.uuid);
+    child.setAttribute('data-pdf-annotate-type', annotation.type);
 
-  children.forEach((c) => {
-    // If no type was provided for an annotation it will result in node being null.
-    // Skip appending/transforming if node doesn't exist.
-    if (c) {
-      // Set attributes
-      c.setAttribute('data-pdf-annotate-id', annotation.uuid);
-      c.setAttribute('data-pdf-annotate-type', annotation.type);
+    svg.appendChild(transform(child, viewport));
+  }
 
-      svg.appendChild(transform(c, viewport));
-    }
-  });
-
-  return children;
+  return child;
 }

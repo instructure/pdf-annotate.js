@@ -163,10 +163,20 @@ function saveRect(type, rects, color) {
       });
     }).filter((r) => r.width > 0 && r.height > 0 && r.x > -1 && r.y > -1)
   };
-
+  
   // Short circuit if no rectangles exist
   if (annotation.rectangles.length === 0) {
     return;
+  }
+
+  // Special treatment for area as it only supports a single rect
+  if (type === 'area') {
+    let rect = annotation.rectangles[0];
+    delete annotation.rectangles;
+    annotation.x = rect.x;
+    annotation.y = rect.y;
+    annotation.width = rect.width;
+    annotation.height = rect.height;
   }
 
   let { documentId, pageNumber } = getMetadata(svg);

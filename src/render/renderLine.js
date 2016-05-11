@@ -6,10 +6,16 @@ import normalizeColor from '../utils/normalizeColor';
  * This is used for anntations of type `strikeout`.
  *
  * @param {Object} a The annotation definition
- * @return {Array} An Array of all lines to be rendered
+ * @return {SVGGElement} A group of all lines to be rendered
  */
 export default function renderLine(a) {
-  return a.rectangles.map((r) => {
+  let group = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+  setAttributes(group, {
+    stroke: normalizeColor(a.color || '#f00'),
+    strokeWidth: 1
+  });
+
+  a.rectangles.forEach((r) => {
     let line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
 
     setAttributes(line, {
@@ -17,10 +23,10 @@ export default function renderLine(a) {
       y1: r.y,
       x2: r.x + r.width,
       y2: r.y,
-      stroke: normalizeColor(a.color || '#f00'),
-      strokeWidth: 1
     });
 
-    return line;
+    group.appendChild(line);
   });
+
+  return group;
 }
