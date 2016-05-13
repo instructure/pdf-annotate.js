@@ -70,16 +70,7 @@ export function findAnnotationAtPoint(x, y) {
   // Find a target element within SVG
   for (let i=0, l=elements.length; i<l; i++) {
     let el = elements[i];
-    let size = getSize(el);
-    let { offsetLeft, offsetTop } = getOffset(el);
-    let rect = {
-      top: size.y + offsetTop,
-      left: size.x + offsetLeft,
-      right: size.x + size.w + offsetLeft,
-      bottom: size.y + size.h + offsetTop
-    };
-
-    if (pointIntersectsRect(x, y, rect)) {   
+    if (pointIntersectsRect(x, y, getOffsetAnnotationRect(el))) {   
       return el;
     }
   }
@@ -100,12 +91,29 @@ export function pointIntersectsRect(x, y, rect) {
 }
 
 /**
- * Get the size of an annotation element.
+ * Get the rect of an annotation element accounting for offset.
  *
- * @param {Element} el The element to get the size of
+ * @param {Element} el The element to get the rect of
  * @return {Object} The dimensions of the element
  */
-export function getSize(el) {
+export function getOffsetAnnotationRect(el) {
+  let rect = getAnnotationRect(el);
+  let { offsetLeft, offsetTop } = getOffset(el);
+  return {
+    top: rect.top + offsetTop,
+    left: rect.left + offsetLeft,
+    right: rect.right + offsetLeft,
+    bottom: rect.bottom + offsetTop
+  };
+}
+
+/**
+ * Get the rect of an annotation element.
+ *
+ * @param {Element} el The element to get the rect of
+ * @return {Object} The dimensions of the element
+ */
+export function getAnnotationRect(el) {
   let h = 0, w = 0, x = 0, y = 0;
   let rect = el.getBoundingClientRect();
   // TODO this should be calculated somehow
@@ -171,17 +179,25 @@ export function getSize(el) {
     break;
   }
 
-  // For the case of nested SVG (point annotations)
-  // no adjustment needs to be made for scale.
+  // Result provides same properties as getBoundingClientRect
+  let result = {
+    top: y,
+    left: x,
+    width: w,
+    height: h,
+    right: x + w,
+    bottom: y + h
+  };
+
+  // For the case of nested SVG (point annotations) and grouped
+  // lines or rects no adjustment needs to be made for scale.
   // I assume that the scale is already being handled
   // natively by virtue of the `transform` attribute.
-  if (['svg', 'g'].includes(el.nodeName.toLowerCase())) {
-    return { h, w, x, y };
+  if (!['svg', 'g'].includes(el.nodeName.toLowerCase())) {
+    result = scaleUp(findSVGAtPoint(rect.left, rect.top), result);
   }
 
-  let svg = findSVGAtPoint(rect.left, rect.top);
-
-  return scaleUp(svg, { h, w, x, y });
+  return result;
 }
 
 /**

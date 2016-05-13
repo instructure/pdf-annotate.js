@@ -11,8 +11,8 @@ import {
   enableUserSelect,
   findSVGContainer,
   findSVGAtPoint,
+  getAnnotationRect,
   getMetadata,
-  getSize,
   scaleDown
 } from './utils';
 
@@ -33,9 +33,9 @@ function createEditOverlay(target) {
   let anchor = document.createElement('a');
   let parentNode = findSVGContainer(target).parentNode;
   let id = target.getAttribute('data-pdf-annotate-id');
-  let size = getSize(target);
-  let styleLeft = size.x - OVERLAY_BORDER_SIZE;
-  let styleTop = size.y - OVERLAY_BORDER_SIZE;
+  let rect = getAnnotationRect(target);
+  let styleLeft = rect.left - OVERLAY_BORDER_SIZE;
+  let styleTop = rect.top - OVERLAY_BORDER_SIZE;
   
   overlay.setAttribute('id', 'pdf-annotate-edit-overlay');
   overlay.setAttribute('data-target-id', id);
@@ -43,8 +43,8 @@ function createEditOverlay(target) {
   overlay.style.position = 'absolute';
   overlay.style.top = `${styleTop}px`;
   overlay.style.left = `${styleLeft}px`;
-  overlay.style.width = `${size.w}px`;
-  overlay.style.height = `${size.h}px`;
+  overlay.style.width = `${rect.width}px`;
+  overlay.style.height = `${rect.height}px`;
   overlay.style.border = `${OVERLAY_BORDER_SIZE}px solid ${BORDER_COLOR}`;
   overlay.style.borderRadius = `${OVERLAY_BORDER_SIZE}px`;
 
@@ -282,14 +282,14 @@ function handleDocumentMouseup(e) {
         }
       });
     } else if (type === 'drawing') {
-      let size = scaleDown(svg, getSize(target[0]));
+      let rect = scaleDown(svg, getAnnotationRect(target[0]));
       let [originX, originY] = annotation.lines[0];
       let { deltaX, deltaY } = calcDelta(originX, originY);
 
       // origin isn't necessarily at 0/0 in relation to overlay x/y
       // adjust the difference between overlay and drawing coords
-      deltaY += (originY - size.y);
-      deltaX += (originX - size.x);
+      deltaY += (originY - rect.top);
+      deltaX += (originX - rect.left);
 
       annotation.lines.forEach((line, i) => {
         let [x, y] = annotation.lines[i];

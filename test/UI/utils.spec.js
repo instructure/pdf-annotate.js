@@ -11,7 +11,7 @@ import {
   findSVGAtPoint,
   findAnnotationAtPoint,
   pointIntersectsRect,
-  getSize,
+  getAnnotationRect,
   scaleUp,
   scaleDown,
   getScroll,
@@ -132,7 +132,7 @@ describe('UI::utils', function () {
     equal(pointIntersectsRect(20, 20, rect), true);
   });
 
-  describe('getSize', function () {
+  describe('getAnnotationRect', function () {
     it('should get the size of a line', function () {
       document.body.appendChild(svg);
       let line = renderLine({
@@ -153,11 +153,13 @@ describe('UI::utils', function () {
       let y1 = parseInt(line.children[0].getAttribute('y1'), 10);
       let y2 = parseInt(line.children[0].getAttribute('y2'), 10);
 
-      deepEqual(getSize(line.children[0]), {
-        w: x2 - x1,
-        h: (y2 - y1) + 16,
-        x: x1,
-        y: y1 - (16 / 2)
+      deepEqual(getAnnotationRect(line.children[0]), {
+        width: x2 - x1,
+        height: (y2 - y1) + 16,
+        left: x1,
+        top: y1 - (16 / 2),
+        right: x1 + (x2 - x1),
+        bottom: y1 - (16 / 2) + (y2 - y1) + 16
       });
     });
 
@@ -167,11 +169,13 @@ describe('UI::utils', function () {
 
       let rect = text.getBoundingClientRect();
 
-      deepEqual(getSize(text), {
-        w: rect.width,
-        h: rect.height,
-        x: parseInt(text.getAttribute('x'), 10),
-        y: parseInt(text.getAttribute('y'), 10) - rect.height
+      deepEqual(getAnnotationRect(text), {
+        width: rect.width,
+        height: rect.height,
+        left: parseInt(text.getAttribute('x'), 10),
+        top: parseInt(text.getAttribute('y'), 10) - rect.height,
+        right: parseInt(text.getAttribute('x'), 10) + rect.width,
+        bottom: parseInt(text.getAttribute('y'), 10)
       });
     });
 
@@ -192,11 +196,13 @@ describe('UI::utils', function () {
 
       svg.appendChild(rect);
 
-      deepEqual(getSize(rect.children[0]), {
-        w: parseInt(rect.children[0].getAttribute('width'), 10),
-        h: parseInt(rect.children[0].getAttribute('height'), 10),
-        x: parseInt(rect.children[0].getAttribute('x'), 10),
-        y: parseInt(rect.children[0].getAttribute('y'), 10)
+      deepEqual(getAnnotationRect(rect.children[0]), {
+        width: parseInt(rect.children[0].getAttribute('width'), 10),
+        height: parseInt(rect.children[0].getAttribute('height'), 10),
+        left: parseInt(rect.children[0].getAttribute('x'), 10),
+        top: parseInt(rect.children[0].getAttribute('y'), 10),
+        right: parseInt(rect.children[0].getAttribute('x'), 10) + parseInt(rect.children[0].getAttribute('width'), 10),
+        bottom: parseInt(rect.children[0].getAttribute('y'), 10) + parseInt(rect.children[0].getAttribute('height'), 10)
       });
     });
   });
@@ -231,12 +237,14 @@ describe('UI::utils', function () {
     rect.setAttribute('data-pdf-annotate-id', 'ann-foo');
     svg.appendChild(rect);
 
-    let size = getSize(rect);
+    let size = getAnnotationRect(rect);
 
-    equal(size.x, 53);
-    equal(size.y, 103);
-    equal(size.w, 240);
-    equal(size.h, 29);
+    equal(size.left, 53);
+    equal(size.top, 103);
+    equal(size.width, 240);
+    equal(size.height, 29);
+    equal(size.right, 53 + 240);
+    equal(size.bottom, 103 + 29);
   });
 
   it('should get the size of a drawing', function () {
@@ -244,12 +252,14 @@ describe('UI::utils', function () {
     let path = createPath();
     svg.appendChild(path);
 
-    let size = getSize(path);
+    let size = getAnnotationRect(path);
 
-    equal(size.x, 33);
-    equal(size.y, 36);
-    equal(size.w, 10);
-    equal(size.h, 4);
+    equal(size.left, 33);
+    equal(size.top, 36);
+    equal(size.width, 10);
+    equal(size.height, 4);
+    equal(size.right, 33 + 10);
+    equal(size.bottom, 36 + 4);
   });
 
   it('should scale up', function () {
