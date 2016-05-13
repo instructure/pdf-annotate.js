@@ -46,7 +46,7 @@ export function findSVGAtPoint(x, y) {
     let el = elements[i];
     let rect = el.getBoundingClientRect();
 
-    if (collidesWithPoint(rect, x, y)) {
+    if (pointIntersectsRect(x, y, rect)) {
 
       return el;
     }
@@ -70,7 +70,7 @@ export function findAnnotationAtPoint(x, y) {
   // Find a target element within SVG
   for (let i=0, l=elements.length; i<l; i++) {
     let el = elements[i];
-    let size = getSize(el.nodeName.toLowerCase() === 'g' ? el.firstChild : el);
+    let size = getSize(el);
     let { offsetLeft, offsetTop } = getOffset(el);
     let rect = {
       top: size.y + offsetTop,
@@ -79,7 +79,7 @@ export function findAnnotationAtPoint(x, y) {
       bottom: size.y + size.h + offsetTop
     };
 
-    if (collidesWithPoint(rect, x, y)) {   
+    if (pointIntersectsRect(x, y, rect)) {   
       return el;
     }
   }
@@ -88,14 +88,14 @@ export function findAnnotationAtPoint(x, y) {
 }
 
 /**
- * Determine if a point collides with a rect
+ * Determine if a point intersects a rect
  *
- * @param {Object} rect The points of a rect (likely from getBoundingClientRect)
  * @param {Number} x The x coordinate of the point
  * @param {Number} y The y coordinate of the point
+ * @param {Object} rect The points of a rect (likely from getBoundingClientRect)
  * @return {Boolean} True if a collision occurs, otherwise false
  */
-export function collidesWithPoint(rect, x, y) {
+export function pointIntersectsRect(x, y, rect) {
   return y >= rect.top && y <= rect.bottom && x >= rect.left && x <= rect.right;
 }
 
@@ -107,10 +107,27 @@ export function collidesWithPoint(rect, x, y) {
  */
 export function getSize(el) {
   let h = 0, w = 0, x = 0, y = 0;
+  let rect = el.getBoundingClientRect();
+  // TODO this should be calculated somehow
+  const LINE_OFFSET = 16;
 
   switch (el.nodeName.toLowerCase()) {
     case 'path':
-    return getDrawingSize(el);
+    let minX, maxX, minY, maxY;
+
+    el.getAttribute('d').replace(/Z/, '').split('M').splice(1).forEach((p) => {
+      var s = p.split(' ').map(i => parseInt(i, 10));
+
+      if (typeof minX === 'undefined' || s[0] < minX) { minX = s[0]; }
+      if (typeof maxX === 'undefined' || s[2] > maxX) { maxX = s[2]; }
+      if (typeof minY === 'undefined' || s[1] < minY) { minY = s[1]; }
+      if (typeof maxY === 'undefined' || s[3] > maxY) { maxY = s[3]; }
+    });
+
+    h = maxY - minY;
+    w = maxX - minX;
+    x = minX;
+    y = minY;
     break;
 
     case 'line':
@@ -120,19 +137,29 @@ export function getSize(el) {
     y = parseInt(el.getAttribute('y1'), 10);
 
     if (h === 0) {
-      // TODO this should be calculated somehow
-      let offset = 16;
-      h += offset;
-      y -= (offset / 2)
+      h += LINE_OFFSET;
+      y -= (LINE_OFFSET / 2);
     }
     break;
 
     case 'text':
-    let rect = el.getBoundingClientRect();
     h = rect.height;
     w = rect.width;
     x = parseInt(el.getAttribute('x'), 10);
     y = parseInt(el.getAttribute('y'), 10) - h;
+    break;
+
+    case 'g':
+    let { offsetLeft, offsetTop } = getOffset(el);
+    h = rect.height;
+    w = rect.width;
+    x = rect.left - offsetLeft;
+    y = rect.top - offsetTop;
+
+    if (el.getAttribute('data-pdf-annotate-type') === 'strikeout') {
+      h += LINE_OFFSET;
+      y -= (LINE_OFFSET / 2);
+    }
     break;
 
     case 'rect':
@@ -148,76 +175,13 @@ export function getSize(el) {
   // no adjustment needs to be made for scale.
   // I assume that the scale is already being handled
   // natively by virtue of the `transform` attribute.
-  if (el.nodeName.toLowerCase() === 'svg') {
+  if (['svg', 'g'].includes(el.nodeName.toLowerCase())) {
     return { h, w, x, y };
   }
 
-  let rect = el.getBoundingClientRect();
   let svg = findSVGAtPoint(rect.left, rect.top);
 
   return scaleUp(svg, { h, w, x, y });
-}
-
-/**
- * Get the size of a rectangle annotation. If there are multiple elements comprising
- * the annotation, the outer bounds of all elements will be used.
- *
- * @param {Element} el The element to get the size of
- * @return {Object} The dimensions of the annotation
- */
-export function getRectangleSize(el) {
-  let id = el.getAttribute('data-pdf-annotate-id');
-  let node = document.querySelector(`[data-pdf-annotate-id="${id}"]`);
-  let nodes = node.nodeName.toLowerCase() === 'g' ? node.children : [node];
-  let size = {};
-  let lastSize;
-  
-  Array.prototype.map.call(nodes, getSize).forEach((s) => {
-    if (typeof size.x === 'undefined' || s.x < size.x) { size.x = s.x; }
-    if (typeof size.y === 'undefined' || s.y < size.y) { size.y = s.y; }
-    if (typeof size.w === 'undefined' || s.w > size.w) { size.w = s.w; }
-    if (typeof size.h === 'undefined') { size.h = 0; }
-
-    size.h += s.h;
-
-    // This accounts for the spacing between selected lines
-    if (lastSize) {
-      size.h += s.y - (lastSize.y + lastSize.h);
-    }
-
-    lastSize = s;
-  });
-
-  return size;
-}
-
-/**
- * Get the size of a drawing annotation.
- *
- * @param {Element} el The path element to get the size of
- * @return {Object} The dimensions of the annotation
- */
-export function getDrawingSize(el) {
-  let parts = el.getAttribute('d').replace(/Z/, '').split('M').splice(1);
-  let rect = el.getBoundingClientRect();
-  let svg = findSVGAtPoint(rect.left, rect.top);
-  let minX, maxX, minY, maxY;
-
-  parts.forEach((p) => {
-    var s = p.split(' ').map(i => parseInt(i, 10));
-
-    if (typeof minX === 'undefined' || s[0] < minX) { minX = s[0]; }
-    if (typeof maxX === 'undefined' || s[2] > maxX) { maxX = s[2]; }
-    if (typeof minY === 'undefined' || s[1] < minY) { minY = s[1]; }
-    if (typeof maxY === 'undefined' || s[3] > maxY) { maxY = s[3]; }
-  });
-
-  return scaleUp(svg, {
-    x: minX,
-    y: minY,
-    w: maxX - minX,
-    h: maxY - minY
-  });
 }
 
 /**

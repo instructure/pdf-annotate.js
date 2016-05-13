@@ -12,8 +12,7 @@ import {
   findSVGContainer,
   findSVGAtPoint,
   getMetadata,
-  getRectangleSize,
-  getDrawingSize,
+  getSize,
   scaleDown
 } from './utils';
 
@@ -34,8 +33,7 @@ function createEditOverlay(target) {
   let anchor = document.createElement('a');
   let parentNode = findSVGContainer(target).parentNode;
   let id = target.getAttribute('data-pdf-annotate-id');
-  let type = target.getAttribute('data-pdf-annotate-type');
-  let size = type === 'drawing' ? getDrawingSize(target) : getRectangleSize(target);
+  let size = getSize(target);
   let styleLeft = size.x - OVERLAY_BORDER_SIZE;
   let styleTop = size.y - OVERLAY_BORDER_SIZE;
   
@@ -284,7 +282,7 @@ function handleDocumentMouseup(e) {
         }
       });
     } else if (type === 'drawing') {
-      let size = scaleDown(svg, getDrawingSize(target[0]));
+      let size = scaleDown(svg, getSize(target[0]));
       let [originX, originY] = annotation.lines[0];
       let { deltaX, deltaY } = calcDelta(originX, originY);
 

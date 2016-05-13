@@ -10,10 +10,8 @@ import {
   findSVGContainer,
   findSVGAtPoint,
   findAnnotationAtPoint,
-  collidesWithPoint,
+  pointIntersectsRect,
   getSize,
-  getRectangleSize,
-  getDrawingSize,
   scaleUp,
   scaleDown,
   getScroll,
@@ -113,36 +111,28 @@ describe('UI::utils', function () {
     };
 
     // above
-    equal(collidesWithPoint(rect, 11, 9), false);
+    equal(pointIntersectsRect(11, 9, rect), false);
     // left
-    equal(collidesWithPoint(rect, 9, 11), false);
+    equal(pointIntersectsRect(9, 11, rect), false);
     // right
-    equal(collidesWithPoint(rect, 21, 11), false);
+    equal(pointIntersectsRect(21, 11, rect), false);
     // below
-    equal(collidesWithPoint(rect, 11, 21), false);
+    equal(pointIntersectsRect(11, 21, rect), false);
     // top left
-    equal(collidesWithPoint(rect, 11, 11), true);
+    equal(pointIntersectsRect(11, 11, rect), true);
     // top right
-    equal(collidesWithPoint(rect, 19, 11), true);
+    equal(pointIntersectsRect(19, 11, rect), true);
     // bottom left
-    equal(collidesWithPoint(rect, 11, 19), true);
+    equal(pointIntersectsRect(11, 19, rect), true);
     // bottom right
-    equal(collidesWithPoint(rect, 19, 19), true);
+    equal(pointIntersectsRect(19, 19, rect), true);
     // shared top left
-    equal(collidesWithPoint(rect, 10, 10), true);
+    equal(pointIntersectsRect(10, 10, rect), true);
     // shared bottom right
-    equal(collidesWithPoint(rect, 20, 20), true);
+    equal(pointIntersectsRect(20, 20, rect), true);
   });
 
   describe('getSize', function () {
-    it('should get the size of a drawing', function () {
-      let path = createPath();
-      svg.appendChild(path);
-      document.body.appendChild(svg);
-
-      deepEqual(getSize(path), getDrawingSize(path));
-    });
-
     it('should get the size of a line', function () {
       document.body.appendChild(svg);
       let line = renderLine({
@@ -241,7 +231,7 @@ describe('UI::utils', function () {
     rect.setAttribute('data-pdf-annotate-id', 'ann-foo');
     svg.appendChild(rect);
 
-    let size = getRectangleSize(rect);
+    let size = getSize(rect);
 
     equal(size.x, 53);
     equal(size.y, 103);
@@ -254,7 +244,7 @@ describe('UI::utils', function () {
     let path = createPath();
     svg.appendChild(path);
 
-    let size = getDrawingSize(path);
+    let size = getSize(path);
 
     equal(size.x, 33);
     equal(size.y, 36);
