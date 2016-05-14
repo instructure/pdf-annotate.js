@@ -248,8 +248,7 @@ function handleDocumentMouseup(e) {
           let viewY = modelY;
 
           if (type === 'textbox') {
-            modelY += parseInt(overlay.style.height, 10);
-            viewY = modelY;
+            viewY += annotation.size;
           }
 
           if (type === 'point') {
