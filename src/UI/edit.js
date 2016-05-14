@@ -13,7 +13,8 @@ import {
   findSVGAtPoint,
   getAnnotationRect,
   getMetadata,
-  scaleDown
+  scaleDown,
+  scaleUp
 } from './utils';
 
 let _enabled = false;
@@ -243,27 +244,38 @@ function handleDocumentMouseup(e) {
       let { deltaX, deltaY } = getDelta('x', 'y');
       Array.prototype.forEach.call(target, (t, i) => {
         if (deltaY !== 0) {
-          let y = parseInt(t.getAttribute('y'), 10) + deltaY;
+          let modelY = parseInt(t.getAttribute('y'), 10) + deltaY;
+          let viewY = modelY;
 
           if (type === 'textbox') {
-            y += parseInt(overlay.style.height, 10);
+            modelY += parseInt(overlay.style.height, 10);
+            viewY = modelY;
           }
 
-          t.setAttribute('y', y);
+          if (type === 'point') {
+            viewY = scaleUp(svg, { viewY }).viewY;
+          }
+
+          t.setAttribute('y', viewY);
           if (annotation.rectangles) {
-            annotation.rectangles[i].y = y;
+            annotation.rectangles[i].y = modelY;
           } else if (annotation.y) {
-            annotation.y = y;
+            annotation.y = modelY;
           }
         }
         if (deltaX !== 0) {
-          let x = parseInt(t.getAttribute('x'), 10) + deltaX;
+          let modelX = parseInt(t.getAttribute('x'), 10) + deltaX;
+          let viewX = modelX;
 
-          t.setAttribute('x', x);
+          if (type === 'point') {
+            viewX = scaleUp(svg, { viewX }).viewX;
+          }
+
+          t.setAttribute('x', viewX);
           if (annotation.rectangles) {
-            annotation.rectangles[i].x = x;
+            annotation.rectangles[i].x = modelX;
           } else if (annotation.x) {
-            annotation.x = x;
+            annotation.x = modelX;
           }
         }
       });
