@@ -278,20 +278,20 @@ function handleDocumentMouseup(e) {
           }
         }
       });
-    } else if (type === 'strikeout') {
-      let { deltaX, deltaY } = getDelta('x1', 'y1');
-      Array.prototype.forEach.call(target, (t, i) => {
-        if (deltaY !== 0) {
-          t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
-          t.setAttribute('y2', parseInt(t.getAttribute('y2'), 10) + deltaY);
-          annotation.rectangles[i].y = parseInt(t.getAttribute('y1'), 10);
-        }
-        if (deltaX !== 0) {
-          t.setAttribute('x1', parseInt(t.getAttribute('x1'), 10) + deltaX);
-          t.setAttribute('x2', parseInt(t.getAttribute('x2'), 10) + deltaX);
-          annotation.rectangles[i].x = parseInt(t.getAttribute('x1'), 10);
-        }
-      });
+    // } else if (type === 'strikeout') {
+    //   let { deltaX, deltaY } = getDelta('x1', 'y1');
+    //   Array.prototype.forEach.call(target, (t, i) => {
+    //     if (deltaY !== 0) {
+    //       t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
+    //       t.setAttribute('y2', parseInt(t.getAttribute('y2'), 10) + deltaY);
+    //       annotation.rectangles[i].y = parseInt(t.getAttribute('y1'), 10);
+    //     }
+    //     if (deltaX !== 0) {
+    //       t.setAttribute('x1', parseInt(t.getAttribute('x1'), 10) + deltaX);
+    //       t.setAttribute('x2', parseInt(t.getAttribute('x2'), 10) + deltaX);
+    //       annotation.rectangles[i].x = parseInt(t.getAttribute('x1'), 10);
+    //     }
+    //   });
     } else if (type === 'drawing') {
       let rect = scaleDown(svg, getAnnotationRect(target[0]));
       let [originX, originY] = annotation.lines[0];

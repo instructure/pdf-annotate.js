@@ -44,6 +44,14 @@ function simulateMoveOverlay(callback) {
   });
 }
 
+function simulateClickAnnotation(callback) {
+  simulant.fire(document, 'click', { clientX: 25, clientY: 25 });
+  setTimeout(function () {
+    let overlay = findOverlay();
+    callback(overlay);
+  });
+}
+
 describe('UI::edit', function () {
   beforeEach(function () {
     svg = mockSVGContainer();
@@ -185,6 +193,35 @@ describe('UI::edit', function () {
       equal(args[1], path.getAttribute('data-pdf-annotate-id'));
       equal(args[2], DEFAULT_PATH_ANNOTATION);
       done();
+    });
+  });
+
+  it('should show delete icon when overlay moused over', function (done) {
+    enableEdit();
+    svg.appendChild(rect);
+    simulateClickAnnotation(function (overlay) {
+      simulant.fire(overlay, 'mouseover', { clientX: 30, clientY: 30 });
+      setTimeout(function () {
+        let a = overlay.querySelector('a');
+        equal(a.style.display, '');
+        done();
+      });
+    });
+  });
+
+  it('should hide delete icon when overlay moused out', function (done) {
+    enableEdit();
+    svg.appendChild(rect);
+    simulateClickAnnotation(function (overlay) {
+      simulant.fire(overlay, 'mouseover', { clientX: 30, clientY: 30 });
+      setTimeout(function () {
+        simulant.fire(overlay, 'mouseout', { clientX: 10, clientY: 10 });
+        setTimeout(function () {
+          let a = overlay.querySelector('a');
+          equal(a.style.display, 'none');
+          done();
+        });
+      });
     });
   });
 });
