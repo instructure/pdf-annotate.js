@@ -92,7 +92,7 @@ function handleDocumentMouseup(e) {
   let rects;
   if (_type !== 'area' && (rects = getSelectionRects())) {
     let svg = findSVGAtPoint(rects[0].left, rects[0].top);
-    saveRect(_type, Array.prototype.map.call(rects, (r) => {
+    saveRect(_type, [...rects].map((r) => {
       return {
         top: r.top,
         left: r.left,
@@ -148,7 +148,7 @@ function saveRect(type, rects, color) {
   annotation = {
     type,
     color,
-    rectangles: Array.prototype.map.call(rects, (r) => {
+    rectangles: [...rects].map((r) => {
       let offset = 0;
 
       if (type === 'strikeout') {

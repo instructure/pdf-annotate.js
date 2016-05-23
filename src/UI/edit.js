@@ -117,7 +117,7 @@ function deleteAnnotation() {
   let svg = overlay.parentNode.querySelector('svg.annotationLayer');
   let { documentId } = getMetadata(svg);
 
-  Array.prototype.forEach.call(nodes, (n) => {
+  [...nodes].forEach((n) => {
     n.parentNode.removeChild(n);
   });
   
@@ -242,7 +242,7 @@ function handleDocumentMouseup(e) {
   PDFJSAnnotate.StoreAdapter.getAnnotation(documentId, annotationId).then((annotation) => {
     if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
       let { deltaX, deltaY } = getDelta('x', 'y');
-      Array.prototype.forEach.call(target, (t, i) => {
+      [...target].forEach((t, i) => {
         if (deltaY !== 0) {
           let modelY = parseInt(t.getAttribute('y'), 10) + deltaY;
           let viewY = modelY;
@@ -280,7 +280,7 @@ function handleDocumentMouseup(e) {
       });
     // } else if (type === 'strikeout') {
     //   let { deltaX, deltaY } = getDelta('x1', 'y1');
-    //   Array.prototype.forEach.call(target, (t, i) => {
+    //   [...target].forEach(target, (t, i) => {
     //     if (deltaY !== 0) {
     //       t.setAttribute('y1', parseInt(t.getAttribute('y1'), 10) + deltaY);
     //       t.setAttribute('y2', parseInt(t.getAttribute('y2'), 10) + deltaY);

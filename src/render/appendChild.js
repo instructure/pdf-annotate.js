@@ -5,7 +5,6 @@ import renderPoint from './renderPoint';
 import renderRect from './renderRect';
 import renderText from './renderText';
 
-const forEach = Array.prototype.forEach;
 const isFirefox = /firefox/i.test(navigator.userAgent);
 
 /**
