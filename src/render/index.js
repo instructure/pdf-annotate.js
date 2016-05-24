@@ -48,6 +48,39 @@ export default function render(svg, viewport, data) {
   return svg;
 }
 
+/**
+ * Insert hints into the DOM for screen readers.
+ *
+ * @param {Number} pageNumber The page number that hints are inserted for
+ * @param {Array} annotations The annotations that hints are inserted for
+ */
+function insertScreenReaderHints(pageNumber, annotations) {
+  let count = {};
+  annotations.forEach((a) => {
+    // Keep count of each hinted annotation to make it more clear to screen reader
+    if (!count[a.type]) {
+      count[a.type] = 0;
+    }
+    count[a.type]++;
+
+    if (['highlight', 'strikeout'].includes(a.type)) {
+      let rects = a.rectangles;
+      let startNode = elementsFromPoint(rects[0].x, rects[0].y, pageNumber)[0];
+      let endNode = elementsFromPoint(rects[rects.length - 1].x, rects[rects.length - 1].y, pageNumber)[0];
+      startNode.insertBefore(createScreenReaderOnly(`Begin ${a.type} ${count[a.type]}`), startNode.firstChild);
+      endNode.appendChild(createScreenReaderOnly(`End ${a.type} ${count[a.type]}`));
+    }
+  });
+}
+
+/**
+ * Get all text layer elements at a given point on a page
+ *
+ * @param {Number} x The x coordinate of the point
+ * @param {Number} y The y coordinate of the point
+ * @param {Number} pageNumber The page to limit elements to
+ * @return {Array} An array of all text layer elements found at the point
+ */
 function elementsFromPoint(x, y, pageNumber) {
   let svg = document.querySelector(`svg[data-pdf-annotate-page="${pageNumber}"]`);
   let rect = svg.getBoundingClientRect();
@@ -58,18 +91,12 @@ function elementsFromPoint(x, y, pageNumber) {
   });
 }
 
-function insertScreenReaderHints(pageNumber, annotations) {
-  annotations.forEach((a) => {
-    if (['highlight', 'strikeout'].includes(a.type)) {
-      let rects = a.rectangles;
-      let startNode = elementsFromPoint(rects[0].x, rects[0].y, pageNumber)[0];
-      let endNode = elementsFromPoint(rects[rects.length - 1].x, rects[rects.length - 1].y, pageNumber)[0];
-      startNode.insertBefore(createScreenReaderOnly(`Begin ${a.type}`), startNode.firstChild);
-      endNode.appendChild(createScreenReaderOnly(`End ${a.type}`));
-    }
-  });
-}
-
+/**
+ * Create a node that is only visible to screen readers
+ *
+ * @param {String} content The text content that should be read by screen reader
+ * @return {Element} An Element that is only visible to screen readers
+ */
 function createScreenReaderOnly(content) {
   let node = document.createElement('div');
   let text = document.createTextNode(content);
