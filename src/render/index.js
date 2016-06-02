@@ -65,12 +65,69 @@ function insertScreenReaderHints(pageNumber, annotations) {
 
     if (['highlight', 'strikeout'].includes(a.type)) {
       let rects = a.rectangles;
-      let startNode = elementsFromPoint(rects[0].x, rects[0].y, pageNumber)[0];
-      let endNode = elementsFromPoint(rects[rects.length - 1].x, rects[rects.length - 1].y, pageNumber)[0];
-      startNode.insertBefore(createScreenReaderOnly(`Begin ${a.type} ${count[a.type]}`), startNode.firstChild);
-      endNode.appendChild(createScreenReaderOnly(`End ${a.type} ${count[a.type]}`));
+      let first = rects[0];
+      let last = rects[rects.length - 1];
+      insertElementAtPoint(
+        createScreenReaderOnly(`Begin ${a.type} ${count[a.type]}`),
+        first.x + 2, first.y + 2, pageNumber
+      );
+      // TODO this doesn't always insert accurately
+      insertElementAtPoint(
+        createScreenReaderOnly(`End ${a.type} ${count[a.type]}`),
+        (last.x + last.width) - 2, last.y + 2, pageNumber
+      );
     }
   });
+}
+
+/**
+ * Insert an element at a point within the document
+ *
+ * @param {Element} el The element to be inserted
+ * @param {Number} x The x coordinate of the point
+ * @param {Number} y The y coordinate of the point
+ * @param {Number} pageNumber The page number to limit elements to
+ */
+function insertElementAtPoint(el, x, y, pageNumber) {
+  let node = elementFromPoint(x, y, pageNumber);
+  if (!node) {
+    return;
+  }
+  let svg = document.querySelector(`svg[data-pdf-annotate-page="${pageNumber}"]`);
+  let rect = node.getBoundingClientRect();
+  let temp = node.cloneNode(true);
+  let head = temp.innerHTML.split('');
+  let tail = [];
+  temp.style.position = 'absolute';
+  temp.style.top = '-10000px';
+  temp.style.left = '-10000px';
+  document.body.appendChild(temp);
+
+  x = scaleUp(svg, {x}).x;
+
+  while (head.length) {
+    // Don't insert within HTML tags
+    if (head[head.length - 1] === '>') {
+      while(head.length) {
+        tail.unshift(head.pop());
+        if (tail[0] === '<') {
+          break;
+        }
+      }
+    }
+    
+    // Check if width of temp based on current head value satisfies x
+    temp.innerHTML = head.join('');
+    let width = temp.getBoundingClientRect().width;
+    if (rect.left + width <= x) {
+      break;
+    }
+    tail.unshift(head.pop());
+  }
+  
+  // Update original node with new markup, including element to be inserted
+  node.innerHTML = head.join('') + el.outerHTML + tail.join('');
+  temp.parentNode.removeChild(temp);
 }
 
 /**
@@ -79,16 +136,16 @@ function insertScreenReaderHints(pageNumber, annotations) {
  * @param {Number} x The x coordinate of the point
  * @param {Number} y The y coordinate of the point
  * @param {Number} pageNumber The page to limit elements to
- * @return {Array} An array of all text layer elements found at the point
+ * @return {Element} First text layer element found at the point
  */
-function elementsFromPoint(x, y, pageNumber) {
+function elementFromPoint(x, y, pageNumber) {
   let svg = document.querySelector(`svg[data-pdf-annotate-page="${pageNumber}"]`);
   let rect = svg.getBoundingClientRect();
-  y = scaleUp(svg, {y: y + 2}).y;
-  x = scaleUp(svg, {x: x + 2}).x;
+  y = scaleUp(svg, {y}).y;
+  x = scaleUp(svg, {x}).x;
   return [...svg.parentNode.querySelectorAll('.textLayer [data-canvas-width]')].filter((el) => {
     return pointIntersectsRect(x + rect.left, y + rect.top, el.getBoundingClientRect());
-  });
+  })[0];
 }
 
 /**
