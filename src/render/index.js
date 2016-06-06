@@ -57,14 +57,25 @@ export default function render(svg, viewport, data) {
  */
 function insertScreenReaderHints(pageNumber, annotations) {
   let count = {};
-  annotations.forEach((a) => {
-    // Keep count of each hinted annotation to make it more clear to screen reader
-    if (!count[a.type]) {
-      count[a.type] = 0;
-    }
-    count[a.type]++;
+  annotations
+    .filter((a) => a.type === 'highlight' || a.type === 'strikeout')
+    .sort((a, b) => {
+      let ar = a.rectangles[0];
+      let br = b.rectangles[0];
 
-    if (['highlight', 'strikeout'].includes(a.type)) {
+      if (ar.y < br.y) {
+        return ar.x - br.x;
+      } else {
+        return 1;
+      }
+    })
+    .forEach((a) => {
+      // Keep count of each hinted annotation to make it more clear to screen reader
+      if (!count[a.type]) {
+        count[a.type] = 0;
+      }
+      count[a.type]++;
+
       let rects = a.rectangles;
       let first = rects[0];
       let last = rects[rects.length - 1];
@@ -76,8 +87,7 @@ function insertScreenReaderHints(pageNumber, annotations) {
         createScreenReaderOnly(`End ${a.type} ${count[a.type]}`),
         last.x + last.width, last.y, pageNumber, false
       );
-    }
-  });
+    });
 }
 
 /**
