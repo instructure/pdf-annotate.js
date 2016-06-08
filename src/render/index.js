@@ -8,39 +8,42 @@ import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
  * @param {SVGElement} svg The SVG element to render the annotations to
  * @param {Object} viewport The page viewport data
  * @param {Object} data The response from PDFJSAnnotate.StoreAdapter.getAnnotations
- * @return {SVGElement} The SVG element that was rendered to
+ * @return {Promise} Fulfilled once rendering has completed
+ *  Promise will fulfill in one of two ways:
+ *    - resolved(SVGElement)
+ *    - rejected(Error)
  */
 export default function render(svg, viewport, data) {
-  // Reset the content of the SVG
-  svg.innerHTML = ''; 
-  svg.setAttribute('data-pdf-annotate-container', true);
-  svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(viewport));
-  svg.removeAttribute('data-pdf-annotate-document');
-  svg.removeAttribute('data-pdf-annotate-page');
+  return new Promise((resolve, reject) => {
+    try {
+      // Reset the content of the SVG
+      svg.innerHTML = ''; 
+      svg.setAttribute('data-pdf-annotate-container', true);
+      svg.setAttribute('data-pdf-annotate-viewport', JSON.stringify(viewport));
+      svg.removeAttribute('data-pdf-annotate-document');
+      svg.removeAttribute('data-pdf-annotate-page');
 
-  // If there's no data nothing can be done
-  if (!data) {
-    return svg;
-  }
+      // If there's no data nothing can be done
+      if (!data) {
+        return resolve(svg);
+      }
 
-  svg.setAttribute('data-pdf-annotate-document', data.documentId);
-  svg.setAttribute('data-pdf-annotate-page', data.pageNumber);
-  
-  // Make sure annotations is an array
-  if (!Array.isArray(data.annotations) || data.annotations.length === 0) {
-    return svg;
-  }
+      svg.setAttribute('data-pdf-annotate-document', data.documentId);
+      svg.setAttribute('data-pdf-annotate-page', data.pageNumber);
+    
+      // Make sure annotations is an array
+      if (!Array.isArray(data.annotations) || data.annotations.length === 0) {
+        return resolve(svg);
+      }
 
-  // Append annotation to svg
-  data.annotations.forEach((a) => {
-    appendChild(svg, a, viewport);
+      // Append annotation to svg
+      data.annotations.forEach((a) => {
+        appendChild(svg, a, viewport);
+      });
+
+      resolve(svg);
+    } catch (e) {
+      reject(e);
+    }
   });
-
-  // Enable a11y
-  // TODO this should def not use timeout, but is needed to wait for PDFJSText.render
-  setTimeout(function () {
-    renderScreenReaderHints(data.annotations);
-  }, 5000);
-
-  return svg;
 }

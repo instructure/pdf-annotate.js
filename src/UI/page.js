@@ -1,5 +1,6 @@
 import PDFJSText from 'pdf-text.js';
 import PDFJSAnnotate from '../PDFJSAnnotate';
+import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
 
 /**
  * Create a new page to be appended to the DOM.
@@ -91,11 +92,15 @@ export function renderPage(pageNumber, renderOptions) {
     PDFJSAnnotate.render(svg, viewport, annotations);
 
     pdfPage.getTextContent({normalizeWhitespace: true}).then(textContent => {
+      // Render text layer
       PDFJSText.render({
         textContent,
         container,
         viewport,
         textDivs: []
+      }).then(() => {
+        // Enable a11y
+        renderScreenReaderHints(annotations.annotations);
       });
     });
 
