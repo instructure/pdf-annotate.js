@@ -49,8 +49,13 @@ export default function render(svg, viewport, data) {
   return svg;
 }
 
-// TODO from here down is logic for making annotations detectable by screen readers.
+// ----------------------------------------
+//
+// TODO
+// From here down is logic for making annotations detectable by screen readers.
 // This should all be in it's own file for easier code readability and testing.
+//
+// ----------------------------------------
 
 /**
  * Insert hints into the DOM for screen readers.
@@ -69,35 +74,48 @@ function renderScreenReaderHints(annotations) {
     }
   }
 
-console.time('hints');
-  insertHintsForType(annotations, 'highlight', (a, b) => sortByPoint(a.rectangles[0], b.rectangles[0]));
-  insertHintsForType(annotations, 'strikeout', (a, b) => sortByPoint(a.rectangles[0], b.rectangles[0]));
-  insertHintsForType(annotations, 'textbox', sortByPoint);
-  insertHintsForType(annotations, 'point', sortByPoint);
-console.timeEnd('hints');
+  // Sort annotation by it's first rectangle
+  function sortByRectPoint(a, b) {
+    return sortByPoint(a.rectangles[0], b.rectangles[0]);
+  }
+
+  // Arrange supported types and associated sort methods
+  let types = {
+    'highlight': sortByRectPoint,
+    'strikeout': sortByRectPoint,
+    'textbox': sortByPoint,
+    'point': sortByPoint
+  };
+
+  // Insert hints for each type
+  Object.keys(types).forEach((type) => {
+    let sortBy = types[type];
+    annotations
+      .filter((a) => a.type === type)
+      .sort(sortBy)
+      .forEach((a, i) => insertScreenReaderHint(a, i + 1));
+  });
 }
 
-function insertHintsForType(annotations, type, sortBy) {
-  annotations
-    .filter((a) => a.type === type)
-    .sort(sortBy)
-    .forEach(insertScreenReaderHint);
-}
-
-function insertScreenReaderHint(annotation, index) {
+/**
+ * Insert a hint into the DOM for screen readers for a specific annotation.
+ *
+ * @param {Object} annotation The annotation to insert a hint for
+ * @param {Number} num The number of the annotation out of all annotations of the same type
+ */
+function insertScreenReaderHint(annotation, num) {
   if (annotation.type === 'highlight' || annotation.type === 'strikeout') {
-    let count = typeof index !== 'undefined' ? index + 1 : '';
     let rects = annotation.rectangles;
     let first = rects[0];
     let last = rects[rects.length - 1];
 
     insertElementAtPoint(
-      createScreenReaderOnly(`Begin ${annotation.type} ${count}`),
+      createScreenReaderOnly(`Begin ${annotation.type} ${num}`),
       first.x, first.y, annotation.page, true
     );
 
     insertElementAtPoint(
-      createScreenReaderOnly(`End ${annotation.type} ${count}`),
+      createScreenReaderOnly(`End ${annotation.type} ${num}`),
       last.x + last.width, last.y, annotation.page, false
     );
   } else if (annotation.type === 'textbox' || annotation.type === 'point') {
