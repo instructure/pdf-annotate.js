@@ -109,29 +109,74 @@ function insertScreenReaderHint(annotation, num) {
     let first = rects[0];
     let last = rects[rects.length - 1];
 
-    insertElementAtPoint(
-      createScreenReaderOnly(`Begin ${annotation.type} ${num}`),
+    insertElementWithinElement(
+      createScreenReaderOnly(`Begin ${annotation.type} annotation ${num}`),
       first.x, first.y, annotation.page, true
     );
 
-    insertElementAtPoint(
-      createScreenReaderOnly(`End ${annotation.type} ${num}`),
+    insertElementWithinElement(
+      createScreenReaderOnly(`End ${annotation.type} annotation ${num}`),
       last.x + last.width, last.y, annotation.page, false
     );
   } else if (annotation.type === 'textbox' || annotation.type === 'point') {
-    console.log(annotation.type);
+    let text = annotation.type === 'textbox' ? ` (content: ${annotation.content})` : '';
+    insertElementWithinChildren(
+      createScreenReaderOnly(`${annotation.type} annotation ${num}${text}`),
+      annotation.x, annotation.y, annotation.page
+    );
   }
 }
 
 /**
- * Insert an element at a point within the document
+ * Insert an element at a point within the document.
+ * This algorithm will try to insert between elements if possible.
+ * It will however use `insertElementWithinElement` if it is more accurate.
  *
  * @param {Element} el The element to be inserted
  * @param {Number} x The x coordinate of the point
  * @param {Number} y The y coordinate of the point
  * @param {Number} pageNumber The page number to limit elements to
+ * @return {Boolean} True if element was able to be inserted, otherwise false
  */
-function insertElementAtPoint(el, x, y, pageNumber, insertBefore) {
+function insertElementWithinChildren(el, x, y, pageNumber) {
+  // Try and use most accurate method of inserting within an element
+  if (insertElementWithinElement(el, x, y, pageNumber, true)) {
+    return true;
+  }
+
+  // Fall back to inserting between elements
+  let svg = document.querySelector(`svg[data-pdf-annotate-page="${pageNumber}"]`);
+  let rect = svg.getBoundingClientRect();
+  let nodes = [...svg.parentNode.querySelectorAll('.textLayer > div')];
+
+  y = scaleUp(svg, {y}).y + rect.top;
+  x = scaleUp(svg, {x}).x + rect.left;
+
+  // Find the best node to insert before
+  for (let i=0, l=nodes.length; i<l; i++) {
+    let n = nodes[i];
+    let r = n.getBoundingClientRect();
+    if (y <= r.top) {
+      n.parentNode.insertBefore(el, n);
+      return true;
+    }
+  }
+
+  return false;
+}
+
+/**
+ * Insert an element at a point within the document.
+ * This algorithm will only insert within an element amidst it's text content.
+ *
+ * @param {Element} el The element to be inserted
+ * @param {Number} x The x coordinate of the point
+ * @param {Number} y The y coordinate of the point
+ * @param {Number} pageNumber The page number to limit elements to
+ * @param {Boolean} insertBefore Whether the element is to be inserted before or after x
+ * @return {Boolean} True if element was able to be inserted, otherwise false
+ */
+function insertElementWithinElement(el, x, y, pageNumber, insertBefore) {
   const OFFSET_ADJUST = 2;
 
   // If inserting before adjust `x` by looking for element a few px to the right
@@ -140,9 +185,9 @@ function insertElementAtPoint(el, x, y, pageNumber, insertBefore) {
   // of getting a false negative by testing right on the border.
   x = x + (OFFSET_ADJUST * (insertBefore ? 1 : -1));
 
-  let node = elementFromPoint(x, y + OFFSET_ADJUST, pageNumber);
+  let node = textLayerElementFromPoint(x, y + OFFSET_ADJUST, pageNumber);
   if (!node) {
-    return;
+    return false;
   }
   
   // Now that node has been found inverse the adjustment for `x`.
@@ -185,23 +230,25 @@ function insertElementAtPoint(el, x, y, pageNumber, insertBefore) {
   // Update original node with new markup, including element to be inserted
   node.innerHTML = head.join('') + el.outerHTML + tail.join('');
   temp.parentNode.removeChild(temp);
+
+  return true;
 }
 
 /**
- * Get all text layer elements at a given point on a page
+ * Get a text layer element at a given point on a page
  *
  * @param {Number} x The x coordinate of the point
  * @param {Number} y The y coordinate of the point
  * @param {Number} pageNumber The page to limit elements to
  * @return {Element} First text layer element found at the point
  */
-function elementFromPoint(x, y, pageNumber) {
+function textLayerElementFromPoint(x, y, pageNumber) {
   let svg = document.querySelector(`svg[data-pdf-annotate-page="${pageNumber}"]`);
   let rect = svg.getBoundingClientRect();
-  y = scaleUp(svg, {y}).y;
-  x = scaleUp(svg, {x}).x;
+  y = scaleUp(svg, {y}).y + rect.top;
+  x = scaleUp(svg, {x}).x + rect.left;
   return [...svg.parentNode.querySelectorAll('.textLayer [data-canvas-width]')].filter((el) => {
-    return pointIntersectsRect(x + rect.left, y + rect.top, el.getBoundingClientRect());
+    return pointIntersectsRect(x, y, el.getBoundingClientRect());
   })[0];
 }
 
