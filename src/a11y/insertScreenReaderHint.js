@@ -1,5 +1,10 @@
+import PDFJSAnnotate from '../PDFJSAnnotate';
 import insertElementWithinChildren from './insertElementWithinChildren';
 import insertElementWithinElement from './insertElementWithinElement';
+import {
+  findSVGAtPoint,
+  getMetadata
+} from '../UI/utils';
 
 /**
  * Insert a hint into the DOM for screen readers for a specific annotation.
@@ -23,11 +28,17 @@ export default function insertScreenReaderHint(annotation, num) {
       last.x + last.width, last.y, annotation.page, false
     );
   } else if (annotation.type === 'textbox' || annotation.type === 'point') {
-    let text = annotation.type === 'textbox' ? ` (content: ${annotation.content})` : '';
-    insertElementWithinChildren(
-      createScreenReaderOnly(`${annotation.type} annotation ${num}${text}`),
-      annotation.x, annotation.y, annotation.page
-    );
+    let svg = findSVGAtPoint(annotation.x, annotation.y);
+    let { documentId } = getMetadata(svg);
+
+    // Include comments in screen reader hint
+    PDFJSAnnotate.StoreAdapter.getComments(documentId, annotation.uuid).then((comments) => {
+      let text = annotation.type === 'textbox' ? ` (content: ${annotation.content})` : '';
+      insertElementWithinChildren(
+        createScreenReaderOnly(`${annotation.type} annotation ${num}${text} (comments ${comments.length})`),
+        annotation.x, annotation.y, annotation.page
+      );
+    });
   }
 }
 
