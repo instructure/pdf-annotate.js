@@ -2,6 +2,8 @@ import PDFJSAnnotate from '../PDFJSAnnotate';
 import insertElementWithinChildren from './insertElementWithinChildren';
 import insertElementWithinElement from './insertElementWithinElement';
 
+const COMMENT_TYPES = ['highlight', 'point', 'area'];
+
 /**
  * Insert a hint into the DOM for screen readers for a specific annotation.
  *
@@ -11,7 +13,9 @@ import insertElementWithinElement from './insertElementWithinElement';
 export default function insertScreenReaderHint(annotation, num) {
   let screenReaderNode;
 
-  if (annotation.type === 'highlight' || annotation.type === 'strikeout') {
+  switch (annotation.type) {
+  case 'highlight':
+  case 'strikeout':
     let rects = annotation.rectangles;
     let first = rects[0];
     let last = rects[rects.length - 1];
@@ -26,7 +30,10 @@ export default function insertScreenReaderHint(annotation, num) {
       createScreenReaderOnly(`End ${annotation.type} annotation ${num}`),
       last.x + last.width, last.y, annotation.page, false
     );
-  } else if (annotation.type === 'textbox' || annotation.type === 'point') {
+    break;
+
+  case 'textbox':
+  case 'point':
     let text = annotation.type === 'textbox' ? ` (content: ${annotation.content})` : '';
     screenReaderNode = createScreenReaderOnly(`${annotation.type} annotation ${num}${text}`, annotation.uuid);
 
@@ -34,17 +41,21 @@ export default function insertScreenReaderHint(annotation, num) {
       screenReaderNode,
       annotation.x, annotation.y, annotation.page
     );
-  } else if (annotation.type === 'drawing' || annotation.type === 'area') {
+    break;
+
+  case 'drawing':
+  case 'area':
     screenReaderNode = createScreenReaderOnly(`Unlabeled drawing`, annotation.uuid);
 
     let x = typeof annotation.x !== 'undefined' ? annotation.x : annotation.lines[0][0];
     let y = typeof annotation.y !== 'undefined' ? annotation.y : annotation.lines[0][1];
 
     insertElementWithinChildren(screenReaderNode, x, y, annotation.page);
+    break;
   }
 
   // Include comments in screen reader hint
-  if (annotation.type === 'highlight' || annotation.type === 'point' || annotation.type === 'area') {
+  if (COMMENT_TYPES.includes(annotation.type)) {
     PDFJSAnnotate.StoreAdapter.getComments(annotation.documentId, annotation.uuid).then((comments) => {
       // Node needs to be found by querying DOM as it may have been inserted as innerHTML
       // leaving `screenReaderNode` as an invalid reference (see `insertElementWithinElement`).
