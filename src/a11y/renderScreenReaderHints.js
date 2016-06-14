@@ -10,8 +10,10 @@ export default function renderScreenReaderHints(annotations) {
   let types = {
     'highlight': sortByRectPoint,
     'strikeout': sortByRectPoint,
+    'drawing': sortByLinePoint,
     'textbox': sortByPoint,
-    'point': sortByPoint
+    'point': sortByPoint,
+    'area': sortByPoint
   };
 
   // Insert hints for each type
@@ -38,4 +40,14 @@ function sortByPoint(a, b) {
 // Sort annotation by it's first rectangle
 function sortByRectPoint(a, b) {
   return sortByPoint(a.rectangles[0], b.rectangles[0]);
+}
+
+// Sort annotation by it's first line
+function sortByLinePoint(a, b) {
+  let lineA = a.lines[0];
+  let lineB = b.lines[0];
+  return sortByPoint(
+    {x: lineA[0], y: lineA[1]},
+    {x: lineB[0], y: lineB[1]}
+  );
 }

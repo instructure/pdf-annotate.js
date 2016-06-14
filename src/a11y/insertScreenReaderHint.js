@@ -34,10 +34,17 @@ export default function insertScreenReaderHint(annotation, num) {
       screenReaderNode,
       annotation.x, annotation.y, annotation.page
     );
+  } else if (annotation.type === 'drawing' || annotation.type === 'area') {
+    screenReaderNode = createScreenReaderOnly(`Unlabeled drawing`, annotation.uuid);
+
+    let x = typeof annotation.x !== 'undefined' ? annotation.x : annotation.lines[0][0];
+    let y = typeof annotation.y !== 'undefined' ? annotation.y : annotation.lines[0][1];
+
+    insertElementWithinChildren(screenReaderNode, x, y, annotation.page);
   }
 
   // Include comments in screen reader hint
-  if (annotation.type === 'highlight' || annotation.type === 'point') {
+  if (annotation.type === 'highlight' || annotation.type === 'point' || annotation.type === 'area') {
     PDFJSAnnotate.StoreAdapter.getComments(annotation.documentId, annotation.uuid).then((comments) => {
       // Node needs to be found by querying DOM as it may have been inserted as innerHTML
       // leaving `screenReaderNode` as an invalid reference (see `insertElementWithinElement`).
