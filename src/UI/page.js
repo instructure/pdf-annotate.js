@@ -2,6 +2,17 @@ import PDFJSText from 'pdf-text.js';
 import PDFJSAnnotate from '../PDFJSAnnotate';
 import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
 
+// Template for creating a new page
+const PAGE_TEMPLATE = `
+  <div style="visibility: hidden;" class="page" data-loaded="false">
+    <div class="canvasWrapper">
+      <canvas></canvas>
+    </div>
+    <svg class="annotationLayer"></svg>
+    <div class="textLayer"></div>
+  </div>
+`;
+
 /**
  * Create a new page to be appended to the DOM.
  *
@@ -9,29 +20,17 @@ import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
  * @return {HTMLElement}
  */
 export function createPage(pageNumber) {
-  let page = document.createElement('div');
-  let canvas = document.createElement('canvas');
-  let wrapper = document.createElement('div');
-  let annoLayer = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-  let textLayer = document.createElement('div');
+  let temp = document.createElement('div');
+  temp.innerHTML = PAGE_TEMPLATE;
 
-  page.style.visibility = 'hidden';
-  page.className = 'page';
-  wrapper.className = 'canvasWrapper';
-  annoLayer.setAttribute('class', 'annotationLayer');
-  textLayer.className = 'textLayer';
+  let page = temp.children[0];
+  let canvas = page.querySelector('canvas');
 
   page.setAttribute('id', `pageContainer${pageNumber}`);
-  page.setAttribute('data-loaded', 'false');
   page.setAttribute('data-page-number', pageNumber);
 
   canvas.mozOpaque = true;
   canvas.setAttribute('id', `page${pageNumber}`);
-
-  page.appendChild(wrapper);
-  page.appendChild(annoLayer);
-  page.appendChild(textLayer);
-  wrapper.appendChild(canvas);
 
   return page;
 }
@@ -67,6 +66,7 @@ export function renderPage(pageNumber, renderOptions) {
     let sfx = approximateFraction(outputScale.sx);
     let sfy = approximateFraction(outputScale.sy);
 
+    // Adjust width/height for scale
     page.style.visibility = '';
     canvas.width = roundToDivide(viewport.width * outputScale.sx, sfx[0]);
     canvas.height = roundToDivide(viewport.height * outputScale.sy, sfy[0]);
@@ -83,23 +83,21 @@ export function renderPage(pageNumber, renderOptions) {
     container.style.width = `${viewport.width}px`;
     container.style.height = `${viewport.height}px`;
 
-    pdfPage.render({
-      canvasContext,
-      viewport,
-      transform
-    });
-
+    // Render PDF to <canvas/>
+    pdfPage.render({ canvasContext, viewport, transform });
+    // Render Annotations to <svg/>
     PDFJSAnnotate.render(svg, viewport, annotations);
-
+    
+    // Load the text content
     pdfPage.getTextContent({normalizeWhitespace: true}).then(textContent => {
-      // Render text layer
+      // Render text layer for a11y of text content
       PDFJSText.render({
         textContent,
         container,
         viewport,
         textDivs: []
       }).then(() => {
-        // Enable a11y
+        // Enable a11y for annotations
         renderScreenReaderHints(annotations.annotations);
       });
     });
