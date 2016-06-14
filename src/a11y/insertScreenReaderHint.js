@@ -15,7 +15,7 @@ export default function insertScreenReaderHint(annotation, num) {
     let rects = annotation.rectangles;
     let first = rects[0];
     let last = rects[rects.length - 1];
-    screenReaderNode = createScreenReaderOnly(`Begin ${annotation.type} annotation ${num}`);
+    screenReaderNode = createScreenReaderOnly(`Begin ${annotation.type} annotation ${num}`, annotation.uuid);
 
     insertElementWithinElement(
       screenReaderNode,
@@ -28,7 +28,7 @@ export default function insertScreenReaderHint(annotation, num) {
     );
   } else if (annotation.type === 'textbox' || annotation.type === 'point') {
     let text = annotation.type === 'textbox' ? ` (content: ${annotation.content})` : '';
-    screenReaderNode = createScreenReaderOnly(`${annotation.type} annotation ${num}${text}`);
+    screenReaderNode = createScreenReaderOnly(`${annotation.type} annotation ${num}${text}`, annotation.uuid);
 
     insertElementWithinChildren(
       screenReaderNode,
@@ -41,10 +41,20 @@ export default function insertScreenReaderHint(annotation, num) {
     PDFJSAnnotate.StoreAdapter.getComments(annotation.documentId, annotation.uuid).then((comments) => {
       // Node needs to be found by querying DOM as it may have been inserted as innerHTML
       // leaving `screenReaderNode` as an invalid reference (see `insertElementWithinElement`).
-      let srid = screenReaderNode.getAttribute('data-pdf-annotate-srid');
-      let node = document.querySelector(`[data-pdf-annotate-srid="${srid}"]`);
-      if (node) {
+      let node = document.querySelector(`[data-pdf-annotate-srid="${annotation.uuid}"]`);
+      if (node) { 
+        let list = document.createElement('div');
+        list.setAttribute('role', 'list');
+        
+        comments.forEach((c, i) => {
+          let item = document.createElement('div');
+          item.setAttribute('role', 'listitem');
+          item.appendChild(document.createTextNode(`comment ${i+1}: ${c.content}`));
+          list.appendChild(item);
+        });
+
         node.innerHTML += ` (comments ${comments.length})`;
+        node.appendChild(list);
       }
     });
   }
@@ -54,14 +64,14 @@ export default function insertScreenReaderHint(annotation, num) {
  * Create a node that is only visible to screen readers
  *
  * @param {String} content The text content that should be read by screen reader
+ * @param {String} [annotationId] The ID of the annotation assocaited
  * @return {Element} An Element that is only visible to screen readers
  */
-let sridCounter = 0;
-function createScreenReaderOnly(content) {
+function createScreenReaderOnly(content, annotationId) {
   let node = document.createElement('div');
   let text = document.createTextNode(content);
   node.appendChild(text);
-  node.setAttribute('data-pdf-annotate-srid', `${sridCounter++}`);
+  node.setAttribute('data-pdf-annotate-srid', `${annotationId}`);
   node.style.position = 'absolute';
   node.style.left = '-10000px';
   node.style.top = 'auto';
