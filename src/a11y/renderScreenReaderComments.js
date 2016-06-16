@@ -13,10 +13,8 @@ export default function renderScreenReaderComments(documentId, annotationId) {
     // leaving `screenReaderNode` as an invalid reference (see `insertElementWithinElement`).
     let node = document.getElementById(`pdf-annotate-screenreader-${annotationId}`);
     if (node) { 
-      let list = document.createElement('div');
-      list.setAttribute('role', 'list');
-      
-      node.innerHTML += ` (comments ${comments.length})`;
+      let list = document.createElement('ol');
+      node.innerHTML += ` (${comments.length} comments)`;
       node.appendChild(list);
       comments.forEach(insertScreenReaderComment);
     }

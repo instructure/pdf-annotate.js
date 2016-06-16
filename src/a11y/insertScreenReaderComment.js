@@ -4,11 +4,10 @@
  * @param {Object} comment The comment to be inserted
  */
 export default function insertScreenReaderComment(comment) {
-  let list = document.querySelector(`#pdf-annotate-screenreader-${comment.annotation} [role="list"]`);
+  let list = document.querySelector(`#pdf-annotate-screenreader-${comment.annotation} ol`);
   if (list) {
-    let item = document.createElement('div');
-    item.setAttribute('role', 'listitem');
-    item.appendChild(document.createTextNode(`comment ${list.children.length + 1}: ${comment.content}`));
+    let item = document.createElement('li');
+    item.appendChild(document.createTextNode(`${comment.content}`));
     list.appendChild(item);
   }
 }
