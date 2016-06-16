@@ -14,7 +14,7 @@ export default function renderScreenReaderComments(documentId, annotationId) {
     let node = document.getElementById(`pdf-annotate-screenreader-${annotationId}`);
     if (node) { 
       let list = document.createElement('ol');
-      node.innerHTML += ` (${comments.length} comments)`;
+      list.setAttribute('aria-label', 'Comments');
       node.appendChild(list);
       comments.forEach(insertScreenReaderComment);
     }
