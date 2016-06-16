@@ -4,6 +4,21 @@ import insertScreenReaderComment from './insertScreenReaderComment';
 /**
  * Insert the comments into the DOM to be available by screen reader
  *
+ * Example output:
+ *   <div class="screenReaderOnly">
+ *    <div>Begin highlight 1</div>
+ *    <ol aria-label="Comments">
+ *      <li>Foo</li>
+ *      <li>Bar</li>
+ *      <li>Baz</li>
+ *      <li>Qux</li>
+ *    </ol>
+ *  </div>
+ *  <div>Some highlighted text goes here...</div>
+ *  <div class="screenReaderOnly">End highlight 1</div>
+ *
+ * NOTE: `screenReaderOnly` is not a real class, just used for brevity
+ *
  * @param {String} documentId The ID of the document
  * @param {String} annotationId the ID of the annotation
  */
