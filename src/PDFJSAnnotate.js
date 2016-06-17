@@ -34,6 +34,14 @@ export default {
    * @return {Promise}
    */
   getAnnotations(documentId, pageNumber) {
-    return this.StoreAdapter.getAnnotations(...arguments);
+    return this.StoreAdapter.getAnnotations(...arguments).then((annotations) => {
+      // TODO may be best to have this happen on the server
+      if (annotations.annotations) {
+        annotations.annotations.forEach((a) => {
+          a.documentId = documentId;
+        });
+      }
+      return annotations;
+    });
   }
 }
