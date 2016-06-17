@@ -73,16 +73,12 @@ export function renderPage(pageNumber, renderOptions) {
       // highlight and strikeout annotations which require selecting text.
       return pdfPage.getTextContent({normalizeWhitespace: true}).then((textContent) => {
         return new Promise((resolve, reject) => {
-          try {
-            // Render text layer for a11y of text content
-            let textLayer = page.querySelector(`.textLayer`);
-            let textLayerFactory = new PDFJS.DefaultTextLayerFactory();
-            let textLayerBuilder = textLayerFactory.createTextLayerBuilder(textLayer, pageNumber -1, viewport);
-            textLayerBuilder.setTextContent(textContent);
-            textLayerBuilder.render();
-          } catch (e) {
-            reject(e);
-          }
+          // Render text layer for a11y of text content
+          let textLayer = page.querySelector(`.textLayer`);
+          let textLayerFactory = new PDFJS.DefaultTextLayerFactory();
+          let textLayerBuilder = textLayerFactory.createTextLayerBuilder(textLayer, pageNumber -1, viewport);
+          textLayerBuilder.setTextContent(textContent);
+          textLayerBuilder.render();
 
           // Enable a11y for annotations
           // Timeout is needed to wait for `textLayerBuilder.render`
