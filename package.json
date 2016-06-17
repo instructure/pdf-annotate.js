@@ -50,7 +50,6 @@
   },
   "dependencies": {
     "create-stylesheet": "^0.3.0",
-    "object-assign": "^4.0.1",
-    "pdf-text.js": "mzabriskie/pdf-text.js"
+    "object-assign": "^4.0.1"
   }
 }

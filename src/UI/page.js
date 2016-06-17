@@ -1,4 +1,3 @@
-import PDFJSText from 'pdf-text.js';
 import PDFJSAnnotate from '../PDFJSAnnotate';
 import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
 
@@ -36,11 +35,13 @@ export function createPage(pageNumber) {
 }
 
 /**
- * Render a page.
+ * Render a page that has already been created.
  *
- * @param {String} pageNumber The page number to be rendered
+ * @param {Number} pageNumber The page number to be rendered
  * @param {Object} renderOptions The options for rendering
- * @return {Promise}
+ * @return {Promise} Fulfilled once rendering has completed
+ *    - resolve([pdfPage, annotations])
+ *    - reject(Error)
  */
 export function renderPage(pageNumber, renderOptions) {
   let {
@@ -50,62 +51,96 @@ export function renderPage(pageNumber, renderOptions) {
     rotate
   } = renderOptions;
 
+  // Load the page and annotations
   return Promise.all([
     pdfDocument.getPage(pageNumber),
     PDFJSAnnotate.getAnnotations(documentId, pageNumber)
   ]).then(([pdfPage, annotations]) => {
     let page = document.getElementById(`pageContainer${pageNumber}`);
-    let canvas = page.querySelector('canvas');
-    let svg = page.querySelector('svg');
-    let wrapper = page.querySelector('.canvasWrapper');
-    let container = page.querySelector('.textLayer');
+    let svg = page.querySelector('.annotationLayer');
+    let canvas = page.querySelector('.canvasWrapper canvas');
     let canvasContext = canvas.getContext('2d', {alpha: false});
-    let outputScale = getOutputScale(canvasContext);
     let viewport = pdfPage.getViewport(scale, rotate);
-    let transform = !outputScale.scaled ? null : [outputScale.sx, 0, 0, outputScale.sy, 0, 0];
-    let sfx = approximateFraction(outputScale.sx);
-    let sfy = approximateFraction(outputScale.sy);
+    let transform = scalePage(pageNumber, viewport, canvasContext);
 
-    // Adjust width/height for scale
-    page.style.visibility = '';
-    canvas.width = roundToDivide(viewport.width * outputScale.sx, sfx[0]);
-    canvas.height = roundToDivide(viewport.height * outputScale.sy, sfy[0]);
-    canvas.style.width = roundToDivide(viewport.width, sfx[1]) + 'px';
-    canvas.style.height = roundToDivide(viewport.height, sfx[1]) + 'px';
-    svg.setAttribute('width', viewport.width);
-    svg.setAttribute('height', viewport.height);
-    svg.style.width = `${viewport.width}px`;
-    svg.style.height = `${viewport.height}px`;
-    page.style.width = `${viewport.width}px`;
-    page.style.height = `${viewport.height}px`;
-    wrapper.style.width = `${viewport.width}px`;
-    wrapper.style.height = `${viewport.height}px`;
-    container.style.width = `${viewport.width}px`;
-    container.style.height = `${viewport.height}px`;
+    // Render the page
+    return Promise.all([
+      pdfPage.render({ canvasContext, viewport, transform }),
+      PDFJSAnnotate.render(svg, viewport, annotations)
+    ]).then(() => {
+      // Text content is needed for a11y, but is also necessary for creating
+      // highlight and strikeout annotations which require selecting text.
+      return pdfPage.getTextContent({normalizeWhitespace: true}).then((textContent) => {
+        return new Promise((resolve, reject) => {
+          try {
+            // Render text layer for a11y of text content
+            let textLayer = page.querySelector(`.textLayer`);
+            let textLayerFactory = new PDFJS.DefaultTextLayerFactory();
+            let textLayerBuilder = textLayerFactory.createTextLayerBuilder(textLayer, pageNumber -1, viewport);
+            textLayerBuilder.setTextContent(textContent);
+            textLayerBuilder.render();
+          } catch (e) {
+            reject(e);
+          }
 
-    // Render PDF to <canvas/>
-    pdfPage.render({ canvasContext, viewport, transform });
-    // Render Annotations to <svg/>
-    PDFJSAnnotate.render(svg, viewport, annotations);
-    
-    // Load the text content
-    pdfPage.getTextContent({normalizeWhitespace: true}).then(textContent => {
-      // Render text layer for a11y of text content
-      PDFJSText.render({
-        textContent,
-        container,
-        viewport,
-        textDivs: []
-      }).then(() => {
-        // Enable a11y for annotations
-        renderScreenReaderHints(annotations.annotations);
+          // Enable a11y for annotations
+          // Timeout is needed to wait for `textLayerBuilder.render`
+          setTimeout(() => {
+            try {
+              renderScreenReaderHints(annotations.annotations);
+              resolve();
+            } catch (e) {
+              reject(e);
+            }
+          });
+        });
       });
+    }).then(() => {
+      // Indicate that the page was loaded
+      page.setAttribute('data-loaded', 'true');
+
+      return [pdfPage, annotations];
     });
-
-    page.setAttribute('data-loaded', 'true');
-
-    return [pdfPage, annotations];
   });
+}
+
+/**
+ * Scale the elements of a page.
+ *
+ * @param {Number} pageNumber The page number to be scaled
+ * @param {Object} viewport The viewport of the PDF page (see pdfPage.getViewport(scale, rotate))
+ * @param {Object} context The canvas context that the PDF page is rendered to
+ * @return {Array} The transform data for rendering the PDF page
+ */
+function scalePage(pageNumber, viewport, context) {
+  let page = document.getElementById(`pageContainer${pageNumber}`);
+  let canvas = page.querySelector('.canvasWrapper canvas');
+  let svg = page.querySelector('.annotationLayer');
+  let wrapper = page.querySelector('.canvasWrapper');
+  let textLayer = page.querySelector('.textLayer');
+  let outputScale = getOutputScale(context);
+  let transform = !outputScale.scaled ? null : [outputScale.sx, 0, 0, outputScale.sy, 0, 0];
+  let sfx = approximateFraction(outputScale.sx);
+  let sfy = approximateFraction(outputScale.sy);
+
+  // Adjust width/height for scale
+  page.style.visibility = '';
+  canvas.width = roundToDivide(viewport.width * outputScale.sx, sfx[0]);
+  canvas.height = roundToDivide(viewport.height * outputScale.sy, sfy[0]);
+  canvas.style.width = roundToDivide(viewport.width, sfx[1]) + 'px';
+  canvas.style.height = roundToDivide(viewport.height, sfx[1]) + 'px';
+  svg.setAttribute('width', viewport.width);
+  svg.setAttribute('height', viewport.height);
+  svg.style.width = `${viewport.width}px`;
+  svg.style.height = `${viewport.height}px`;
+  page.style.width = `${viewport.width}px`;
+  page.style.height = `${viewport.height}px`;
+  wrapper.style.width = `${viewport.width}px`;
+  wrapper.style.height = `${viewport.height}px`;
+  textLayer.style.width = `${viewport.width}px`;
+  textLayer.style.height = `${viewport.height}px`;
+
+  return transform;
 }
 
 

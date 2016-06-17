@@ -1,13 +1,17 @@
 import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { createPage, renderPage } from '../../src/UI/page';
 import mockPDFDocument from '../mockPDFDocument';
+import mockPDFJS from '../mockPDFJS';
 import { equal } from 'assert';
 
 let page;
+let _PDFJS = window.PDFJS;
 let getAnnotations = PDFJSAnnotate.getAnnotations;
 
 describe('UI::page', function () {
   before(function () {
+    _PDFJS = window.PDFJS;
+    window.PDFJS = mockPDFJS();
     PDFJSAnnotate.getAnnotations = function (documentId, pageNumber) {
       return new Promise((resolve, reject) => {
         resolve({
@@ -20,6 +24,7 @@ describe('UI::page', function () {
   });
 
   after(function () {
+    window.PDFJS = _PDFJS;
     PDFJSAnnotate.getAnnotations = getAnnotations;
   });
 
@@ -55,7 +60,6 @@ describe('UI::page', function () {
   });
 
   it('should render a page', function (done) {
-    let pdfPage, annotations;
     document.body.appendChild(page);
 
     renderPage(1, {
@@ -63,12 +67,7 @@ describe('UI::page', function () {
       pdfDocument: mockPDFDocument(),
       scale: 1,
       rotate: 0
-    }).then(function ([page, annos]) {
-      pdfPage = page;
-      annotations = annos;
-    });
-
-    setTimeout(function () {
+    }).then(function ([pdfPage, annotations]) {
       equal(page.getAttribute('data-loaded'), 'true');
       equal(page.style.visibility, '');
 
@@ -76,7 +75,7 @@ describe('UI::page', function () {
       equal(Array.isArray(annotations.annotations), true);
 
       done();
-    }, 0)
+    });
   });
 });
 
