@@ -39,9 +39,10 @@ export function createPage(pageNumber) {
  *
  * @param {Number} pageNumber The page number to be rendered
  * @param {Object} renderOptions The options for rendering
- * @return {Promise} Fulfilled once rendering has completed
- *    - resolve([pdfPage, annotations])
- *    - reject(Error)
+ * @return {Promise} Settled once rendering has completed
+ *  A settled Promise will be either:
+ *    - fulfilled: [pdfPage, annotations]
+ *    - rejected: Error
  */
 export function renderPage(pageNumber, renderOptions) {
   let {

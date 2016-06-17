@@ -8,10 +8,10 @@ import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
  * @param {SVGElement} svg The SVG element to render the annotations to
  * @param {Object} viewport The page viewport data
  * @param {Object} data The response from PDFJSAnnotate.StoreAdapter.getAnnotations
- * @return {Promise} Fulfilled once rendering has completed
- *  Promise will fulfill in one of two ways:
- *    - resolved(SVGElement)
- *    - rejected(Error)
+ * @return {Promise} Settled once rendering has completed
+ *  A settled Promise will be either:
+ *    - fulfilled: SVGElement
+ *    - rejected: Error
  */
 export default function render(svg, viewport, data) {
   return new Promise((resolve, reject) => {
