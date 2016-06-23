@@ -1,4 +1,5 @@
 import insertElementWithinElement from './insertElementWithinElement';
+import { pointIntersectsRect } from '../UI/utils';
 import { scaleUp } from '../UI/utils'; 
 
 /**
@@ -34,6 +35,14 @@ export default function insertElementWithinChildren(el, x, y, pageNumber) {
       n.parentNode.insertBefore(el, n);
       return true;
     }
+  }
+
+  // If all else fails try to append to the bottom
+  let textLayer = svg.parentNode.querySelector('.textLayer');
+  let textRect = textLayer.getBoundingClientRect();
+  if (pointIntersectsRect(x, y, textRect)) {
+    textLayer.appendChild(el);
+    return true;
   }
 
   return false;

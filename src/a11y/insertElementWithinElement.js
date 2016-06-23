@@ -22,7 +22,7 @@ export default function insertElementWithinElement(el, x, y, pageNumber, insertB
   // Otherwise adjust a few px to the left
   // This is to allow a little tolerance by searching within the box, instead
   // of getting a false negative by testing right on the border.
-  x = x + (OFFSET_ADJUST * (insertBefore ? 1 : -1));
+  x = Math.max(x + (OFFSET_ADJUST * (insertBefore ? 1 : -1)), 0);
 
   let node = textLayerElementFromPoint(x, y + OFFSET_ADJUST, pageNumber);
   if (!node) {
