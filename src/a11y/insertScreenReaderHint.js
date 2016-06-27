@@ -13,18 +13,15 @@ const COMMENT_TYPES = ['highlight', 'point', 'area'];
  * @param {Number} num The number of the annotation out of all annotations of the same type
  */
 export default function insertScreenReaderHint(annotation, num) {
-  let screenReaderNode;
-
   switch (annotation.type) {
     case 'highlight':
     case 'strikeout':
       let rects = annotation.rectangles;
       let first = rects[0];
       let last = rects[rects.length - 1];
-      screenReaderNode = createScreenReaderOnly(`Begin ${annotation.type} annotation ${num}`, annotation.uuid);
 
       insertElementWithinElement(
-        screenReaderNode,
+        createScreenReaderOnly(`Begin ${annotation.type} annotation ${num}`, annotation.uuid),
         first.x, first.y, annotation.page, true
       );
 
@@ -37,22 +34,22 @@ export default function insertScreenReaderHint(annotation, num) {
     case 'textbox':
     case 'point':
       let text = annotation.type === 'textbox' ? ` (content: ${annotation.content})` : '';
-      screenReaderNode = createScreenReaderOnly(`${annotation.type} annotation ${num}${text}`, annotation.uuid);
 
       insertElementWithinChildren(
-        screenReaderNode,
+        createScreenReaderOnly(`${annotation.type} annotation ${num}${text}`, annotation.uuid),
         annotation.x, annotation.y, annotation.page
       );
       break;
 
     case 'drawing':
     case 'area':
-      screenReaderNode = createScreenReaderOnly(`Unlabeled drawing`, annotation.uuid);
-
       let x = typeof annotation.x !== 'undefined' ? annotation.x : annotation.lines[0][0];
       let y = typeof annotation.y !== 'undefined' ? annotation.y : annotation.lines[0][1];
 
-      insertElementWithinChildren(screenReaderNode, x, y, annotation.page);
+      insertElementWithinChildren(
+        createScreenReaderOnly(`Unlabeled drawing`, annotation.uuid),
+        x, y, annotation.page
+      );
       break;
   }
 
