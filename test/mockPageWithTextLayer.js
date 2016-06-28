@@ -24,7 +24,7 @@ export default function mockPageWithTextLayer(pageNumber = 1) {
   textLayer.innerHTML = TEXT_LAYER_TEMPLATE;
   textLayer.style.padding = 0;
   textLayer.style.margin = 0;
-  textLayer.style.fontFamily = 'Courier New';
+  textLayer.style.fontFamily = 'Courier';
   textLayer.style.fontSize = '10px';
   textLayer.style.lineHeight = '10px';
   
