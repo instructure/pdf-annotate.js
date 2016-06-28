@@ -28,7 +28,7 @@ function handleDocumentMousedown() {
 /**
  * Handle document.mouseup event
  *
- * @param {Event} The DOM event to be handled
+ * @param {Event} e The DOM event to be handled
  */
 function handleDocumentMouseup(e) {
   let svg;
@@ -57,10 +57,25 @@ function handleDocumentMouseup(e) {
 /**
  * Handle document.mousemove event
  *
- * @param {Event} The DOM event to be handled
+ * @param {Event} e The DOM event to be handled
  */
 function handleDocumentMousemove(e) {
   savePoint(e.clientX, e.clientY);
+}
+
+/**
+ * Handle document.keyup event
+ *
+ * @param {Event} e The DOM event to be handled
+ */
+function handleDocumentKeyup(e) {
+  // Cancel rect if Esc is pressed
+  if (e.keyCode === 27) {
+    lines = null;
+    path.parentNode.removeChild(path);
+    document.removeEventListener('mousemove', handleDocumentMousemove);
+    document.removeEventListener('mouseup', handleDocumentMouseup);
+  }
 }
 
 /**
@@ -118,6 +133,7 @@ export function enablePen() {
 
   _enabled = true;
   document.addEventListener('mousedown', handleDocumentMousedown);
+  document.addEventListener('keyup', handleDocumentKeyup);
   disableUserSelect();
 }
 
@@ -129,6 +145,7 @@ export function disablePen() {
 
   _enabled = false;
   document.removeEventListener('mousedown', handleDocumentMousedown);
+  document.removeEventListener('keyup', handleDocumentKeyup);
   enableUserSelect();
 }
 

@@ -119,6 +119,24 @@ function handleDocumentMouseup(e) {
 }
 
 /**
+ * Handle document.keyup event
+ *
+ * @param {Event} e The DOM event to handle
+ */
+function handleDocumentKeyup(e) {
+  // Cancel rect if Esc is pressed
+  if (e.keyCode === 27) {
+    let selection = window.getSelection();
+    selection.removeAllRanges();
+    if (overlay && overlay.parentNode) {
+      overlay.parentNode.removeChild(overlay);
+      overlay = null;
+      document.removeEventListener('mousemove', handleDocumentMousemove);
+    }
+  }
+}
+
+/**
  * Save a rect annotation
  *
  * @param {String} type The type of rect (area, highlight, strikeout)
@@ -199,6 +217,7 @@ export function enableRect(type) {
   _enabled = true;
   document.addEventListener('mouseup', handleDocumentMouseup);
   document.addEventListener('mousedown', handleDocumentMousedown);
+  document.addEventListener('keyup', handleDocumentKeyup);
 }
 
 /**
@@ -210,5 +229,6 @@ export function disableRect() {
   _enabled = false;
   document.removeEventListener('mouseup', handleDocumentMouseup);
   document.removeEventListener('mousedown', handleDocumentMousedown);
+  document.removeEventListener('keyup', handleDocumentKeyup);
 }
 
