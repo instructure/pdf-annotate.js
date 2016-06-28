@@ -41,7 +41,7 @@ describe('a11y::insertElementWithinChildren', function () {
   it('should insert within an element if needed', function () {
     let el = createElement('hello');
     let textLayer = page.querySelector('.textLayer');
-    insertElementWithinChildren(el, rect.left + 10 + (CHAR_WIDTH * 5), rect.top + 15, 1);
+    insertElementWithinChildren(el, rect.left + 10 + (CHAR_WIDTH * (process.env.CI === 'true' ? 6 : 5)), rect.top + 15, 1);
     let node = textLayer.children[0];
     equal(node.innerHTML, 'abcde<div>hello</div>fghijklmnopqrstuvwxyz');
   });

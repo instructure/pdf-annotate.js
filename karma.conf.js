@@ -1,3 +1,5 @@
+var webpack = require('webpack');
+
 module.exports = function(config) {
   config.set({
 
@@ -51,7 +53,13 @@ module.exports = function(config) {
             loader: 'istanbul-instrumenter'
           }
         ]
-      }
+      },
+      plugins: [
+        new webpack.DefinePlugin({
+          'process.env.CI': JSON.stringify(process.env.CI),
+          'process.env.TRAVIS': JSON.stringify(process.env.TRAVIS)
+        })
+      ]
     },
 
     webpackServer: {
