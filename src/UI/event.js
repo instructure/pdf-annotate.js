@@ -48,5 +48,6 @@ document.addEventListener('click', function handleDocumentClick(e) {
 //   mouseOverNode = target;
 // });
 
+export function fireEvent() { emitter.emit(...arguments); };
 export function addEventListener() { emitter.on(...arguments); };
 export function removeEventListener() { emitter.removeListener(...arguments); };

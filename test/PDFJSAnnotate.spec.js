@@ -1,7 +1,7 @@
-import PDFJSAnnotate from '../src/PDFJSAnnotate';
+import PDFJSAnnotate, { StoreAdapter } from '../src/PDFJSAnnotate';
 import { equal } from 'assert';
 
-PDFJSAnnotate.StoreAdapter = {
+PDFJSAnnotate.StoreAdapter = new StoreAdapter({
   getAnnotations: (documentId, pageNumber) => {
     return Promise.resolve({
       documentId,
@@ -15,16 +15,26 @@ PDFJSAnnotate.StoreAdapter = {
       ]
     });
   }
-};
+});
 
 describe('PDFJSAnnotate', function () {
-  it('should get anotations', function (done) {
+  it('should get annotations', function (done) {
     PDFJSAnnotate.getAnnotations().then((annotations) => {
       equal(annotations.annotations[0].type, 'point');
       done();
     });
   });
-  
+
+  it('should throw error if StoreAdapter is not valid', function () {
+    let error;
+    try {
+      PDFJSAnnotate.StoreAdapter = {};
+    } catch (e) {
+      error = e;
+    }
+    equal(error instanceof Error, true);
+  });
+ 
   it('should inject documentId and pageNumber', function (done) {
     PDFJSAnnotate.getAnnotations('document-id', 'page-number').then((annotations) => {
       equal(annotations.documentId, 'document-id');
