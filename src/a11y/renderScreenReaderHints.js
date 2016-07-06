@@ -1,4 +1,8 @@
 import insertScreenReaderHint from './insertScreenReaderHint';
+import initEventHandlers from './initEventHandlers';
+
+// TODO This is not the right place for this to live
+initEventHandlers();
 
 /**
  * Insert hints into the DOM for screen readers.
@@ -6,19 +10,9 @@ import insertScreenReaderHint from './insertScreenReaderHint';
  * @param {Array} annotations The annotations that hints are inserted for
  */
 export default function renderScreenReaderHints(annotations) {
-  // Arrange supported types and associated sort methods
-  let types = {
-    'highlight': sortByRectPoint,
-    'strikeout': sortByRectPoint,
-    'drawing': sortByLinePoint,
-    'textbox': sortByPoint,
-    'point': sortByPoint,
-    'area': sortByPoint
-  };
-
   // Insert hints for each type
-  Object.keys(types).forEach((type) => {
-    let sortBy = types[type];
+  Object.keys(SORT_TYPES).forEach((type) => {
+    let sortBy = SORT_TYPES[type];
     annotations
       .filter((a) => a.type === type)
       .sort(sortBy)
@@ -51,3 +45,14 @@ function sortByLinePoint(a, b) {
     {x: lineB[0], y: lineB[1]}
   );
 }
+
+// Arrange supported types and associated sort methods
+const SORT_TYPES = {
+  'highlight': sortByRectPoint,
+  'strikeout': sortByRectPoint,
+  'drawing': sortByLinePoint,
+  'textbox': sortByPoint,
+  'point': sortByPoint,
+  'area': sortByPoint
+};
+

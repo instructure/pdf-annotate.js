@@ -20,15 +20,26 @@ import insertScreenReaderComment from './insertScreenReaderComment';
  * NOTE: `screenReaderOnly` is not a real class, just used for brevity
  *
  * @param {String} documentId The ID of the document
- * @param {String} annotationId the ID of the annotation
+ * @param {String} annotationId The ID of the annotation
+ * @param {Array} [comments] Optionally preloaded comments to be rendered
+ * @return {Promise}
  */
-export default function renderScreenReaderComments(documentId, annotationId) {
-  PDFJSAnnotate.StoreAdapter.getComments(documentId, annotationId).then((comments) => {
+export default function renderScreenReaderComments(documentId, annotationId, comments) {
+  let promise;
+
+  if (Array.isArray(comments)) {
+    promise = Promise.resolve(comments);
+  } else {
+    promise = PDFJSAnnotate.StoreAdapter.getComments(documentId, annotationId);
+  }
+
+  return promise.then((comments) => {
     // Node needs to be found by querying DOM as it may have been inserted as innerHTML
     // leaving `screenReaderNode` as an invalid reference (see `insertElementWithinElement`).
     let node = document.getElementById(`pdf-annotate-screenreader-${annotationId}`);
     if (node) { 
       let list = document.createElement('ol');
+      list.setAttribute('id', `pdf-annotate-screenreader-comment-list-${annotationId}`);
       list.setAttribute('aria-label', 'Comments');
       node.appendChild(list);
       comments.forEach(insertScreenReaderComment);

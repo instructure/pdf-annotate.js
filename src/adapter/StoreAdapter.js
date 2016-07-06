@@ -63,7 +63,7 @@ export default class StoreAdapter {
   set addAnnotation(fn) {
     this.__addAnnotation = function addAnnotation(documentId, pageNumber, annotation) {
       return fn(...arguments).then((annotation) => {
-        fireEvent('annotation:add', annotation);
+        fireEvent('annotation:add', documentId, pageNumber, annotation);
         return annotation;
       });
     };
@@ -82,7 +82,7 @@ export default class StoreAdapter {
   set editAnnotation(fn) {
     this.__editAnnotation = function editAnnotation(documentId, annotationId, annotation) {
       return fn(...arguments).then((annotation) => {
-        fireEvent('annotation:edit', annotation);
+        fireEvent('annotation:edit', documentId, annotationId, annotation);
         return annotation;
       });
     };
@@ -101,7 +101,7 @@ export default class StoreAdapter {
     this.__deleteAnnotation = function deleteAnnotation(documentId, annotationId) {
       return fn(...arguments).then((success) => {
         if (success) {
-          fireEvent('annotation:delete', annotationId);
+          fireEvent('annotation:delete', documentId, annotationId);
         }
         return success;
       });
@@ -130,7 +130,7 @@ export default class StoreAdapter {
   set addComment(fn) {
     this.__addComment = function addComment(documentId, annotationId, content) {
       return fn(...arguments).then((comment) => {
-        fireEvent('comment:add', comment);
+        fireEvent('comment:add', documentId, annotationId, comment);
         return comment;
       });
     };
@@ -149,7 +149,7 @@ export default class StoreAdapter {
     this.__deleteComment = function deleteComment(documentId, commentId) {
       return fn(...arguments).then((success) => {
         if (success) {
-          fireEvent('comment:delete', commentId);
+          fireEvent('comment:delete', documentId, commentId);
         }
         return success;
       });

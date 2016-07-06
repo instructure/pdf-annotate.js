@@ -12,7 +12,7 @@ const COMMENT_TYPES = ['highlight', 'point', 'area'];
  * @param {Object} annotation The annotation to insert a hint for
  * @param {Number} num The number of the annotation out of all annotations of the same type
  */
-export default function insertScreenReaderHint(annotation, num) {
+export default function insertScreenReaderHint(annotation, num = 0) {
   switch (annotation.type) {
     case 'highlight':
     case 'strikeout':
@@ -26,7 +26,7 @@ export default function insertScreenReaderHint(annotation, num) {
       );
 
       insertElementWithinElement(
-        createScreenReaderOnly(`End ${annotation.type} annotation ${num}`),
+        createScreenReaderOnly(`End ${annotation.type} annotation ${num}`, `${annotation.uuid}-end`),
         last.x + last.width, last.y, annotation.page, false
       );
       break;

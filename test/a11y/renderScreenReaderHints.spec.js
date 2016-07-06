@@ -47,7 +47,7 @@ describe('a11y::renderScreenReaderHints', function () {
 
       let target = textLayer.children[0];
       let begin = mockHint(12345, 'Begin highlight annotation 1');
-      let end = mockHint(undefined, 'End highlight annotation 1');
+      let end = mockHint('12345-end', 'End highlight annotation 1');
       let result = `a${begin}b${end}cdefghijklmnopqrstuvwxyz`;
 
       equal(target.innerHTML, result);
@@ -68,7 +68,7 @@ describe('a11y::renderScreenReaderHints', function () {
       
       let target = textLayer.children[0];
       let begin = mockHint(12345, 'Begin strikeout annotation 1');
-      let end = mockHint(undefined, 'End strikeout annotation 1');
+      let end = mockHint('12345-end', 'End strikeout annotation 1');
       let result = `abcde${begin}fghijkl${end}mnopqrstuvwxyz`;
 
       equal(target.innerHTML, result);

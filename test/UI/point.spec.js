@@ -9,8 +9,10 @@ import mockSVGContainer from '../mockSVGContainer';
 let svg;
 let addAnnotationSpy;
 let addCommentSpy;
-let __addAnnotation = PDFJSAnnotate.StoreAdapter.addAnnotation;
 let __addComment = PDFJSAnnotate.StoreAdapter.addComment;
+let __getComments = PDFJSAnnotate.StoreAdapter.getComments;
+let __addAnnotation = PDFJSAnnotate.StoreAdapter.addAnnotation;
+let __getAnnotations = PDFJSAnnotate.StoreAdapter.getAnnotations
 
 function simulateCreatePointAnnotation(textContent) {
   let rect = svg.getBoundingClientRect();
@@ -27,7 +29,7 @@ function simulateCreatePointAnnotation(textContent) {
       input.value = textContent;
       simulant.fire(input, 'blur');
     }
-  }, 0);
+  });
 }
 
 describe('UI::point', function () {
@@ -39,8 +41,18 @@ describe('UI::point', function () {
 
     addAnnotationSpy = sinon.spy();
     addCommentSpy = sinon.spy();
-    PDFJSAnnotate.StoreAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
     PDFJSAnnotate.StoreAdapter.addComment = mockAddComment(addCommentSpy);
+    PDFJSAnnotate.StoreAdapter.getComments = () => {
+      return Promise.resolve([]);
+    }
+    PDFJSAnnotate.StoreAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
+    PDFJSAnnotate.StoreAdapter.getAnnotations = (documentId, pageNumber) => {
+      return Promise.resolve({
+        documentId,
+        pageNumber,
+        annotations: []
+      });
+    }
   });
 
   afterEach(function () {
@@ -57,8 +69,10 @@ describe('UI::point', function () {
   });
 
   after(function () {
-    PDFJSAnnotate.StoreAdapter.addAnnotation = __addAnnotation;
     PDFJSAnnotate.StoreAdapter.addComment = __addComment;
+    PDFJSAnnotate.StoreAdapter.getComments = __getComments;
+    PDFJSAnnotate.StoreAdapter.addAnnotation = __addAnnotation;
+    PDFJSAnnotate.StoreAdapter.getAnnotations = __getAnnotations;
   });
 
   it('should do nothing when disabled', function (done) {
@@ -69,7 +83,7 @@ describe('UI::point', function () {
       equal(addAnnotationSpy.called, false);
       equal(addCommentSpy.called, false);
       done();
-    }, 0);
+    });
   });
 
   it('should create an annotation when enabled', function (done) {
@@ -92,7 +106,7 @@ describe('UI::point', function () {
       equal(addCommentArgs[2], 'foo bar baz');
       
       done();
-    }, 0);
+    });
   });
 
 });

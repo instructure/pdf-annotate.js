@@ -39,10 +39,12 @@ export default function insertElementWithinChildren(el, x, y, pageNumber) {
 
   // If all else fails try to append to the bottom
   let textLayer = svg.parentNode.querySelector('.textLayer');
-  let textRect = textLayer.getBoundingClientRect();
-  if (pointIntersectsRect(x, y, textRect)) {
-    textLayer.appendChild(el);
-    return true;
+  if (textLayer) {
+    let textRect = textLayer.getBoundingClientRect();
+    if (pointIntersectsRect(x, y, textRect)) {
+      textLayer.appendChild(el);
+      return true;
+    }
   }
 
   return false;
