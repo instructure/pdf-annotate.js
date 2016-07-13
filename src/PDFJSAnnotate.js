@@ -26,9 +26,10 @@ export default {
    * @param {StoreAdapter} adapter The StoreAdapter implementation to be used.
    */
   set StoreAdapter(adapter) {
-    if (!(adapter instanceof StoreAdapter)) {
-      throw new Error('adapter must be an instance of StoreAdapter');
-    }
+    // TODO this throws an error when bundled
+    // if (!(adapter instanceof StoreAdapter)) {
+    //   throw new Error('adapter must be an instance of StoreAdapter');
+    // }
 
     this.__storeAdapter = adapter;
   },
