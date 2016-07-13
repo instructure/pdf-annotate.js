@@ -67,6 +67,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 	exports.default = _PDFJSAnnotate2.default;
+	module.exports = exports['default'];
 
 /***/ },
 /* 1 */
@@ -409,6 +410,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}();
 
 	exports.default = StoreAdapter;
+	module.exports = exports['default'];
 
 /***/ },
 /* 3 */
@@ -428,6 +430,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	function abstractFunction(name) {
 	  throw new Error(name + ' is not implemented');
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 4 */
@@ -1286,6 +1289,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    resolve(svg);
 	  });
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 9 */
@@ -1474,6 +1478,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  return child;
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 10 */
@@ -1570,6 +1575,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  return group;
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 12 */
@@ -1606,6 +1612,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    node.setAttribute(keyCase(key), attributes[key]);
 	  });
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 13 */
@@ -1631,6 +1638,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 	  return color;
 	}
+	module.exports = exports["default"];
 
 /***/ },
 /* 14 */
@@ -1681,6 +1689,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  return path;
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 15 */
@@ -1750,6 +1759,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  return outerSVG;
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 16 */
@@ -1824,6 +1834,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  return rect;
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 17 */
@@ -1866,6 +1877,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  return text;
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 18 */
@@ -1940,6 +1952,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  'point': sortByPoint,
 	  'area': sortByPoint
 	};
+	module.exports = exports['default'];
 
 /***/ },
 /* 19 */
@@ -2015,6 +2028,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    (0, _renderScreenReaderComments2.default)(annotation.documentId, annotation.uuid);
 	  }
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 20 */
@@ -2046,6 +2060,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  node.style.overflow = 'hidden';
 	  return node;
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 21 */
@@ -2115,6 +2130,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  return false;
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 22 */
@@ -2217,6 +2233,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    return (0, _utils.pointIntersectsRect)(x, y, el.getBoundingClientRect());
 	  })[0];
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 23 */
@@ -2284,6 +2301,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  });
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 24 */
@@ -2313,6 +2331,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    list.appendChild(item);
 	  }
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 25 */
@@ -2442,6 +2461,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    el.parentNode.removeChild(el);
 	  }
 	}
+	module.exports = exports['default'];
 
 /***/ },
 /* 26 */
@@ -2476,6 +2496,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  disableText: _text.disableText, enableText: _text.enableText, setText: _text.setText,
 	  createPage: _page.createPage, renderPage: _page.renderPage
 	};
+	module.exports = exports['default'];
 
 /***/ },
 /* 27 */
