@@ -36,7 +36,7 @@ function reorderAnnotationsByType(documentId, pageNumber, type) {
     })
     .then((annotations) => {
       annotations.forEach((a) => {
-        handleAnnotationDelete(documentId, a.uuid);
+        removeAnnotation(documentId, a.uuid);
       });
 
       return annotations;
