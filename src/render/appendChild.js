@@ -26,14 +26,14 @@ function getTranslation(viewport) {
       break;
     case 90:
       x = 0;
-      y = viewport.width * -1;
+      y = (viewport.width / viewport.scale) * -1;
       break;
     case 180:
-      x = viewport.width * -1;
-      y = viewport.height * -1;
+      x = (viewport.width / viewport.scale) * -1;
+      y = (viewport.height / viewport.scale) * -1;
       break;
     case 270:
-      x = viewport.height * -1;
+      x = (viewport.height / viewport.scale) * -1;
       y = 0;
       break;
   }
@@ -50,18 +50,6 @@ function getTranslation(viewport) {
  */
 function transform(node, viewport) {
   let trans = getTranslation(viewport);
-  let isNestedPath = node.nodeName.toLowerCase() === 'path' &&
-      node.parentNode &&
-      node.parentNode.getAttribute('viewBox') === '0 0 1000 1000';
-
-  // This feels like a hack, but it fixes weird positioning of comment bubble.
-  // I suspect that this correlates with the viewBox attribute (0 0 1000 1000).
-  if (isNestedPath && trans.x !== 0) {
-    trans.x = -1000;
-  }
-  if (isNestedPath && trans.y !== 0) {
-    trans.y = -1000;
-  }
 
   // Let SVG natively transform the element
   node.setAttribute('transform', `scale(${viewport.scale}) rotate(${viewport.rotation}) translate(${trans.x}, ${trans.y})`);
