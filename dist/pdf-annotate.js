@@ -78,45 +78,58 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.StoreAdapter = undefined;
 	
-	var _StoreAdapter2 = __webpack_require__(2);
+	var _StoreAdapter = __webpack_require__(2);
 	
-	var _StoreAdapter3 = _interopRequireDefault(_StoreAdapter2);
+	var _StoreAdapter2 = _interopRequireDefault(_StoreAdapter);
 	
-	var _render = __webpack_require__(8);
+	var _LocalStoreAdapter = __webpack_require__(8);
+	
+	var _LocalStoreAdapter2 = _interopRequireDefault(_LocalStoreAdapter);
+	
+	var _render = __webpack_require__(10);
 	
 	var _render2 = _interopRequireDefault(_render);
 	
-	var _UI = __webpack_require__(26);
+	var _UI = __webpack_require__(28);
 	
 	var _UI2 = _interopRequireDefault(_UI);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	exports.StoreAdapter = _StoreAdapter3.default;
 	exports.default = {
 	  /**
-	   * StoreAdapter is an abstract object that needs to be defined
-	   * so that PDFJSAnnotate knows how to communicate with your server.
+	   * Abstract class that needs to be defined so PDFJSAnnotate
+	   * knows how to communicate with your server.
 	   */
-	  __storeAdapter: new _StoreAdapter3.default(),
+	  StoreAdapter: _StoreAdapter2.default,
+	
+	  /**
+	   * Implementation of StoreAdapter that stores annotation data to localStorage.
+	   */
+	  LocalStoreAdapter: _LocalStoreAdapter2.default,
+	
+	  /**
+	   * Abstract instance of StoreAdapter
+	   */
+	  __storeAdapter: new _StoreAdapter2.default(),
 	
 	  /**
 	   * Getter for the underlying StoreAdapter property
 	   *
 	   * @return {StoreAdapter}
 	   */
-	  get StoreAdapter() {
+	  getStoreAdapter: function getStoreAdapter() {
 	    return this.__storeAdapter;
 	  },
+	
 	
 	  /**
 	   * Setter for the underlying StoreAdapter property
 	   *
 	   * @param {StoreAdapter} adapter The StoreAdapter implementation to be used.
 	   */
-	  set StoreAdapter(adapter) {
+	  setStoreAdapter: function setStoreAdapter(adapter) {
 	    // TODO this throws an error when bundled
 	    // if (!(adapter instanceof StoreAdapter)) {
 	    //   throw new Error('adapter must be an instance of StoreAdapter');
@@ -124,6 +137,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	    this.__storeAdapter = adapter;
 	  },
+	
 	
 	  /**
 	   * UI is a helper for instrumenting UI interactions for creating,
@@ -150,11 +164,12 @@ return /******/ (function(modules) { // webpackBootstrap
 	   * @return {Promise}
 	   */
 	  getAnnotations: function getAnnotations(documentId, pageNumber) {
-	    var _StoreAdapter;
+	    var _getStoreAdapter;
 	
-	    return (_StoreAdapter = this.StoreAdapter).getAnnotations.apply(_StoreAdapter, arguments);
+	    return (_getStoreAdapter = this.getStoreAdapter()).getAnnotations.apply(_getStoreAdapter, arguments);
 	  }
 	};
+	module.exports = exports['default'];
 
 /***/ },
 /* 2 */
@@ -1232,28 +1247,216 @@ return /******/ (function(modules) { // webpackBootstrap
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	
+	var _uuid = __webpack_require__(9);
+	
+	var _uuid2 = _interopRequireDefault(_uuid);
+	
+	var _StoreAdapter2 = __webpack_require__(2);
+	
+	var _StoreAdapter3 = _interopRequireDefault(_StoreAdapter2);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	// StoreAdapter for working with localStorage
+	// This is ideal for testing, examples, and prototyping
+	
+	var LocalStoreAdapter = function (_StoreAdapter) {
+	  _inherits(LocalStoreAdapter, _StoreAdapter);
+	
+	  function LocalStoreAdapter() {
+	    _classCallCheck(this, LocalStoreAdapter);
+	
+	    return _possibleConstructorReturn(this, Object.getPrototypeOf(LocalStoreAdapter).call(this, {
+	      getAnnotations: function getAnnotations(documentId, pageNumber) {
+	        return new Promise(function (resolve, reject) {
+	          var annotations = _getAnnotations(documentId).filter(function (i) {
+	            return i.page === pageNumber && i.class === 'Annotation';
+	          });
+	
+	          resolve({
+	            documentId: documentId,
+	            pageNumber: pageNumber,
+	            annotations: annotations
+	          });
+	        });
+	      },
+	      getAnnotation: function getAnnotation(documentId, annotationId) {
+	        return Promise.resolve(_getAnnotations(documentId)[findAnnotation(documentId, annotationId)]);
+	      },
+	      addAnnotation: function addAnnotation(documentId, pageNumber, annotation) {
+	        return new Promise(function (resolve, reject) {
+	          annotation.class = 'Annotation';
+	          annotation.uuid = (0, _uuid2.default)();
+	          annotation.page = pageNumber;
+	
+	          var annotations = _getAnnotations(documentId);
+	          annotations.push(annotation);
+	          updateAnnotations(documentId, annotations);
+	
+	          resolve(annotation);
+	        });
+	      },
+	      editAnnotation: function editAnnotation(documentId, annotationId, annotation) {
+	        return new Promise(function (resolve, reject) {
+	          var annotations = _getAnnotations(documentId);
+	          annotations[findAnnotation(documentId, annotationId)] = annotation;
+	          updateAnnotations(documentId, annotations);
+	
+	          resolve(annotation);
+	        });
+	      },
+	      deleteAnnotation: function deleteAnnotation(documentId, annotationId) {
+	        return new Promise(function (resolve, reject) {
+	          var index = findAnnotation(documentId, annotationId);
+	          if (index > -1) {
+	            var annotations = _getAnnotations(documentId);
+	            annotations.splice(index, 1);
+	            updateAnnotations(documentId, annotations);
+	          }
+	
+	          resolve(true);
+	        });
+	      },
+	      getComments: function getComments(documentId, annotationId) {
+	        return new Promise(function (resolve, reject) {
+	          resolve(_getAnnotations(documentId).filter(function (i) {
+	            return i.class === 'Comment' && i.annotation === annotationId;
+	          }));
+	        });
+	      },
+	      addComment: function addComment(documentId, annotationId, content) {
+	        return new Promise(function (resolve, reject) {
+	          var comment = {
+	            class: 'Comment',
+	            uuid: (0, _uuid2.default)(),
+	            annotation: annotationId,
+	            content: content
+	          };
+	
+	          var annotations = _getAnnotations(documentId);
+	          annotations.push(comment);
+	          updateAnnotations(documentId, annotations);
+	
+	          resolve(comment);
+	        });
+	      },
+	      deleteComment: function deleteComment(documentId, commentId) {
+	        return new Promise(function (resolve, reject) {
+	          _getAnnotations(documentId);
+	          var index = -1;
+	          var annotations = _getAnnotations(documentId);
+	          for (var i = 0, l = annotations.length; i < l; i++) {
+	            if (annotations[i].uuid === commentId) {
+	              index = i;
+	              break;
+	            }
+	          }
+	
+	          if (index > -1) {
+	            annotations.splice(index, 1);
+	            updateAnnotations(documentId, annotations);
+	          }
+	
+	          resolve(true);
+	        });
+	      }
+	    }));
+	  }
+	
+	  return LocalStoreAdapter;
+	}(_StoreAdapter3.default);
+	
+	exports.default = LocalStoreAdapter;
+	
+	
+	function _getAnnotations(documentId) {
+	  return JSON.parse(localStorage.getItem(documentId + '/annotations')) || [];
+	}
+	
+	function updateAnnotations(documentId, annotations) {
+	  localStorage.setItem(documentId + '/annotations', JSON.stringify(annotations));
+	}
+	
+	function findAnnotation(documentId, annotationId) {
+	  var index = -1;
+	  var annotations = _getAnnotations(documentId);
+	  for (var i = 0, l = annotations.length; i < l; i++) {
+	    if (annotations[i].uuid === annotationId) {
+	      index = i;
+	      break;
+	    }
+	  }
+	  return index;
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 9 */
+/***/ function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = uuid;
+	var REGEXP = /[xy]/g;
+	var PATTERN = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx';
+	
+	function replacement(c) {
+	  var r = Math.random() * 16 | 0;
+	  var v = c == 'x' ? r : r & 0x3 | 0x8;
+	  return v.toString(16);
+	}
+	
+	/**
+	 * Generate a univierally unique identifier
+	 *
+	 * @return {String}
+	 */
+	function uuid() {
+	  return PATTERN.replace(REGEXP, replacement);
+	}
+	module.exports = exports['default'];
+
+/***/ },
+/* 10 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	exports.default = render;
 	
 	var _PDFJSAnnotate = __webpack_require__(1);
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _appendChild = __webpack_require__(9);
+	var _appendChild = __webpack_require__(11);
 	
 	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
-	var _renderScreenReaderHints = __webpack_require__(18);
+	var _renderScreenReaderHints = __webpack_require__(20);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	/**
-	 * Render the response from PDFJSAnnotate.StoreAdapter.getAnnotations to SVG
+	 * Render the response from PDFJSAnnotate.getStoreAdapter().getAnnotations to SVG
 	 *
 	 * @param {SVGElement} svg The SVG element to render the annotations to
 	 * @param {Object} viewport The page viewport data
-	 * @param {Object} data The response from PDFJSAnnotate.StoreAdapter.getAnnotations
+	 * @param {Object} data The response from PDFJSAnnotate.getStoreAdapter().getAnnotations
 	 * @return {Promise} Settled once rendering has completed
 	 *  A settled Promise will be either:
 	 *    - fulfilled: SVGElement
@@ -1292,7 +1495,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 9 */
+/* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1302,27 +1505,27 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = appendChild;
 	
-	var _objectAssign = __webpack_require__(10);
+	var _objectAssign = __webpack_require__(12);
 	
 	var _objectAssign2 = _interopRequireDefault(_objectAssign);
 	
-	var _renderLine = __webpack_require__(11);
+	var _renderLine = __webpack_require__(13);
 	
 	var _renderLine2 = _interopRequireDefault(_renderLine);
 	
-	var _renderPath = __webpack_require__(14);
+	var _renderPath = __webpack_require__(16);
 	
 	var _renderPath2 = _interopRequireDefault(_renderPath);
 	
-	var _renderPoint = __webpack_require__(15);
+	var _renderPoint = __webpack_require__(17);
 	
 	var _renderPoint2 = _interopRequireDefault(_renderPoint);
 	
-	var _renderRect = __webpack_require__(16);
+	var _renderRect = __webpack_require__(18);
 	
 	var _renderRect2 = _interopRequireDefault(_renderRect);
 	
-	var _renderText = __webpack_require__(17);
+	var _renderText = __webpack_require__(19);
 	
 	var _renderText2 = _interopRequireDefault(_renderText);
 	
@@ -1349,14 +1552,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	      break;
 	    case 90:
 	      x = 0;
-	      y = viewport.width * -1;
+	      y = viewport.width / viewport.scale * -1;
 	      break;
 	    case 180:
-	      x = viewport.width * -1;
-	      y = viewport.height * -1;
+	      x = viewport.width / viewport.scale * -1;
+	      y = viewport.height / viewport.scale * -1;
 	      break;
 	    case 270:
-	      x = viewport.height * -1;
+	      x = viewport.height / viewport.scale * -1;
 	      y = 0;
 	      break;
 	  }
@@ -1373,16 +1576,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	function transform(node, viewport) {
 	  var trans = getTranslation(viewport);
-	  var isNestedPath = node.nodeName.toLowerCase() === 'path' && node.parentNode && node.parentNode.getAttribute('viewBox') === '0 0 1000 1000';
-	
-	  // This feels like a hack, but it fixes weird positioning of comment bubble.
-	  // I suspect that this correlates with the viewBox attribute (0 0 1000 1000).
-	  if (isNestedPath && trans.x !== 0) {
-	    trans.x = -1000;
-	  }
-	  if (isNestedPath && trans.y !== 0) {
-	    trans.y = -1000;
-	  }
 	
 	  // Let SVG natively transform the element
 	  node.setAttribute('transform', 'scale(' + viewport.scale + ') rotate(' + viewport.rotation + ') translate(' + trans.x + ', ' + trans.y + ')');
@@ -1481,7 +1674,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 10 */
+/* 12 */
 /***/ function(module, exports) {
 
 	/* eslint-disable no-unused-vars */
@@ -1526,7 +1719,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 11 */
+/* 13 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1536,11 +1729,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = renderLine;
 	
-	var _setAttributes = __webpack_require__(12);
+	var _setAttributes = __webpack_require__(14);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
-	var _normalizeColor = __webpack_require__(13);
+	var _normalizeColor = __webpack_require__(15);
 	
 	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
 	
@@ -1578,7 +1771,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 12 */
+/* 14 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -1615,7 +1808,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 13 */
+/* 15 */
 /***/ function(module, exports) {
 
 	"use strict";
@@ -1641,7 +1834,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports["default"];
 
 /***/ },
-/* 14 */
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1651,11 +1844,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = renderPath;
 	
-	var _setAttributes = __webpack_require__(12);
+	var _setAttributes = __webpack_require__(14);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
-	var _normalizeColor = __webpack_require__(13);
+	var _normalizeColor = __webpack_require__(15);
 	
 	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
 	
@@ -1692,7 +1885,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 15 */
+/* 17 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1702,7 +1895,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = renderPoint;
 	
-	var _setAttributes = __webpack_require__(12);
+	var _setAttributes = __webpack_require__(14);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
@@ -1762,7 +1955,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 16 */
+/* 18 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1775,11 +1968,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	exports.default = renderRect;
 	
-	var _setAttributes = __webpack_require__(12);
+	var _setAttributes = __webpack_require__(14);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
-	var _normalizeColor = __webpack_require__(13);
+	var _normalizeColor = __webpack_require__(15);
 	
 	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
 	
@@ -1837,7 +2030,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 17 */
+/* 19 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1847,11 +2040,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = renderText;
 	
-	var _setAttributes = __webpack_require__(12);
+	var _setAttributes = __webpack_require__(14);
 	
 	var _setAttributes2 = _interopRequireDefault(_setAttributes);
 	
-	var _normalizeColor = __webpack_require__(13);
+	var _normalizeColor = __webpack_require__(15);
 	
 	var _normalizeColor2 = _interopRequireDefault(_normalizeColor);
 	
@@ -1880,7 +2073,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 18 */
+/* 20 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1890,11 +2083,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = renderScreenReaderHints;
 	
-	var _insertScreenReaderHint = __webpack_require__(19);
+	var _insertScreenReaderHint = __webpack_require__(21);
 	
 	var _insertScreenReaderHint2 = _interopRequireDefault(_insertScreenReaderHint);
 	
-	var _initEventHandlers = __webpack_require__(25);
+	var _initEventHandlers = __webpack_require__(27);
 	
 	var _initEventHandlers2 = _interopRequireDefault(_initEventHandlers);
 	
@@ -1909,6 +2102,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Array} annotations The annotations that hints are inserted for
 	 */
 	function renderScreenReaderHints(annotations) {
+	  annotations = Array.isArray(annotations) ? annotations : [];
+	
 	  // Insert hints for each type
 	  Object.keys(SORT_TYPES).forEach(function (type) {
 	    var sortBy = SORT_TYPES[type];
@@ -1955,7 +2150,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 19 */
+/* 21 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1965,19 +2160,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = insertScreenReaderHint;
 	
-	var _createScreenReaderOnly = __webpack_require__(20);
+	var _createScreenReaderOnly = __webpack_require__(22);
 	
 	var _createScreenReaderOnly2 = _interopRequireDefault(_createScreenReaderOnly);
 	
-	var _insertElementWithinChildren = __webpack_require__(21);
+	var _insertElementWithinChildren = __webpack_require__(23);
 	
 	var _insertElementWithinChildren2 = _interopRequireDefault(_insertElementWithinChildren);
 	
-	var _insertElementWithinElement = __webpack_require__(22);
+	var _insertElementWithinElement = __webpack_require__(24);
 	
 	var _insertElementWithinElement2 = _interopRequireDefault(_insertElementWithinElement);
 	
-	var _renderScreenReaderComments = __webpack_require__(23);
+	var _renderScreenReaderComments = __webpack_require__(25);
 	
 	var _renderScreenReaderComments2 = _interopRequireDefault(_renderScreenReaderComments);
 	
@@ -2031,7 +2226,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 20 */
+/* 22 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2063,7 +2258,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 21 */
+/* 23 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2073,7 +2268,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = insertElementWithinChildren;
 	
-	var _insertElementWithinElement = __webpack_require__(22);
+	var _insertElementWithinElement = __webpack_require__(24);
 	
 	var _insertElementWithinElement2 = _interopRequireDefault(_insertElementWithinElement);
 	
@@ -2133,7 +2328,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 22 */
+/* 24 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2236,7 +2431,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 23 */
+/* 25 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2250,7 +2445,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _insertScreenReaderComment = __webpack_require__(24);
+	var _insertScreenReaderComment = __webpack_require__(26);
 	
 	var _insertScreenReaderComment2 = _interopRequireDefault(_insertScreenReaderComment);
 	
@@ -2285,7 +2480,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (Array.isArray(comments)) {
 	    promise = Promise.resolve(comments);
 	  } else {
-	    promise = _PDFJSAnnotate2.default.StoreAdapter.getComments(documentId, annotationId);
+	    promise = _PDFJSAnnotate2.default.getStoreAdapter().getComments(documentId, annotationId);
 	  }
 	
 	  return promise.then(function (comments) {
@@ -2304,7 +2499,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 24 */
+/* 26 */
 /***/ function(module, exports) {
 
 	'use strict';
@@ -2334,7 +2529,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 25 */
+/* 27 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2344,19 +2539,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	});
 	exports.default = initEventHandlers;
 	
-	var _insertScreenReaderHint = __webpack_require__(19);
+	var _insertScreenReaderHint = __webpack_require__(21);
 	
 	var _insertScreenReaderHint2 = _interopRequireDefault(_insertScreenReaderHint);
 	
-	var _renderScreenReaderHints = __webpack_require__(18);
+	var _renderScreenReaderHints = __webpack_require__(20);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
-	var _insertScreenReaderComment = __webpack_require__(24);
+	var _insertScreenReaderComment = __webpack_require__(26);
 	
 	var _insertScreenReaderComment2 = _interopRequireDefault(_insertScreenReaderComment);
 	
-	var _renderScreenReaderComments = __webpack_require__(23);
+	var _renderScreenReaderComments = __webpack_require__(25);
 	
 	var _renderScreenReaderComments2 = _interopRequireDefault(_renderScreenReaderComments);
 	
@@ -2391,13 +2586,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {Strig} type The annotation type
 	 */
 	function reorderAnnotationsByType(documentId, pageNumber, type) {
-	  _PDFJSAnnotate2.default.StoreAdapter.getAnnotations(documentId, pageNumber).then(function (annotations) {
+	  _PDFJSAnnotate2.default.getStoreAdapter().getAnnotations(documentId, pageNumber).then(function (annotations) {
 	    return annotations.annotations.filter(function (a) {
 	      return a.type === type;
 	    });
 	  }).then(function (annotations) {
 	    annotations.forEach(function (a) {
-	      handleAnnotationDelete(documentId, a.uuid);
+	      removeAnnotation(documentId, a.uuid);
 	    });
 	
 	    return annotations;
@@ -2464,7 +2659,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 26 */
+/* 28 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2475,17 +2670,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _event = __webpack_require__(4);
 	
-	var _edit = __webpack_require__(27);
+	var _edit = __webpack_require__(29);
 	
-	var _pen = __webpack_require__(28);
+	var _pen = __webpack_require__(30);
 	
-	var _point = __webpack_require__(29);
+	var _point = __webpack_require__(31);
 	
-	var _rect = __webpack_require__(30);
+	var _rect = __webpack_require__(32);
 	
-	var _text = __webpack_require__(31);
+	var _text = __webpack_require__(33);
 	
-	var _page = __webpack_require__(32);
+	var _page = __webpack_require__(34);
 	
 	exports.default = {
 	  addEventListener: _event.addEventListener, removeEventListener: _event.removeEventListener, fireEvent: _event.fireEvent,
@@ -2499,7 +2694,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	module.exports = exports['default'];
 
 /***/ },
-/* 27 */
+/* 29 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2517,7 +2712,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _appendChild = __webpack_require__(9);
+	var _appendChild = __webpack_require__(11);
 	
 	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
@@ -2645,7 +2840,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    n.parentNode.removeChild(n);
 	  });
 	
-	  _PDFJSAnnotate2.default.StoreAdapter.deleteAnnotation(documentId, annotationId);
+	  _PDFJSAnnotate2.default.getStoreAdapter().deleteAnnotation(documentId, annotationId);
 	
 	  destroyEditOverlay();
 	}
@@ -2771,7 +2966,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 	  }
 	
-	  _PDFJSAnnotate2.default.StoreAdapter.getAnnotation(documentId, annotationId).then(function (annotation) {
+	  _PDFJSAnnotate2.default.getStoreAdapter().getAnnotation(documentId, annotationId).then(function (annotation) {
 	    if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
 	      (function () {
 	        var _getDelta = getDelta('x', 'y');
@@ -2865,7 +3060,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        })();
 	      }
 	
-	    _PDFJSAnnotate2.default.StoreAdapter.editAnnotation(documentId, annotationId, annotation);
+	    _PDFJSAnnotate2.default.getStoreAdapter().editAnnotation(documentId, annotationId, annotation);
 	  });
 	
 	  setTimeout(function () {
@@ -2916,7 +3111,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 /***/ },
-/* 28 */
+/* 30 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2932,7 +3127,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _appendChild = __webpack_require__(9);
+	var _appendChild = __webpack_require__(11);
 	
 	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
@@ -2971,7 +3166,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var pageNumber = _getMetadata.pageNumber;
 	
 	
-	    _PDFJSAnnotate2.default.StoreAdapter.addAnnotation(documentId, pageNumber, {
+	    _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, {
 	      type: 'drawing',
 	      width: _penSize,
 	      color: _penColor,
@@ -3092,7 +3287,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 29 */
+/* 31 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3110,7 +3305,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _appendChild = __webpack_require__(9);
+	var _appendChild = __webpack_require__(11);
 	
 	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
@@ -3197,8 +3392,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        y: clientY - rect.top
 	      }));
 	
-	      _PDFJSAnnotate2.default.StoreAdapter.addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
-	        _PDFJSAnnotate2.default.StoreAdapter.addComment(documentId, annotation.uuid, content);
+	      _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
+	        _PDFJSAnnotate2.default.getStoreAdapter().addComment(documentId, annotation.uuid, content);
 	
 	        (0, _appendChild2.default)(svg, annotation);
 	      });
@@ -3245,7 +3440,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 30 */
+/* 32 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3260,7 +3455,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _appendChild = __webpack_require__(9);
+	var _appendChild = __webpack_require__(11);
 	
 	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
@@ -3463,7 +3658,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	  // Add the annotation
 	
-	  _PDFJSAnnotate2.default.StoreAdapter.addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
+	  _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
 	    (0, _appendChild2.default)(svg, annotation);
 	  });
 	}
@@ -3499,7 +3694,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 31 */
+/* 33 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3518,7 +3713,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _appendChild = __webpack_require__(9);
+	var _appendChild = __webpack_require__(11);
 	
 	var _appendChild2 = _interopRequireDefault(_appendChild);
 	
@@ -3611,7 +3806,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        height: input.offsetHeight
 	      }));
 	
-	      _PDFJSAnnotate2.default.StoreAdapter.addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
+	      _PDFJSAnnotate2.default.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation).then(function (annotation) {
 	        (0, _appendChild2.default)(svg, annotation);
 	      });
 	    }();
@@ -3673,7 +3868,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 /***/ },
-/* 32 */
+/* 34 */
 /***/ function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3691,7 +3886,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var _PDFJSAnnotate2 = _interopRequireDefault(_PDFJSAnnotate);
 	
-	var _renderScreenReaderHints = __webpack_require__(18);
+	var _renderScreenReaderHints = __webpack_require__(20);
 	
 	var _renderScreenReaderHints2 = _interopRequireDefault(_renderScreenReaderHints);
 	
