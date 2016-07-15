@@ -10,6 +10,8 @@ initEventHandlers();
  * @param {Array} annotations The annotations that hints are inserted for
  */
 export default function renderScreenReaderHints(annotations) {
+  annotations = Array.isArray(annotations) ? annotations : [];
+
   // Insert hints for each type
   Object.keys(SORT_TYPES).forEach((type) => {
     let sortBy = SORT_TYPES[type];

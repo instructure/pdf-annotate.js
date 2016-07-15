@@ -32,6 +32,30 @@ describe('a11y::renderScreenReaderHints', function () {
   });
 
   describe('render', function () {
+    it('should render without annotations', function () {
+      let error;
+
+      try {
+        renderScreenReaderHints();
+      } catch (e) {
+        error = e;
+      }
+
+      equal(typeof error, 'undefined');
+    });
+
+    it('should render with non-array annotations', function () {
+      let error;
+
+      try {
+        renderScreenReaderHints(null);
+      } catch (e) {
+        error = e;
+      }
+
+      equal(typeof error, 'undefined');
+    });
+
     it('should render highlight', function () {
       renderScreenReaderHints([{
         type: 'highlight',
