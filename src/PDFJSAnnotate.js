@@ -1,13 +1,22 @@
 import StoreAdapter from './adapter/StoreAdapter';
+import LocalStoreAdapter from './adapter/LocalStoreAdapter';
 import render from './render';
 import UI from './UI';
 
-export { StoreAdapter }
-
 export default {
   /**
-   * StoreAdapter is an abstract object that needs to be defined
-   * so that PDFJSAnnotate knows how to communicate with your server.
+   * Abstract class that needs to be defined so PDFJSAnnotate
+   * knows how to communicate with your server.
+   */
+  StoreAdapter,
+
+  /**
+   * Implementation of StoreAdapter that stores annotation data to localStorage.
+   */
+  LocalStoreAdapter,
+
+  /**
+   * Abstract instance of StoreAdapter
    */
   __storeAdapter: new StoreAdapter(),
 
@@ -16,7 +25,7 @@ export default {
    *
    * @return {StoreAdapter}
    */
-  get StoreAdapter() {
+  getStoreAdapter() {
     return this.__storeAdapter;
   },
 
@@ -25,7 +34,7 @@ export default {
    *
    * @param {StoreAdapter} adapter The StoreAdapter implementation to be used.
    */
-  set StoreAdapter(adapter) {
+  setStoreAdapter(adapter) {
     // TODO this throws an error when bundled
     // if (!(adapter instanceof StoreAdapter)) {
     //   throw new Error('adapter must be an instance of StoreAdapter');
@@ -59,6 +68,6 @@ export default {
    * @return {Promise}
    */
   getAnnotations(documentId, pageNumber) {
-    return this.StoreAdapter.getAnnotations(...arguments);
+    return this.getStoreAdapter().getAnnotations(...arguments);
   }
 }

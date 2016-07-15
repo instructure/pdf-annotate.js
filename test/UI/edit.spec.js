@@ -18,9 +18,9 @@ let rect;
 let annotations = {};
 let editAnnotationSpy;
 let deleteAnnotationSpy;
-let __getAnnotation = PDFJSAnnotate.StoreAdapter.getAnnotation;
-let __editAnnotation = PDFJSAnnotate.StoreAdapter.editAnnotation;
-let __deleteAnnotation = PDFJSAnnotate.StoreAdapter.deleteAnnotation;
+let __getAnnotation = PDFJSAnnotate.__storeAdapter.getAnnotation;
+let __editAnnotation = PDFJSAnnotate.__storeAdapter.editAnnotation;
+let __deleteAnnotation = PDFJSAnnotate.__storeAdapter.deleteAnnotation;
 
 function findOverlay() {
   return document.getElementById('pdf-annotate-edit-overlay');
@@ -71,9 +71,9 @@ describe('UI::edit', function () {
 
     editAnnotationSpy = sinon.spy();
     deleteAnnotationSpy = sinon.spy();
-    PDFJSAnnotate.StoreAdapter.editAnnotation = mockEditAnnotation(editAnnotationSpy);
-    PDFJSAnnotate.StoreAdapter.deleteAnnotation = mockDeleteAnnotation(deleteAnnotationSpy);
-    PDFJSAnnotate.StoreAdapter.getAnnotation = function (documentId, annotationId) {
+    PDFJSAnnotate.__storeAdapter.editAnnotation = mockEditAnnotation(editAnnotationSpy);
+    PDFJSAnnotate.__storeAdapter.deleteAnnotation = mockDeleteAnnotation(deleteAnnotationSpy);
+    PDFJSAnnotate.__storeAdapter.getAnnotation = function (documentId, annotationId) {
       return Promise.resolve(annotations[annotationId]);
     };
   });
@@ -87,9 +87,9 @@ describe('UI::edit', function () {
   });
 
   after(function () {
-    PDFJSAnnotate.StoreAdapter.getAnnotation = __getAnnotation;
-    PDFJSAnnotate.StoreAdapter.editAnnotation = __editAnnotation;
-    PDFJSAnnotate.StoreAdapter.deleteAnnotation = __deleteAnnotation;
+    PDFJSAnnotate.__storeAdapter.getAnnotation = __getAnnotation;
+    PDFJSAnnotate.__storeAdapter.editAnnotation = __editAnnotation;
+    PDFJSAnnotate.__storeAdapter.deleteAnnotation = __deleteAnnotation;
   });
 
   it('should do nothing when disabled', function (done) {

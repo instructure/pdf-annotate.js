@@ -35,7 +35,7 @@ function handleDocumentMouseup(e) {
   if (lines.length > 1 && (svg = findSVGAtPoint(e.clientX, e.clientY))) {
     let { documentId, pageNumber } = getMetadata(svg);
 
-    PDFJSAnnotate.StoreAdapter.addAnnotation(documentId, pageNumber, {
+    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, {
         type: 'drawing',
         width: _penSize,
         color: _penColor,

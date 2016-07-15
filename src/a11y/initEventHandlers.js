@@ -28,7 +28,7 @@ export default function initEventHandlers() {
  * @param {Strig} type The annotation type
  */
 function reorderAnnotationsByType(documentId, pageNumber, type) {
-  PDFJSAnnotate.StoreAdapter.getAnnotations(documentId, pageNumber)
+  PDFJSAnnotate.getStoreAdapter().getAnnotations(documentId, pageNumber)
     .then((annotations) => {
       return annotations.annotations.filter((a) => {
         return a.type === type;

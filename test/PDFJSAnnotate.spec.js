@@ -1,12 +1,12 @@
-import PDFJSAnnotate, { StoreAdapter } from '../src/PDFJSAnnotate';
+import PDFJSAnnotate from '../src/PDFJSAnnotate';
 import { equal } from 'assert';
 
 let __storeAdapter;
 
 describe('PDFJSAnnotate', function () {
   beforeEach(function () {
-    __storeAdapter = PDFJSAnnotate.StoreAdapter;
-    PDFJSAnnotate.StoreAdapter = new StoreAdapter({
+    __storeAdapter = PDFJSAnnotate.__storeAdapter;
+    PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.StoreAdapter({
       getAnnotations: (documentId, pageNumber) => {
         return Promise.resolve({
           documentId,
@@ -20,11 +20,11 @@ describe('PDFJSAnnotate', function () {
           ]
         });
       }
-    });
+    }));
   });
 
   afterEach(function () {
-    PDFJSAnnotate.StoreAdapter = __storeAdapter;
+    PDFJSAnnotate.setStoreAdapter(__storeAdapter);
   });
 
   it('should get annotations', function (done) {
@@ -37,7 +37,7 @@ describe('PDFJSAnnotate', function () {
   // it('should throw error if StoreAdapter is not valid', function () {
   //   let error;
   //   try {
-  //     PDFJSAnnotate.StoreAdapter = {};
+  //     PDFJSAnnotate.setStoreAdapter({});
   //   } catch (e) {
   //     error = e;
   //   }

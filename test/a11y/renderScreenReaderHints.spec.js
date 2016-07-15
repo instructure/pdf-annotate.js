@@ -11,7 +11,7 @@ function mockHint(id, content) {
 let page;
 let rect;
 let textLayer;
-let getComments = PDFJSAnnotate.StoreAdapter.getComments;
+let getComments = PDFJSAnnotate.__storeAdapter.getComments;
 
 describe('a11y::renderScreenReaderHints', function () {
   beforeEach(function () {
@@ -19,13 +19,13 @@ describe('a11y::renderScreenReaderHints', function () {
     document.body.appendChild(page);
     textLayer = page.querySelector('.textLayer');
     rect = textLayer.getBoundingClientRect();
-    PDFJSAnnotate.StoreAdapter.getComments = () => {
+    PDFJSAnnotate.__storeAdapter.getComments = () => {
       return Promise.resolve([]);
     }
   });
 
   afterEach(function () {
-    PDFJSAnnotate.StoreAdapter.getComments = getComments;
+    PDFJSAnnotate.__storeAdapter.getComments = getComments;
     if (page && page.parentNode) {
       page.parentNode.removeChild(page);
     }

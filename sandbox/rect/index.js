@@ -1,5 +1,4 @@
 import PDFJSAnnotate from '../../';
-import localStoreAdapter from '../shared/localStoreAdapter';
 import mockViewport from '../mockViewport';
 
 const { UI } = PDFJSAnnotate;
@@ -7,7 +6,7 @@ const page1 = document.querySelector('#pageContainer1 .annotationLayer');
 const page2 = document.querySelector('#pageContainer2 .annotationLayer');
 const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 
-PDFJSAnnotate.StoreAdapter = localStoreAdapter;
+PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter());
 
 // Get the annotations
 Promise.all([

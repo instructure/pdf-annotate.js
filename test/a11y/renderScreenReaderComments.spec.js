@@ -3,7 +3,7 @@ import PDFJSAnnotate from '../../src/PDFJSAnnotate';
 import { equal } from 'assert';
 
 let hint;
-let getComments = PDFJSAnnotate.StoreAdapter.getComments;
+let getComments = PDFJSAnnotate.__storeAdapter.getComments;
 
 describe('a11y::renderScreenReaderComments', function () {
   beforeEach(function () {
@@ -11,7 +11,7 @@ describe('a11y::renderScreenReaderComments', function () {
     hint.setAttribute('id', 'pdf-annotate-screenreader-12345');
     document.body.appendChild(hint);
 
-    PDFJSAnnotate.StoreAdapter.getComments = () => {
+    PDFJSAnnotate.__storeAdapter.getComments = () => {
       return Promise.resolve([{
         annotation: 12345,
         content: 'foo'
@@ -27,7 +27,7 @@ describe('a11y::renderScreenReaderComments', function () {
       hint.parentNode.removeChild(hint);
     }
 
-    PDFJSAnnotate.StoreAdapter.getComments = getComments;
+    PDFJSAnnotate.__storeAdapter.getComments = getComments;
   });
 
   it('should render comments', function (done) {

@@ -79,9 +79,9 @@ function savePoint() {
       })
     );
 
-    PDFJSAnnotate.StoreAdapter.addAnnotation(documentId, pageNumber, annotation)
+    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
       .then((annotation) => {
-        PDFJSAnnotate.StoreAdapter.addComment(
+        PDFJSAnnotate.getStoreAdapter().addComment(
           documentId,
           annotation.uuid,
           content

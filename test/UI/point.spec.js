@@ -9,10 +9,10 @@ import mockSVGContainer from '../mockSVGContainer';
 let svg;
 let addAnnotationSpy;
 let addCommentSpy;
-let __addComment = PDFJSAnnotate.StoreAdapter.addComment;
-let __getComments = PDFJSAnnotate.StoreAdapter.getComments;
-let __addAnnotation = PDFJSAnnotate.StoreAdapter.addAnnotation;
-let __getAnnotations = PDFJSAnnotate.StoreAdapter.getAnnotations
+let __addComment = PDFJSAnnotate.__storeAdapter.addComment;
+let __getComments = PDFJSAnnotate.__storeAdapter.getComments;
+let __addAnnotation = PDFJSAnnotate.__storeAdapter.addAnnotation;
+let __getAnnotations = PDFJSAnnotate.__storeAdapter.getAnnotations
 
 function simulateCreatePointAnnotation(textContent) {
   let rect = svg.getBoundingClientRect();
@@ -41,12 +41,12 @@ describe('UI::point', function () {
 
     addAnnotationSpy = sinon.spy();
     addCommentSpy = sinon.spy();
-    PDFJSAnnotate.StoreAdapter.addComment = mockAddComment(addCommentSpy);
-    PDFJSAnnotate.StoreAdapter.getComments = () => {
+    PDFJSAnnotate.__storeAdapter.addComment = mockAddComment(addCommentSpy);
+    PDFJSAnnotate.__storeAdapter.getComments = () => {
       return Promise.resolve([]);
     }
-    PDFJSAnnotate.StoreAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
-    PDFJSAnnotate.StoreAdapter.getAnnotations = (documentId, pageNumber) => {
+    PDFJSAnnotate.__storeAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
+    PDFJSAnnotate.__storeAdapter.getAnnotations = (documentId, pageNumber) => {
       return Promise.resolve({
         documentId,
         pageNumber,
@@ -69,10 +69,10 @@ describe('UI::point', function () {
   });
 
   after(function () {
-    PDFJSAnnotate.StoreAdapter.addComment = __addComment;
-    PDFJSAnnotate.StoreAdapter.getComments = __getComments;
-    PDFJSAnnotate.StoreAdapter.addAnnotation = __addAnnotation;
-    PDFJSAnnotate.StoreAdapter.getAnnotations = __getAnnotations;
+    PDFJSAnnotate.__storeAdapter.addComment = __addComment;
+    PDFJSAnnotate.__storeAdapter.getComments = __getComments;
+    PDFJSAnnotate.__storeAdapter.addAnnotation = __addAnnotation;
+    PDFJSAnnotate.__storeAdapter.getAnnotations = __getAnnotations;
   });
 
   it('should do nothing when disabled', function (done) {

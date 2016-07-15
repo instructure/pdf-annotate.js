@@ -1,6 +1,6 @@
 import StoreAdapter from '../../src/adapter/StoreAdapter';
+import LocalStoreAdapter from '../../src/adapter/LocalStoreAdapter';
 import { addEventListener, removeEventListener } from '../../src/UI/event';
-import mockStoreAdapter from '../mockStoreAdapter';
 import { equal } from 'assert';
 
 function testExpectedError(callback) {
@@ -59,14 +59,14 @@ describe('StoreAdapter', function () {
 
   describe('events', function () {
     let adapter;
-    let handleAnnotationAdd = () => {};
-    let handleAnnotationEdit = () => {};
-    let handleAnnotationDelete = () => {};
-    let handleCommentAdd = () => {};
-    let handleCommentDelete = () => {};
+    let handleAnnotationAdd = sinon.spy();
+    let handleAnnotationEdit = sinon.spy();
+    let handleAnnotationDelete = sinon.spy();
+    let handleCommentAdd = sinon.spy();
+    let handleCommentDelete = sinon.spy();
 
     beforeEach(function () {
-      adapter = mockStoreAdapter();
+      adapter = new LocalStoreAdapter();
     });
 
     afterEach(function () {
@@ -78,71 +78,51 @@ describe('StoreAdapter', function () {
     });
 
     it('should emit annotation:add', function (done) {
-      let called = false;
-      handleAnnotationAdd = () => {
-        called = true;
-      };
       addEventListener('annotation:add', handleAnnotationAdd);
       adapter.addAnnotation(12345, 1, {type: 'foo'});
 
       setTimeout(() => {
-        equal(called, true);
+        equal(handleAnnotationAdd.called, true);
         done();
       });
     });
     
     it('should emit annotation:edit', function (done) {
-      let called = false;
-      handleAnnotationEdit = () => {
-        called = true;
-      };
       addEventListener('annotation:edit', handleAnnotationEdit);
       adapter.editAnnotation(12345, 67890, {type: 'bar'});
 
       setTimeout(() => {
-        equal(called, true);
+        equal(handleAnnotationEdit.called, true);
         done();
       });
     });
     
     it('should emit annotation:delete', function (done) {
-      let called = false;
-      handleAnnotationDelete = () => {
-        called = true;
-      };
       addEventListener('annotation:delete', handleAnnotationDelete);
       adapter.deleteAnnotation(12345, 67890);
 
       setTimeout(() => {
-        equal(called, true);
+        equal(handleAnnotationDelete.called, true);
         done();
       });
     });
 
     it('should emit comment:add', function (done) {
-      let called = false;
-      handleCommentAdd = () => {
-        called = true;
-      };
       addEventListener('comment:add', handleCommentAdd);
       adapter.addComment(12345, 67890, 'hello');
 
       setTimeout(() => {
-        equal(called, true);
+        equal(handleCommentAdd.called, true);
         done();
       });
     });
-    
+
     it('should emit comment:delete', function (done) {
-      let called = false;
-      handleCommentDelete = () => {
-        called = true;
-      };
       addEventListener('comment:delete', handleCommentDelete);
       adapter.deleteComment(12345, 67890);
 
       setTimeout(() => {
-        equal(called, true);
+        equal(handleCommentDelete.called, true);
         done();
       });
     });

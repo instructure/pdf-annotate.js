@@ -3,11 +3,11 @@ import appendChild from './appendChild';
 import renderScreenReaderHints from '../a11y/renderScreenReaderHints';
 
 /**
- * Render the response from PDFJSAnnotate.StoreAdapter.getAnnotations to SVG
+ * Render the response from PDFJSAnnotate.getStoreAdapter().getAnnotations to SVG
  *
  * @param {SVGElement} svg The SVG element to render the annotations to
  * @param {Object} viewport The page viewport data
- * @param {Object} data The response from PDFJSAnnotate.StoreAdapter.getAnnotations
+ * @param {Object} data The response from PDFJSAnnotate.getStoreAdapter().getAnnotations
  * @return {Promise} Settled once rendering has completed
  *  A settled Promise will be either:
  *    - fulfilled: SVGElement

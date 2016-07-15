@@ -1,5 +1,4 @@
 import PDFJSAnnotate from '../../';
-import localStoreAdapter from '../shared/localStoreAdapter';
 import initColorPicker from '../shared/initColorPicker';
 import mockViewport from '../mockViewport';
 
@@ -9,7 +8,7 @@ const DOCUMENT_ID = window.location.pathname.replace(/\/$/, '');
 const PAGE_NUMBER = 1;
 let annotations;
 
-PDFJSAnnotate.StoreAdapter = localStoreAdapter;
+PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter());
 
 // Get the annotations
 PDFJSAnnotate.getAnnotations(DOCUMENT_ID, PAGE_NUMBER).then((annotations) => {

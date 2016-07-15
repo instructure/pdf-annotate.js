@@ -200,7 +200,7 @@ function saveRect(type, rects, color) {
   let { documentId, pageNumber } = getMetadata(svg);
 
   // Add the annotation
-  PDFJSAnnotate.StoreAdapter.addAnnotation(documentId, pageNumber, annotation)
+  PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
     .then((annotation) => {
       appendChild(svg, annotation);
     });

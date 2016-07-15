@@ -1,6 +1,5 @@
 import twitter from 'twitter-text';
 import PDFJSAnnotate from '../';
-import localStoreAdapter from './shared/localStoreAdapter';
 import initColorPicker from './shared/initColorPicker';
 
 const { UI } = PDFJSAnnotate;
@@ -13,7 +12,7 @@ let RENDER_OPTIONS = {
   rotate: parseInt(localStorage.getItem(`${documentId}/rotate`), 10) || 0
 };
 
-PDFJSAnnotate.StoreAdapter = localStoreAdapter;
+PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter());
 PDFJS.workerSrc = './shared/pdf.worker.js';
 
 // Render stuff
@@ -290,7 +289,6 @@ render();
       }
 
       localStorage.removeItem(`${RENDER_OPTIONS.documentId}/annotations`);
-      localStoreAdapter.clearCache();
     }
   }
   document.querySelector('a.clear').addEventListener('click', handleClearClick);

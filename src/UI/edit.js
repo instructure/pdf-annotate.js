@@ -121,7 +121,7 @@ function deleteAnnotation() {
     n.parentNode.removeChild(n);
   });
   
-  PDFJSAnnotate.StoreAdapter.deleteAnnotation(documentId, annotationId);
+  PDFJSAnnotate.getStoreAdapter().deleteAnnotation(documentId, annotationId);
 
   destroyEditOverlay();
 }
@@ -239,7 +239,7 @@ function handleDocumentMouseup(e) {
     };
   }
 
-  PDFJSAnnotate.StoreAdapter.getAnnotation(documentId, annotationId).then((annotation) => {
+  PDFJSAnnotate.getStoreAdapter().getAnnotation(documentId, annotationId).then((annotation) => {
     if (['area', 'highlight', 'point', 'textbox'].indexOf(type) > -1) {
       let { deltaX, deltaY } = getDelta('x', 'y');
       [...target].forEach((t, i) => {
@@ -312,7 +312,7 @@ function handleDocumentMouseup(e) {
       appendChild(svg, annotation);
     }
 
-    PDFJSAnnotate.StoreAdapter.editAnnotation(documentId, annotationId, annotation);
+    PDFJSAnnotate.getStoreAdapter().editAnnotation(documentId, annotationId, annotation);
   });
 
   setTimeout(() => {

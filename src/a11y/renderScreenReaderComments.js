@@ -30,7 +30,7 @@ export default function renderScreenReaderComments(documentId, annotationId, com
   if (Array.isArray(comments)) {
     promise = Promise.resolve(comments);
   } else {
-    promise = PDFJSAnnotate.StoreAdapter.getComments(documentId, annotationId);
+    promise = PDFJSAnnotate.getStoreAdapter().getComments(documentId, annotationId);
   }
 
   return promise.then((comments) => {

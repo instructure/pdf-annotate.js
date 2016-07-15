@@ -7,7 +7,7 @@ import { setPen, enablePen, disablePen } from '../../src/UI/pen';
 
 let svg;
 let addAnnotationSpy;
-let __addAnnotation = PDFJSAnnotate.StoreAdapter.addAnnotation;
+let __addAnnotation = PDFJSAnnotate.__storeAdapter.addAnnotation;
 
 function simulateCreateDrawingAnnotation(penSize, penColor) {
   setPen(penSize, penColor);
@@ -42,7 +42,7 @@ describe('UI::pen', function () {
     document.body.appendChild(svg);
 
     addAnnotationSpy = sinon.spy();
-    PDFJSAnnotate.StoreAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
+    PDFJSAnnotate.__storeAdapter.addAnnotation = mockAddAnnotation(addAnnotationSpy);
   });
 
   afterEach(function () {
@@ -54,7 +54,7 @@ describe('UI::pen', function () {
   });
 
   after(function () {
-    PDFJSAnnotate.StoreAdapter.addAnnotation = __addAnnotation;
+    PDFJSAnnotate.__storeAdapter.addAnnotation = __addAnnotation;
   });
 
   it('should do nothing when disabled', function (done) {

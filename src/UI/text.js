@@ -86,7 +86,7 @@ function saveText() {
       })
     );
 
-    PDFJSAnnotate.StoreAdapter.addAnnotation(documentId, pageNumber, annotation)
+    PDFJSAnnotate.getStoreAdapter().addAnnotation(documentId, pageNumber, annotation)
       .then((annotation) => {
         appendChild(svg, annotation);
       });
