@@ -2,8 +2,16 @@
 
 `UI` is the object that enables user interactions for management of annotations in the browser
 
-##### `addEventListener(type, handler)`
+##### `addEventListener()`
 Adds an event handler to handle a specific type of event
+
+__Syntax__
+
+```js
+UI.addEventListener(type, handler)
+```
+
+__Parameters__
 
 | parameter | description |
 |---|---|
@@ -21,8 +29,16 @@ Types of events:
 - comment:delete
 
 
-##### `removeEventListener(type, handler)`
+##### `removeEventListener()`
 Removes an event handler from handling a specific type of event
+
+__Syntax__
+
+```js
+UI.removeEventListener(type, handler)
+```
+
+__Parameters__
 
 | parameter | description |
 |---|---|
@@ -33,42 +49,100 @@ Removes an event handler from handling a specific type of event
 ##### `disableEdit()`
 Disables the ability to edit annotations from the UI
 
+__Syntax__
+
+```js
+UI.disableEdit()
+```
+
 
 ##### `enableEdit()`
 Enables the ability to edit annoations from the UI
+
+__Syntax__
+
+```js
+UI.enableEdit()
+```
 
 
 ##### `disablePen()`
 Disables the ability to draw with the pen in the UI
 
+__Syntax__
+
+```js
+UI.disablePen()
+```
+
 
 ##### `enablePen()`
 Enables the ability to draw with the pen in the UI
 
+__Syntax__
 
-##### `setPen(size = 1, color = '000000')`
+```js
+UI.enablePen()
+```
+
+
+##### `setPen()`
 Sets the size and color of the pen
+
+__Syntax__
+
+```js
+UI.setPen(size, color)
+```
+
+__Parameters__
 
 | parameter | description |
 |---|---|
-| `size` | The size of the pen |
-| `color` | The color of the pen |
+| `size` | The size of the pen (defaults to 12) |
+| `color` | The color of the pen (defaults to "000000") |
 
 
 ##### `disablePoint()`
 Disables the ability to create a point annotation from the UI
 
+__Syntax__
+
+```js
+UI.disablePoint()
+```
+
 
 ##### `enablePoint()`
 Enables the ability to create a point annotation from the UI
+
+__Syntax__
+
+```js
+UI.enablePoint()
+```
 
 
 ##### `disableRect()`
 Disables the ability to create a rectangular annotation from the UI
 
+__Syntax__
 
-##### `enableRect(type)`
+```js
+UI.disableRect()
+```
+
+
+##### `enableRect()`
 Enables the ability to create a rectangular annotation from the UI
+
+__Syntax__
+
+```js
+UI.enableRect(type)
+```
+
+__Parameters__
 
 | parameter | description |
 |---|---|
@@ -78,16 +152,37 @@ Enables the ability to create a rectangular annotation from the UI
 ##### `disableText()`
 Disables the ability to enter free form text from the UI
 
+__Syntax__
+
+```js
+UI.disableText()
+```
+
 
 ##### `enableText()`
 Enables the ability to enter free form text from the UI
 
+__Syntax__
 
-##### `setText(size = 12, color = '000000')`
+```js
+UI.enableText()
+```
+
+
+##### `setText()`
 Sets the size and color of the text
+
+__Syntax__
+
+```js
+UI.setText(size, color)
+```
+
+__Parameters__
 
 | parameter | description |
 |---|---|
-| `size` | The size of the text |
-| `color` | The color of the text |
+| `size` | The size of the text (defaults to 12) |
+| `color` | The color of the text (defaults to "000000") |
+
 

@@ -3,14 +3,15 @@
 `PDFJSAnnotate` is the object that will be imported into your project. It contains all the other functions and objects that you will be working with.
 
 #### render()
-
 This is the main entry point into `PDFJSAnnotate`. It is used to render annotation data to an `SVGElement`.
 
-###### Usage
+__Syntax__
 
-`PDFJSAnnotate.render(svg, viewport, annotations): Promise`
+```js
+let promise = PDFJSAnnotate.render(svg, viewport, annotations)
+```
 
-###### Parameters
+__Parameters__
 
 | parameter | description |
 |---|---|
@@ -18,7 +19,7 @@ This is the main entry point into `PDFJSAnnotate`. It is used to render annotati
 | `viewport` | The viewport data that is returned from `PDFJS.getDocument(documentId).getPage(pageNumber).getViewPort(scale, rotation)` |
 | `annotations` | The annotation data that is returned from `PDFJSAnnotation.getAnnotations(documentId, pageNumber)` |
 
-###### Returns
+__Returns__
 
 `Promise`
 
@@ -28,55 +29,55 @@ A settled Promise will be either:
 - rejected: `Error`
 
 #### getAnnotations()
-
 This is a helper for fetching annotations.
 
-See [StoreAdapter.getAnnotations()]().
+See [StoreAdapter.getAnnotations()](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md#getannotations).
 
 #### setStoreAdapter()
-
 Sets the implementation of the `StoreAdapter` to be used by `PDFJSAnnotate`.
 
-###### Usage
+__Syntax__
 
-`PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.StoreAdapter({/* ... */})): void`
+```js
+PDFJSAnnotate.setStoreAdapter(adapter)
+```
 
-###### Parameters
+__Parameters__
 
 | parameter | description |
 |---|---|
 | `adapter` | The StoreAdapter implementation to be used. |
 
-See [StoreAdapter]().
+See [StoreAdapter](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md).
 
 #### getStoreAdapter()
-
 Gets the implementation of `StoreAdapter` being used by `PDFJSAnnotate`.
 
-###### Usage
+__Syntax__
 
-`let adapter = PDFJSAnnotate.getStoreAdapter()`
+```js
+let adapter = PDFJSAnnotate.getStoreAdapter()
+```
 
-###### Returns
+__Returns__
 
 `StoreAdapter`
 
 #### StoreAdapter
-
 An abstract class that describes how `PDFJSAnnotate` communicates with your backend.
 
-See [StoreAdapter]().
+See [StoreAdapter](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md).
 
 #### LocalStoreAdapter
-
 An implementation of `StoreAdapter` that uses `localStorage` as the backend. This is useful for prototyping or testing.
 
-###### Usage
+__Usage__
 
-`PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter())`
+```js
+PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter())
+`ss
 
 #### UI
-
 This object contains helper functions for managing UI interactions for creating, editing, and deleting annotations.
 
-See [UI]().
+See [UI](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/UI.md).
