@@ -75,7 +75,7 @@ __Usage__
 
 ```js
 PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter())
-`ss
+```
 
 ### UI
 This object contains helper functions for managing UI interactions for creating, editing, and deleting annotations.
