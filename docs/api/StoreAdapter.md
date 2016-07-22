@@ -1,4 +1,4 @@
-### StoreAdapter
+## StoreAdapter
 
 The `StoreAdapter` is an abstract class that will need to be implemented for fetching annotation data. An unimplemented instance of `StoreAdapter` is used as the default adapter. Any call to an umimplemented adapter will result in an `Error` being thrown.
 
@@ -22,9 +22,7 @@ let MyStoreAdapter = new PDFJSAnnotate.StoreAdapter({
 });
 ```
 
-#### Methods
-
-##### `getAnnotations()`
+### `getAnnotations()`
 Get all the annotations for a specific page within a document
 
 __Syntax__
@@ -70,7 +68,7 @@ PDFJSAnnotate.getStoreAdapter().getAnnotations('example.pdf', 1)
   });
 ```
 
-##### `getAnnotation()`
+### `getAnnotation()`
 Get a specific annotation
 
 __Syntax__
@@ -109,7 +107,7 @@ PDFJSAnnotate.getStoreAdapter().getAnnotation(
 ```
 
 
-##### `addAnnotation()`
+### `addAnnotation()`
 Add an annotation to a document
 
 __Syntax__
@@ -156,7 +154,7 @@ PDFJSAnnotate.getStoreAdapter().addAnnotation(
 ```
 
 
-##### `editAnnotation()`
+### `editAnnotation()`
 Edit an annotation
 
 __Syntax__
@@ -204,7 +202,7 @@ PDFJSAnnotate.getStoreAdapter().editAnnotation(
 ```
 
 
-##### `deleteAnnotation()`
+### `deleteAnnotation()`
 Delete an annotation
 
 __Syntax__
@@ -242,7 +240,7 @@ PDFJSAnnotate.getStoreAdapter().deleteAnnotation(
   });
 ```
 
-##### `addComment()`
+### `addComment()`
 Add a comment to an annotation
 
 __Syntax__
@@ -283,7 +281,7 @@ PDFJSAnnotate.getStoreAdapter().addComment(
 ```
 
 
-##### `deleteComment()`
+### `deleteComment()`
 Delete a comment
 
 __Syntax__

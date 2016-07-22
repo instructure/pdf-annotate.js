@@ -1,8 +1,8 @@
-### UI
+## UI
 
 `UI` is the object that enables user interactions for management of annotations in the browser
 
-##### `addEventListener()`
+### `addEventListener()`
 Adds an event handler to handle a specific type of event
 
 __Syntax__
@@ -29,7 +29,7 @@ Types of events:
 - comment:delete
 
 
-##### `removeEventListener()`
+### `removeEventListener()`
 Removes an event handler from handling a specific type of event
 
 __Syntax__
@@ -46,7 +46,7 @@ __Parameters__
 | `handler` | The function that handled the event |
 
 
-##### `disableEdit()`
+### `disableEdit()`
 Disables the ability to edit annotations from the UI
 
 __Syntax__
@@ -56,7 +56,7 @@ UI.disableEdit()
 ```
 
 
-##### `enableEdit()`
+### `enableEdit()`
 Enables the ability to edit annoations from the UI
 
 __Syntax__
@@ -66,7 +66,7 @@ UI.enableEdit()
 ```
 
 
-##### `disablePen()`
+### `disablePen()`
 Disables the ability to draw with the pen in the UI
 
 __Syntax__
@@ -76,7 +76,7 @@ UI.disablePen()
 ```
 
 
-##### `enablePen()`
+### `enablePen()`
 Enables the ability to draw with the pen in the UI
 
 __Syntax__
@@ -86,7 +86,7 @@ UI.enablePen()
 ```
 
 
-##### `setPen()`
+### `setPen()`
 Sets the size and color of the pen
 
 __Syntax__
@@ -103,7 +103,7 @@ __Parameters__
 | `color` | The color of the pen (defaults to "000000") |
 
 
-##### `disablePoint()`
+### `disablePoint()`
 Disables the ability to create a point annotation from the UI
 
 __Syntax__
@@ -113,7 +113,7 @@ UI.disablePoint()
 ```
 
 
-##### `enablePoint()`
+### `enablePoint()`
 Enables the ability to create a point annotation from the UI
 
 __Syntax__
@@ -123,7 +123,7 @@ UI.enablePoint()
 ```
 
 
-##### `disableRect()`
+### `disableRect()`
 Disables the ability to create a rectangular annotation from the UI
 
 __Syntax__
@@ -133,7 +133,7 @@ UI.disableRect()
 ```
 
 
-##### `enableRect()`
+### `enableRect()`
 Enables the ability to create a rectangular annotation from the UI
 
 __Syntax__
@@ -149,7 +149,7 @@ __Parameters__
 | `type` | The type of rectangle (one of area, highlight, or strikeout) |
 
 
-##### `disableText()`
+### `disableText()`
 Disables the ability to enter free form text from the UI
 
 __Syntax__
@@ -159,7 +159,7 @@ UI.disableText()
 ```
 
 
-##### `enableText()`
+### `enableText()`
 Enables the ability to enter free form text from the UI
 
 __Syntax__
@@ -169,7 +169,7 @@ UI.enableText()
 ```
 
 
-##### `setText()`
+### `setText()`
 Sets the size and color of the text
 
 __Syntax__
