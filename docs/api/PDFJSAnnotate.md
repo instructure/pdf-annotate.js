@@ -4,13 +4,13 @@
 
 __Table of Contents__
 
--- [render()](#render)
--- [getAnnotations()](#getannotations)
--- [setStoreAdapter()](#setstoreadapter)
--- [getStoreAdapter()](#getstoreadapter)
--- [StoreAdapter()](#storeadapter)
--- [LocalStoreAdapter()](#localstoreadapter)
--- [UI()](#ui)
+- [render()](#render)
+- [getAnnotations()](#getannotations)
+- [setStoreAdapter()](#setstoreadapter)
+- [getStoreAdapter()](#getstoreadapter)
+- [StoreAdapter()](#storeadapter)
+- [LocalStoreAdapter()](#localstoreadapter)
+- [UI()](#ui)
 
 
 ### render()

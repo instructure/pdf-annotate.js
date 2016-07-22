@@ -24,13 +24,13 @@ let MyStoreAdapter = new PDFJSAnnotate.StoreAdapter({
 
 __Table of Contents__
 
--- [getAnnotations()](#getannotations)
--- [getAnnotation()](#getannotation)
--- [addAnnotation()](#addannotation)
--- [editAnnotation()](#editannotation)
--- [deleteAnnotation()](#deleteannotation)
--- [addComment()](#addcomment)
--- [deleteComment()](#deletecomment)
+- [getAnnotations()](#getannotations)
+- [getAnnotation()](#getannotation)
+- [addAnnotation()](#addannotation)
+- [editAnnotation()](#editannotation)
+- [deleteAnnotation()](#deleteannotation)
+- [addComment()](#addcomment)
+- [deleteComment()](#deletecomment)
 
 ### `getAnnotations()`
 Get all the annotations for a specific page within a document
