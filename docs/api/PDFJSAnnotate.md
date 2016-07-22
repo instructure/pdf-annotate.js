@@ -2,6 +2,17 @@
 
 `PDFJSAnnotate` is the object that will be imported into your project. It contains all the other functions and objects that you will be working with.
 
+__Table of Contents__
+
+-- [render()](#render)
+-- [getAnnotations()](#getannotations)
+-- [setStoreAdapter()](#setstoreadapter)
+-- [getStoreAdapter()](#getstoreadapter)
+-- [StoreAdapter()](#storeadapter)
+-- [LocalStoreAdapter()](#localstoreadapter)
+-- [UI()](#ui)
+
+
 ### render()
 This is the main entry point into `PDFJSAnnotate`. It is used to render annotation data to an `SVGElement`.
 

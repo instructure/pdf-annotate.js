@@ -2,6 +2,23 @@
 
 `UI` is the object that enables user interactions for management of annotations in the browser
 
+__Table of Contents__
+
+- [addEventListener()](#addeventlistener)
+- [removeEventListener()](#removeeventlistener)
+- [disableEdit()](#disableedit)
+- [enableEdit()](#enableedit)
+- [disablePen()](#disablepen)
+- [enablePen()](#enablepen)
+- [setPen()](#setpen)
+- [disablePoint()](#disablepoint)
+- [enablePoint()](#enablepoint)
+- [disableRect()](#disablerect)
+- [enableRect()](#enablerect)
+- [disableText()](#disabletext)
+- [enableText()](#enabletext)
+- [setText()](#settext)
+
 ### `addEventListener()`
 Adds an event handler to handle a specific type of event
 
@@ -92,7 +109,7 @@ Sets the size and color of the pen
 __Syntax__
 
 ```js
-UI.setPen(size, color)
+UI.setPen([size[, color]])
 ```
 
 __Parameters__
@@ -175,7 +192,7 @@ Sets the size and color of the text
 __Syntax__
 
 ```js
-UI.setText(size, color)
+UI.setText([size[, color]])
 ```
 
 __Parameters__
