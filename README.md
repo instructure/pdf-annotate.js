@@ -42,7 +42,7 @@ See more [examples](https://github.com/mzabriskie/pdf-annotate.js/tree/master/ex
 
 ## Documentation
 
-[View the docs]().
+[View the docs](https://github.com/mzabriskie/pdf-annotate.js/tree/master/docs).
 
 ## Developing
 
