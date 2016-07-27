@@ -12,6 +12,7 @@ __Table of Contents__
 - [LocalStoreAdapter](#localstoreadapter)
 - [UI](#ui)
 
+---
 
 ### render()
 This is the main entry point into `PDFJSAnnotate`. It is used to render annotation data to an `SVGElement`.
