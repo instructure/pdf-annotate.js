@@ -32,6 +32,8 @@ __Table of Contents__
 - [addComment()](#addcomment)
 - [deleteComment()](#deletecomment)
 
+---
+
 ### `getAnnotations()`
 Get all the annotations for a specific page within a document
 

@@ -19,6 +19,8 @@ __Table of Contents__
 - [enableText()](#enabletext)
 - [setText()](#settext)
 
+---
+
 ### `addEventListener()`
 Adds an event handler to handle a specific type of event
 
