@@ -318,13 +318,13 @@ render();
       let documentId = target.parentNode.getAttribute('data-pdf-annotate-document');
       let annotationId = target.getAttribute('data-pdf-annotate-id');
 
-      PDFJSAnnotate.StoreAdapter.getComments(documentId, annotationId).then((comments) => {
+      PDFJSAnnotate.getStoreAdapter().getComments(documentId, annotationId).then((comments) => {
         commentList.innerHTML = '';
         commentForm.style.display = '';
         commentText.focus();
 
         commentForm.onsubmit = function () {
-          PDFJSAnnotate.StoreAdapter.addComment(documentId, annotationId, commentText.value.trim())
+          PDFJSAnnotate.getStoreAdapter().addComment(documentId, annotationId, commentText.value.trim())
             .then(insertComment)
             .then(() => {
               commentText.value = '';
