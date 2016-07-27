@@ -8,9 +8,9 @@ __Table of Contents__
 - [getAnnotations()](#getannotations)
 - [setStoreAdapter()](#setstoreadapter)
 - [getStoreAdapter()](#getstoreadapter)
-- [StoreAdapter()](#storeadapter)
-- [LocalStoreAdapter()](#localstoreadapter)
-- [UI()](#ui)
+- [StoreAdapter](#storeadapter)
+- [LocalStoreAdapter](#localstoreadapter)
+- [UI](#ui)
 
 
 ### render()
