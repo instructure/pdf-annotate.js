@@ -18,6 +18,8 @@ __Table of Contents__
 - [disableText()](#disabletext)
 - [enableText()](#enabletext)
 - [setText()](#settext)
+- [createPage()](#createpage)
+- [renderPage()](#renderpage)
 
 ---
 
@@ -205,3 +207,91 @@ __Parameters__
 | `color` | The color of the text (defaults to "000000") |
 
 
+### `createPage()`
+Creates a new page to be appended to the DOM
+
+__Syntax__
+
+```js
+UI.createPage(pageNumber)
+```
+
+__Parameters__
+
+| parameter | description |
+|---|---|
+| `pageNumber` | The page number that is being created |
+
+__Returns__
+
+`HTMLElement`
+
+An element that can be appended to the DOM.
+
+__Usage__
+
+```js
+let page = UI.createPage(1);
+document.getElementById('viewer').appendChild(page);
+```
+
+### `renderPage()`
+Render a page that has already been created
+
+__Syntax__
+
+```js
+UI.renderPage(pageNumber, renderOptions)
+```
+
+__Parameters__
+
+| parameter | description |
+|---|---|
+| `pageNumber` | The page number to be rendered |
+| `renderOptions` | The options for rendering |
+
+__Returns__
+
+`Promise`
+
+A settled Promise will be either:
+
+- fulfilled: `Array [pdfPage, annotations]`
+- rejected: `Error`
+
+__Usage__
+
+```js
+const { UI } = PDFJSAnnotate;
+const RENDER_OPTIONS = {
+  documentId: 'Example.pdf',
+  pdfDocument: null,
+  scale: 1,
+  rotate: 0
+};
+
+PDFJS.getDocument(RENDER_OPTIONS.documentId).then(pdf => {
+  RENDER_OPTIONS.pdfDocument = pdf;
+
+  // Create a page in the DOM for every page in the PDF
+  let viewer = document.getElementById('viewer');
+  viewer.innerHTML = '';
+  let numPages = pdf.pdfInfo.numPages;
+  for (let i=0; i<numPages; i++) {
+    let page = UI.createPage(i+1);
+    viewer.appendChild(page);
+  }
+
+  // Automatically render the first page
+  // This assumes that page has already been created and appended
+  UI.renderPage(1, RENDER_OPTIONS).then([pdfPage, annotations] => {
+    // Useful if you need access to annotations or pdfPage.getViewport, etc.
+  });
+});
+
+// Scroll event to render pages as they come into view
+document.body.addEventListener('scroll', e => {
+  /* ... */
+});
+```
