@@ -2,7 +2,7 @@
   "name": "pdf-annotate.js",
   "version": "0.0.0",
   "description": "Annotation layer for pdf.js",
-  "main": "index.js",
+  "main": "dist/pdf-annotate.js",
   "scripts": {
     "test": "karma start --single-run",
     "start": "./scripts/web",
