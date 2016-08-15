@@ -82,7 +82,14 @@ describe('StoreAdapter', function () {
       adapter.addAnnotation(12345, 1, {type: 'foo'});
 
       setTimeout(() => {
+        let args = handleAnnotationAdd.args[0];
+
         equal(handleAnnotationAdd.called, true);
+        equal(args[0], 12345);
+        equal(args[1], 1);
+        equal(args[2].type, 'foo');
+        equal(args[2].class, 'Annotation');
+        equal(args[2].page, 1);
         done();
       });
     });
@@ -92,7 +99,12 @@ describe('StoreAdapter', function () {
       adapter.editAnnotation(12345, 67890, {type: 'bar'});
 
       setTimeout(() => {
+        let args = handleAnnotationEdit.args[0];
+
         equal(handleAnnotationEdit.called, true);
+        equal(args[0], 12345);
+        equal(args[1], 67890);
+        equal(args[2].type, 'bar');
         done();
       });
     });
@@ -102,7 +114,11 @@ describe('StoreAdapter', function () {
       adapter.deleteAnnotation(12345, 67890);
 
       setTimeout(() => {
+        let args = handleAnnotationDelete.args[0];
+
         equal(handleAnnotationDelete.called, true);
+        equal(args[0], 12345);
+        equal(args[1], 67890);
         done();
       });
     });
@@ -112,7 +128,14 @@ describe('StoreAdapter', function () {
       adapter.addComment(12345, 67890, 'hello');
 
       setTimeout(() => {
+        let args = handleCommentAdd.args[0];
+
         equal(handleCommentAdd.called, true);
+        equal(args[0], 12345);
+        equal(args[1], 67890);
+        equal(args[2].class, 'Comment');
+        equal(args[2].annotation, 67890);
+        equal(args[2].content, 'hello');
         done();
       });
     });
@@ -122,7 +145,11 @@ describe('StoreAdapter', function () {
       adapter.deleteComment(12345, 67890);
 
       setTimeout(() => {
+        let args = handleCommentDelete.args[0];
+
         equal(handleCommentDelete.called, true);
+        equal(args[0], 12345);
+        equal(args[1], 67890);
         done();
       });
     });
