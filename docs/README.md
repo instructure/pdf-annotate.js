@@ -4,7 +4,7 @@
 - API
   - [PDFJSAnnotate](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/PDFJSAnnotate.md)
     - [StoreAdapter](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md)
-    - AbstractStoreAdapter
+    - [LocalStoreAdapter](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/LocalStoreAdapter.md)
     - [UI](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/UI.md)
 - Annotations
   - [Area](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/annotations/Area.md)
