@@ -61,4 +61,6 @@ $ open http://127.0.0.1:8080
 # run tests
 $ npm test
 ```
+## License
 
+MIT
