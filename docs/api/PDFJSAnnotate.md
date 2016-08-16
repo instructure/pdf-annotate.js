@@ -43,7 +43,7 @@ A settled Promise will be either:
 ### `getAnnotations()`
 This is a helper for fetching annotations.
 
-See [StoreAdapter.getAnnotations()](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md#getannotations).
+See [StoreAdapter.getAnnotations()](https://github.com/instructure/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md#getannotations).
 
 ### `setStoreAdapter()`
 Sets the implementation of the `StoreAdapter` to be used by `PDFJSAnnotate`.
@@ -60,7 +60,7 @@ __Parameters__
 |---|---|
 | `adapter` | The StoreAdapter implementation to be used. |
 
-See [StoreAdapter](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md).
+See [StoreAdapter](https://github.com/instructure/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md).
 
 ### `getStoreAdapter()`
 Gets the implementation of `StoreAdapter` being used by `PDFJSAnnotate`.
@@ -78,7 +78,7 @@ __Returns__
 ### `StoreAdapter`
 An abstract class that describes how `PDFJSAnnotate` communicates with your backend.
 
-See [StoreAdapter](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md).
+See [StoreAdapter](https://github.com/instructure/pdf-annotate.js/blob/master/docs/api/StoreAdapter.md).
 
 ### LocalStoreAdapter
 An implementation of `StoreAdapter` that uses `localStorage` as the backend. This is useful for prototyping or testing.
@@ -92,4 +92,4 @@ PDFJSAnnotate.setStoreAdapter(new PDFJSAnnotate.LocalStoreAdapter())
 ### `UI`
 This object contains helper functions for managing UI interactions for creating, editing, and deleting annotations.
 
-See [UI](https://github.com/mzabriskie/pdf-annotate.js/blob/master/docs/api/UI.md).
+See [UI](https://github.com/instructure/pdf-annotate.js/blob/master/docs/api/UI.md).
