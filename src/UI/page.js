@@ -140,9 +140,17 @@ function scalePage(pageNumber, viewport, context) {
   return transform;
 }
 
+/**
+ * The following methods are taken from mozilla/pdf.js and as such fall under
+ * the Apache License (http://www.apache.org/licenses/).
+ *
+ * Original source can be found at mozilla/pdf.js:
+ * https://github.com/mozilla/pdf.js/blob/master/web/ui_utils.js
+ */
 
 /**
- * Approximates a float number as a fraction using Farey sequence (max order of 8).
+ * Approximates a float number as a fraction using Farey sequence (max order
+ * of 8).
  *
  * @param {Number} x Positive float number
  * @return {Array} Estimated fraction: the first array item is a numerator,
