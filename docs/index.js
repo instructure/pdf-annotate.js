@@ -62,7 +62,7 @@ render();
       localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/size`) || 10,
       localStorage.getItem(`${RENDER_OPTIONS.documentId}/text/color`) || '#000000'
     );
-  
+
     initColorPicker(document.querySelector('.text-color'), textColor, function (value) {
       setText(textSize, value);
     });
@@ -82,7 +82,7 @@ render();
       modified = true;
       textColor = color;
       localStorage.setItem(`${RENDER_OPTIONS.documentId}/text/color`, textColor);
-      
+
       let selected = document.querySelector('.toolbar .text-color.color-selected');
       if (selected) {
         selected.classList.remove('color-selected');
@@ -101,7 +101,7 @@ render();
       UI.setText(textSize, textColor);
     }
   }
-  
+
   function handleTextSizeChange(e) {
     setText(e.target.value, textColor);
   }
@@ -146,7 +146,7 @@ render();
       modified = true;
       penColor = color;
       localStorage.setItem(`${RENDER_OPTIONS.documentId}/pen/color`, penColor);
-      
+
       let selected = document.querySelector('.toolbar .pen-color.color-selected');
       if (selected) {
         selected.classList.remove('color-selected');
@@ -344,7 +344,7 @@ render();
       commentList.innerHTML = '';
       commentForm.style.display = 'none';
       commentForm.onsubmit = null;
-      
+
       insertComment({content: 'No comments'});
     }
   }

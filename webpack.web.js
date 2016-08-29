@@ -1,11 +1,11 @@
 var webpack = require('webpack');
 
 module.exports = {
-  entry: './web/index.js',
+  entry: './docs/index.js',
 
   output: {
     filename: 'index.js',
-    path: 'web/__build__',
+    path: 'docs/__build__',
     publicPath: '/__build__/'
   },
 
@@ -22,4 +22,3 @@ module.exports = {
     ]
   }
 };
-
